@@ -122,7 +122,13 @@
       "ourTours": "Наши туры",
       "newsletter": "Рассылка",
       "subscribeText": "Подпишитесь на нашу рассылку, чтобы получать последние обновления и эксклюзивные предложения",
-      "emailPlaceholder": "Ваш email адрес"
+      "emailPlaceholder": "Ваш email адрес",
+      "select": "Выберите опцию",
+      "generalInquiry": "Общий вопрос",
+      "bookingInfo": "Информация о бронировании",
+      "customTourRequest": "Запрос на индивидуальный тур",
+      "feedback": "Отзыв",
+      "other": "Другое"
     },
     "whyChooseUs": {
       "title": "Почему стоит выбрать Lisboa Tours",

@@ -122,7 +122,13 @@
       "ourTours": "Nossos Passeios",
       "newsletter": "Newsletter",
       "subscribeText": "Inscreva-se na nossa newsletter para receber as últimas atualizações e ofertas exclusivas",
-      "emailPlaceholder": "O seu endereço de email"
+      "emailPlaceholder": "O seu endereço de email",
+      "select": "Selecione uma opção",
+      "generalInquiry": "Consulta Geral",
+      "bookingInfo": "Informações de Reserva",
+      "customTourRequest": "Pedido de Tour Personalizado",
+      "feedback": "Feedback",
+      "other": "Outro"
     },
     "whyChooseUs": {
       "title": "Porquê Escolher Lisboa Tours",

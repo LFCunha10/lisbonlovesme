@@ -122,7 +122,13 @@
       "ourTours": "Our Tours",
       "newsletter": "Newsletter",
       "subscribeText": "Subscribe to our newsletter for the latest tour updates and exclusive offers",
-      "emailPlaceholder": "Your email address"
+      "emailPlaceholder": "Your email address",
+      "select": "Select an option",
+      "generalInquiry": "General Inquiry",
+      "bookingInfo": "Booking Information",
+      "customTourRequest": "Custom Tour Request",
+      "feedback": "Feedback",
+      "other": "Other"
     },
     "whyChooseUs": {
       "title": "Why Choose Lisboa Tours",

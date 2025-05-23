@@ -64,38 +64,38 @@ export default function ContactInformation() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
-            <h2 className="text-3xl font-display font-bold mb-4">Contact Us</h2>
+            <h2 className="text-3xl font-display font-bold mb-4">{t('contact.title')}</h2>
             <p className="text-neutral-dark/80 mb-6">
-              Have questions about our tours or need help with your booking? Our team is here to assist you.
+              {t('contact.subtitle')}
             </p>
             
             <div className="mb-8">
               <ContactInfo 
                 icon={<MapPin />}
-                title="Office Address"
+                title={t('contact.address')}
                 content={<span>Rua Augusta 42, 1100-053<br />Lisbon, Portugal</span>}
               />
               
               <ContactInfo 
                 icon={<Phone />}
-                title="Phone Number"
+                title={t('contact.phone')}
                 content={<span>+351 21 123 4567</span>}
               />
               
               <ContactInfo 
                 icon={<Mail />}
-                title="Email Address"
+                title={t('contact.email')}
                 content={<span>info@lisboatours.com</span>}
               />
               
               <ContactInfo 
                 icon={<Clock />}
-                title="Office Hours"
+                title={t('contact.hours')}
                 content={
                   <span>
-                    Monday to Friday: 9AM - 6PM<br />
-                    Saturday: 10AM - 2PM<br />
-                    Sunday: Closed
+                    {t('contact.weekdays')}<br />
+                    {t('contact.saturday')}<br />
+                    {t('contact.sunday')}
                   </span>
                 }
               />
@@ -110,11 +110,11 @@ export default function ContactInformation() {
           </div>
           
           <div>
-            <h2 className="text-3xl font-display font-bold mb-4">Send Us a Message</h2>
+            <h2 className="text-3xl font-display font-bold mb-4">{t('contact.sendMessage')}</h2>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-neutral-dark/80 mb-1">First Name</label>
+                  <label className="block text-neutral-dark/80 mb-1">{t('contact.formName')}</label>
                   <Input 
                     type="text" 
                     name="firstName"
@@ -124,7 +124,7 @@ export default function ContactInformation() {
                 </div>
                 
                 <div>
-                  <label className="block text-neutral-dark/80 mb-1">Last Name</label>
+                  <label className="block text-neutral-dark/80 mb-1">{t('booking.lastName')}</label>
                   <Input 
                     type="text" 
                     name="lastName"
@@ -135,7 +135,7 @@ export default function ContactInformation() {
               </div>
               
               <div>
-                <label className="block text-neutral-dark/80 mb-1">Email Address</label>
+                <label className="block text-neutral-dark/80 mb-1">{t('contact.formEmail')}</label>
                 <Input 
                   type="email" 
                   name="email"
@@ -145,23 +145,23 @@ export default function ContactInformation() {
               </div>
               
               <div>
-                <label className="block text-neutral-dark/80 mb-1">Subject</label>
+                <label className="block text-neutral-dark/80 mb-1">{t('contact.formSubject')}</label>
                 <Select value={form.subject} onValueChange={handleSelectChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a subject" />
+                    <SelectValue placeholder={t('common.select')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="General Inquiry">General Inquiry</SelectItem>
-                    <SelectItem value="Booking Information">Booking Information</SelectItem>
-                    <SelectItem value="Custom Tour Request">Custom Tour Request</SelectItem>
-                    <SelectItem value="Feedback">Feedback</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    <SelectItem value="General Inquiry">{t('common.generalInquiry')}</SelectItem>
+                    <SelectItem value="Booking Information">{t('common.bookingInfo')}</SelectItem>
+                    <SelectItem value="Custom Tour Request">{t('common.customTourRequest')}</SelectItem>
+                    <SelectItem value="Feedback">{t('common.feedback')}</SelectItem>
+                    <SelectItem value="Other">{t('common.other')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div>
-                <label className="block text-neutral-dark/80 mb-1">Message</label>
+                <label className="block text-neutral-dark/80 mb-1">{t('contact.formMessage')}</label>
                 <Textarea 
                   className="h-32" 
                   name="message"
@@ -170,7 +170,7 @@ export default function ContactInformation() {
                 />
               </div>
               
-              <Button type="submit" className="w-full md:w-auto">Send Message</Button>
+              <Button type="submit" className="w-full md:w-auto">{t('contact.formSubmit')}</Button>
             </form>
           </div>
         </div>
