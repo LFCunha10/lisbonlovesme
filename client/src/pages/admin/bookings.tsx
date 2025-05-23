@@ -38,13 +38,19 @@ export default function BookingsCalendar() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedTourId, setSelectedTourId] = useState<string>("");
+  const [selectedTourId, setSelectedTourId] = useState<string>("all");
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
 
   // Fetch bookings
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
-    queryKey: ['/api/bookings', selectedTourId],
-    select: (data) => data as any[],
+    queryKey: ['/api/bookings'],
+    select: (data) => {
+      const allBookings = data as any[];
+      if (selectedTourId && selectedTourId !== "all") {
+        return allBookings.filter(booking => booking.tourId.toString() === selectedTourId);
+      }
+      return allBookings;
+    },
   });
 
   // Fetch tours for filter
@@ -55,9 +61,14 @@ export default function BookingsCalendar() {
 
   // Fetch availabilities
   const { data: availabilities } = useQuery({
-    queryKey: ['/api/availabilities', selectedTourId],
-    select: (data) => data as any[],
-    enabled: selectedTourId !== "",
+    queryKey: ['/api/availabilities'],
+    select: (data) => {
+      const allAvailabilities = data as any[];
+      if (selectedTourId && selectedTourId !== "all") {
+        return allAvailabilities.filter(avail => avail.tourId.toString() === selectedTourId);
+      }
+      return allAvailabilities;
+    },
   });
 
   // Get days in current month
@@ -142,7 +153,7 @@ export default function BookingsCalendar() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Tours</SelectLabel>
-                  <SelectItem value="">All Tours</SelectItem>
+                  <SelectItem value="all">All Tours</SelectItem>
                   {tours?.map((tour: any) => (
                     <SelectItem key={tour.id} value={tour.id.toString()}>
                       {tour.name}
@@ -219,10 +230,9 @@ export default function BookingsCalendar() {
                       ))}
                       
                       {dayBookings.map((booking: any) => (
-                        <Dialog>
+                        <Dialog key={booking.id}>
                           <DialogTrigger asChild>
                             <div 
-                              key={booking.id} 
                               className="text-xs px-1 py-0.5 bg-primary/20 hover:bg-primary/30 rounded cursor-pointer"
                               onClick={() => setSelectedBookingId(booking.id)}
                             >
