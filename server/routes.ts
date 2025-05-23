@@ -220,24 +220,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Creating booking with data:", req.body);
       
-      // Create the booking
+      // Create the booking (simplified to avoid hanging)
       const booking = await storage.createBooking(req.body);
       console.log("Booking created successfully:", booking);
       
-      // Check if auto-close is enabled and close the day if it is
-      const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
-      if (isAutoCloseEnabled) {
-        const availability = await storage.getAvailability(booking.availabilityId);
-        if (availability) {
-          // Add this date to closed days
-          await storage.addClosedDay(
-            availability.date, 
-            `Automatically closed due to booking #${booking.id}`
-          );
-        }
-      }
-      
+      // Immediately return success without auto-close for now
       res.status(201).json(booking);
+      
+      // Auto-close logic runs asynchronously to avoid blocking
+      setTimeout(async () => {
+        try {
+          const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
+          if (isAutoCloseEnabled) {
+            const availability = await storage.getAvailability(booking.availabilityId);
+            if (availability) {
+              await storage.addClosedDay(
+                availability.date, 
+                `Automatically closed due to booking #${booking.id}`
+              );
+            }
+          }
+        } catch (autoCloseError) {
+          console.warn("Auto-close failed but booking was successful:", autoCloseError);
+        }
+      }, 0);
+      
     } catch (error: any) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: error.message || "Failed to create booking" });
