@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useTour, useAvailabilities } from "@/hooks/use-tours";
+import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -259,7 +260,7 @@ export default function Booking() {
                         {t('booking.pricePerPerson')}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
-                        €{tour.price}
+                        {formatCurrency(tour.price * 100)}
                       </span>
                     </div>
                   </div>
@@ -272,7 +273,7 @@ export default function Booking() {
                       {t('booking.total')}
                     </span>
                     <span className="text-2xl font-bold text-primary">
-                      €{calculateTotal()}
+                      {formatCurrency(calculateTotal() * 100)}
                     </span>
                   </div>
 
