@@ -260,7 +260,7 @@ export default function Booking() {
                         {t('booking.pricePerPerson')}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {formatCurrency(tour.price)}
+                        €{(tour.price / 100).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function Booking() {
                       {t('booking.total')}
                     </span>
                     <span className="text-2xl font-bold text-primary">
-                      {formatCurrency(calculateTotal())}
+                      €{(calculateTotal() / 100).toFixed(2)}
                     </span>
                   </div>
 

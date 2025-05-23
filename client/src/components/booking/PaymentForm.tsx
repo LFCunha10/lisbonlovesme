@@ -142,7 +142,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
                 <Euro className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-600 dark:text-gray-400">{t('booking.pricePerPerson')}</span>
               </div>
-              <span className="font-medium text-gray-900 dark:text-white">€{tour.price}</span>
+              <span className="font-medium text-gray-900 dark:text-white">€{(tour.price / 100).toFixed(2)}</span>
             </div>
 
             <Separator className="my-2" />
@@ -152,7 +152,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
                 {t('booking.total')}
               </span>
               <span className="text-2xl font-bold text-primary">
-                €{totalAmount}
+                €{(totalAmount / 100).toFixed(2)}
               </span>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
               size="lg"
             >
               <CreditCard className="w-5 h-5 mr-2" />
-              {isProcessing ? t('booking.processing') : `${t('booking.payNow')} €${totalAmount}`}
+              {isProcessing ? t('booking.processing') : `${t('booking.payNow')} €${(totalAmount / 100).toFixed(2)}`}
             </Button>
 
             <p className="text-xs text-gray-500 dark:text-gray-400">
