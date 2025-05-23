@@ -78,8 +78,14 @@ export default function DateSelector({
 
   const handleNext = () => {
     if (date && time && availabilityId) {
+      // Convert to local date string format (YYYY-MM-DD) consistently
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       onSelect({
-        date: date.toISOString().split("T")[0],
+        date: dateStr,
         time,
         availabilityId
       });
