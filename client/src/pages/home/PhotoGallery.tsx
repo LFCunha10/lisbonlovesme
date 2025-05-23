@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function PhotoGallery() {
+  const { t } = useTranslation();
   const images = [
     {
       src: "https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500",
@@ -44,9 +46,9 @@ export default function PhotoGallery() {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Discover Lisbon Through Our Lens</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('photoGallery.title')}</h2>
           <p className="text-lg text-neutral-dark/80 max-w-2xl mx-auto">
-            Get inspired by the beauty and charm of Lisbon with these snapshots from our tours.
+            {t('photoGallery.subtitle')}
           </p>
         </div>
         
@@ -65,7 +67,7 @@ export default function PhotoGallery() {
         
         <div className="text-center mt-8">
           <a href="#gallery" className="inline-flex items-center justify-center text-primary font-semibold hover:underline">
-            View Full Gallery <ArrowRight className="ml-2 h-4 w-4" />
+            {t('photoGallery.viewGallery')} <ArrowRight className="ml-2 h-4 w-4" />
           </a>
         </div>
       </div>
