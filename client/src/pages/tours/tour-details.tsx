@@ -1,41 +1,42 @@
 import { useParams, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useTour, useTestimonials } from "@/hooks/use-tours";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Clock, 
-  Users, 
-  MapPin, 
-  Euro, 
-  Star,
-  Calendar,
-  ChevronLeft
-} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Clock, Users, MapPin, Star, Calendar, ArrowLeft, Euro } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import type { Tour, Testimonial } from "@shared/schema";
 
-export default function TourDetails() {
-  const { t } = useTranslation();
+export default function TourDetailsPage() {
   const { id } = useParams();
-  const tourId = parseInt(id || "0");
-  
-  const { tour, isLoading: isTourLoading, error: tourError } = useTour(tourId);
-  const { testimonials, isLoading: isTestimonialsLoading } = useTestimonials(tourId);
+  const { t } = useTranslation();
+  const tourId = parseInt(id as string);
 
-  if (isTourLoading) {
+  const { data: tour, isLoading: tourLoading } = useQuery<Tour>({
+    queryKey: [`/api/tours/${tourId}`],
+    enabled: !!tourId
+  });
+
+  const { data: testimonials, isLoading: testimonialsLoading } = useQuery<Testimonial[]>({
+    queryKey: ['/api/testimonials'],
+  });
+
+  if (tourLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <Skeleton className="h-8 w-32 mb-6" />
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div>
-              <Skeleton className="h-64 w-full rounded-lg mb-6" />
-              <Skeleton className="h-8 w-3/4 mb-4" />
-              <Skeleton className="h-24 w-full mb-6" />
+          <Skeleton className="h-96 w-full mb-8 rounded-lg" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-24 w-full" />
             </div>
-            <div>
+            <div className="space-y-4">
               <Skeleton className="h-48 w-full" />
             </div>
           </div>
@@ -44,141 +45,186 @@ export default function TourDetails() {
     );
   }
 
-  if (tourError || !tour) {
+  if (!tour) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {t('tour.notFound')}
-            </h1>
-            <Link href="/">
-              <Button variant="outline">
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                {t('tour.backToHome')}
-              </Button>
-            </Link>
-          </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {t('common.tourNotFound')}
+          </h1>
+          <Link href="/">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('common.backToHome')}
+            </Button>
+          </Link>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              {t('tour.backToTours')}
-            </Button>
-          </Link>
-        </div>
+  const tourTestimonials = testimonials?.filter(t => t.tourId === tourId) || [];
+  const averageRating = tourTestimonials.length > 0 
+    ? tourTestimonials.reduce((sum, t) => sum + t.rating, 0) / tourTestimonials.length 
+    : 0;
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Column - Tour Information */}
-          <div>
-            {/* Hero Image */}
-            <div className="relative mb-6">
-              <img
-                src={tour.imageUrl}
-                alt={tour.name}
-                className="w-full h-64 object-cover rounded-lg shadow-lg"
-              />
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Navigation */}
+      <div className="container mx-auto px-4 py-6">
+        <Link href="/">
+          <Button variant="ghost" className="mb-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('common.backToHome')}
+          </Button>
+        </Link>
+      </div>
+
+      {/* Hero Image */}
+      <div className="relative h-96 mb-8">
+        <img
+          src={tour.imageUrl}
+          alt={tour.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="container mx-auto">
+            <div className="flex items-center space-x-4 mb-4">
+              <h1 className="text-4xl font-bold text-white">
+                {tour.name}
+              </h1>
               {tour.badge && (
-                <Badge 
-                  className={`absolute top-4 left-4 ${
-                    tour.badgeColor === 'green' ? 'bg-green-500' :
-                    tour.badgeColor === 'blue' ? 'bg-blue-500' :
-                    tour.badgeColor === 'purple' ? 'bg-purple-500' :
-                    'bg-red-500'
-                  } text-white`}
-                >
+                <Badge className="bg-primary text-primary-foreground">
                   {tour.badge}
                 </Badge>
               )}
             </div>
+            {tourTestimonials.length > 0 && (
+              <div className="flex items-center space-x-2 text-white">
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-5 h-5 ${
+                        i < Math.round(averageRating)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-lg font-medium">
+                  {averageRating.toFixed(1)}
+                </span>
+                <span className="text-gray-200">
+                  ({tourTestimonials.length} {tourTestimonials.length === 1 ? t('tours.review') : t('tours.reviews')})
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-            {/* Tour Title and Description */}
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                {tour.name}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                {tour.description}
-              </p>
-            </div>
+      <div className="container mx-auto px-4 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Description */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  {t('tours.aboutTour')}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {tour.description}
+                </p>
+              </CardContent>
+            </Card>
 
             {/* Tour Details */}
-            <Card className="mb-6">
+            <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                  {t('tour.details')}
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+                  {t('tours.tourDetails')}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-center space-x-3">
-                    <Clock className="w-5 h-5 text-primary" />
+                    <Clock className="w-6 h-6 text-primary" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('tour.duration')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{tour.duration}</p>
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {t('tours.duration')}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">{tour.duration}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Users className="w-5 h-5 text-primary" />
+                    <Users className="w-6 h-6 text-primary" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('tour.maxGroupSize')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{tour.maxGroupSize} {t('tour.people')}</p>
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {t('tours.groupSize')}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {t('tours.maxPeople', { count: tour.maxGroupSize })}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-primary" />
+                    <MapPin className="w-6 h-6 text-primary" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('tour.difficulty')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{tour.difficulty}</p>
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {t('tours.difficulty')}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">{tour.difficulty}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Euro className="w-5 h-5 text-primary" />
+                    <Euro className="w-6 h-6 text-primary" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('tour.price')}</p>
-                      <p className="font-medium text-gray-900 dark:text-white">€{tour.price}</p>
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {t('tours.price')}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {formatCurrency(tour.price)} {t('tours.perPerson')}
+                      </p>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Reviews Section */}
-            {testimonials && testimonials.length > 0 && (
+            {/* Reviews */}
+            {tourTestimonials.length > 0 && (
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                    {t('tour.reviews')}
-                  </h3>
-                  <div className="space-y-4">
-                    {testimonials.slice(0, 3).map((testimonial) => (
-                      <div key={testimonial.id} className="border-l-4 border-primary pl-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className="flex">
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+                    {t('tours.reviews')} ({tourTestimonials.length})
+                  </h2>
+                  <div className="space-y-6">
+                    {tourTestimonials.slice(0, 3).map((testimonial) => (
+                      <div key={testimonial.id} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-gray-900 dark:text-white">
+                            {testimonial.customerName}
+                          </h4>
+                          <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
                                 className={`w-4 h-4 ${
                                   i < testimonial.rating
-                                    ? 'text-yellow-400 fill-current'
+                                    ? 'fill-yellow-400 text-yellow-400'
                                     : 'text-gray-300'
                                 }`}
                               />
                             ))}
                           </div>
-                          <span className="font-medium text-sm text-gray-900 dark:text-white">
-                            {testimonial.customerName} ({testimonial.customerCountry})
-                          </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                          "{testimonial.text}"
+                        <p className="text-gray-600 dark:text-gray-300 mb-2">
+                          {testimonial.text}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {testimonial.customerCountry}
                         </p>
                       </div>
                     ))}
@@ -188,45 +234,57 @@ export default function TourDetails() {
             )}
           </div>
 
-          {/* Right Column - Booking Card */}
-          <div>
-            <Card className="sticky top-8">
+          {/* Booking Sidebar */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-6">
               <CardContent className="p-6">
                 <div className="text-center mb-6">
-                  <div className="text-3xl font-bold text-primary mb-2">
-                    €{tour.price}
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {formatCurrency(tour.price)}
                   </div>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {t('tour.perPerson')}
+                    {t('tours.perPerson')}
                   </p>
                 </div>
 
-                <Separator className="mb-6" />
+                <Separator className="my-6" />
 
                 <div className="space-y-4 mb-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('tour.duration')}</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{tour.duration}</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.duration')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {tour.duration}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('tour.maxGroupSize')}</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{tour.maxGroupSize} {t('tour.people')}</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.groupSize')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {t('tours.maxPeople', { count: tour.maxGroupSize })}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('tour.difficulty')}</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{tour.difficulty}</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.difficulty')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {tour.difficulty}
+                    </span>
                   </div>
                 </div>
 
                 <Link href={`/book/${tour.id}`}>
                   <Button className="w-full text-lg py-6" size="lg">
                     <Calendar className="w-5 h-5 mr-2" />
-                    {t('tour.bookNow')}
+                    {t('tours.bookNow')}
                   </Button>
                 </Link>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                  {t('tour.freeBooking')}
+                  {t('tours.freeBooking')}
                 </p>
               </CardContent>
             </Card>

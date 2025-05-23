@@ -111,6 +111,8 @@
       "notFound": "Page Not Found",
       "backToHome": "Back to Homepage",
       "language": "Language",
+      "tourNotFound": "Tour not found",
+      "backToHome": "Back to Home",
       "cancel": "Cancel",
       "save": "Save",
       "update": "Update",
@@ -144,7 +146,11 @@
       "reviews": "Reviews",
       "bookNow": "Book Now",
       "viewDetails": "View Details",
-      "freeBooking": "Free cancellation up to 24 hours before the tour"
+      "freeBooking": "Free cancellation up to 24 hours before the tour",
+      "aboutTour": "About This Tour",
+      "tourDetails": "Tour Details",
+      "review": "review",
+      "maxPeople": "Up to {{count}} people"
     },
     "booking": {
       "title": "Book Your Tour",
