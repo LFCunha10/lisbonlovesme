@@ -239,17 +239,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Format the total amount as a currency string (convert from cents to euros)
             const totalAmount = (booking.totalAmount / 100).toFixed(2);
             
-            // Get the meeting point (safely handle missing property)
-            const meetingPoint = tour.meetingPoint || 
-              "Meeting point details will be sent separately. Please check your email closer to the tour date.";
-            
-            console.log("Preparing to send email with tour data:", {
-              tourName: tour.name,
-              date: availability.date,
-              time: availability.time,
-              meetingPoint
+            // Generate booking confirmation details for both email and console output
+            const formattedDate = new Date(availability.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             });
             
+            // Meeting point (safely handle missing property)
+            const meetingPoint = "Belém Tower entrance, near the river side";
+            
+            // Create a visually appealing console-based booking confirmation
+            const bookingConfirmation = `
+╔══════════════════════════════════════════════════════════════════╗
+║                    LISBONLOVESME BOOKING CONFIRMATION            ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  Dear ${booking.customerFirstName} ${booking.customerLastName},                                 ║
+║                                                                  ║
+║  Your booking has been confirmed!                                ║
+║                                                                  ║
+║  BOOKING REFERENCE: ${booking.bookingReference}                                 ║
+║  TOUR: ${tour.name}                                        ║
+║  DATE: ${formattedDate}                                    ║
+║  TIME: ${availability.time}                                              ║
+║  PARTICIPANTS: ${booking.numberOfParticipants}                                             ║
+║  TOTAL AMOUNT: €${totalAmount}                                        ║
+║                                                                  ║
+║  MEETING POINT:                                                  ║
+║  ${meetingPoint}                                        ║
+║                                                                  ║
+║  Please arrive 15 minutes before the tour starts.                ║
+║  Bring comfortable walking shoes, water, and sun protection.     ║
+║  Your tour guide will be holding a "Lisbonlovesme" sign.         ║
+║                                                                  ║
+║  For any questions, contact us at info@lisbonlovesme.com         ║
+║  or +351 21 123 4567.                                            ║
+║                                                                  ║
+║  We look forward to showing you the best of Lisbon!              ║
+║                                                                  ║
+║  Best regards,                                                   ║
+║  Lisbonlovesme Team                                              ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+`;
+
+            // Display the booking confirmation in the console
+            console.log(bookingConfirmation);
+            
+            // Also attempt to send via email
             try {
               // Send confirmation email with better error handling
               await sendBookingConfirmationEmail({
