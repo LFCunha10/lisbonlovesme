@@ -161,9 +161,13 @@ export default function Booking() {
                 <CardContent className="p-6">
                   {currentStep === 1 && (
                     <DateSelector
-                      availabilities={availabilities}
+                      availabilities={availabilities || []}
+                      isLoading={!availabilities && isTourLoading}
                       onSelect={handleDateTimeSelect}
-                      onNext={() => {}}
+                      onCancel={() => setLocation(`/tour/${tourId}`)}
+                      selectedDate={bookingData.date}
+                      selectedTime={bookingData.time}
+                      selectedAvailabilityId={bookingData.availabilityId}
                     />
                   )}
                   

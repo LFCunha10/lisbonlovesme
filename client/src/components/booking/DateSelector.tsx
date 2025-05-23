@@ -1,31 +1,34 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useAvailabilities } from "@/hooks/use-tours";
 import { useCalendar } from "@/hooks/use-calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isPastDate, formatTime } from "@/lib/utils";
+import { Availability } from "@shared/schema";
 
 interface DateSelectorProps {
-  tourId: number;
-  onNext: () => void;
-  onCancel: () => void;
+  availabilities?: Availability[];
+  isLoading?: boolean;
+  error?: Error | null;
+  onNext?: () => void;
+  onCancel?: () => void;
   onSelect: (data: { date: string; time: string; availabilityId: number }) => void;
-  selectedDate: string;
-  selectedTime: string;
-  selectedAvailabilityId: number;
+  selectedDate?: string;
+  selectedTime?: string;
+  selectedAvailabilityId?: number;
 }
 
 export default function DateSelector({
-  tourId,
-  onNext,
-  onCancel,
+  availabilities = [],
+  isLoading = false,
+  error = null,
+  onNext = () => {},
+  onCancel = () => {},
   onSelect,
-  selectedDate,
-  selectedTime,
-  selectedAvailabilityId
+  selectedDate = "",
+  selectedTime = "",
+  selectedAvailabilityId = 0
 }: DateSelectorProps) {
-  const { availabilities, isLoading, error } = useAvailabilities(tourId);
   const [date, setDate] = useState<Date | undefined>(
     selectedDate ? new Date(selectedDate) : undefined
   );
@@ -36,45 +39,52 @@ export default function DateSelector({
   const { disabledDays } = useCalendar(availabilities);
 
   useEffect(() => {
-    if (date && availabilities) {
-      // Convert to local date string format (YYYY-MM-DD) consistently
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      const slots = availabilities
-        .filter(a => a.date === dateStr && a.spotsLeft > 0)
-        .reduce((acc, a) => {
-          // Remove duplicates by time
-          if (!acc.some(slot => slot.time === a.time)) {
-            acc.push({
-              time: a.time,
-              availabilityId: a.id,
-              spotsLeft: a.spotsLeft
-            });
-          }
-          return acc;
-        }, [] as Array<{time: string; availabilityId: number; spotsLeft: number}>)
-        .sort((a, b) => a.time.localeCompare(b.time));
-      
-      setAvailableTimeSlots(slots);
-      
-      // If there are no slots available or the previously selected time is no longer available,
-      // reset the time selection
-      if (slots.length === 0) {
-        setTime("");
-        setAvailabilityId(0);
-      } else if (time && !slots.some(slot => slot.time === time)) {
+    if (!date || !availabilities || availabilities.length === 0) {
+      setAvailableTimeSlots([]);
+      return;
+    }
+
+    // Convert to local date string format (YYYY-MM-DD) consistently
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    const slots = availabilities
+      .filter(a => a.date === dateStr && a.spotsLeft > 0)
+      .reduce((acc, a) => {
+        // Remove duplicates by time
+        if (!acc.some(slot => slot.time === a.time)) {
+          acc.push({
+            time: a.time,
+            availabilityId: a.id,
+            spotsLeft: a.spotsLeft
+          });
+        }
+        return acc;
+      }, [] as Array<{time: string; availabilityId: number; spotsLeft: number}>)
+      .sort((a, b) => a.time.localeCompare(b.time));
+    
+    setAvailableTimeSlots(slots);
+  }, [date, availabilities]);
+  
+  // Separate effect to handle time selection updates
+  useEffect(() => {
+    if (availableTimeSlots.length === 0) {
+      if (time !== "" || availabilityId !== 0) {
         setTime("");
         setAvailabilityId(0);
       }
-    } else {
-      setAvailableTimeSlots([]);
+      return;
+    }
+    
+    // Check if the current time selection is still valid
+    const timeIsAvailable = availableTimeSlots.some(slot => slot.time === time);
+    if (time && !timeIsAvailable) {
       setTime("");
       setAvailabilityId(0);
     }
-  }, [date, availabilities]);
+  }, [availableTimeSlots, time, availabilityId]);
 
   const handleDateSelect = (newDate: Date | undefined) => {
     setDate(newDate);
