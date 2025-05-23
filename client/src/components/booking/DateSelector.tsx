@@ -109,7 +109,22 @@ export default function DateSelector({
               selected={date}
               onSelect={handleDateSelect}
               className="border rounded-md p-4 mb-6"
-              disabled={(date) => isPastDate(date) || disabledDays.includes(date.getDay())}
+              disabled={(date) => {
+                // Disable past dates and days of the week that don't have availabilities
+                const isPast = isPastDate(date);
+                const isDayOfWeekDisabled = disabledDays.includes(date.getDay());
+                
+                // Convert to ISO date string format (YYYY-MM-DD) to check against availabilities
+                const dateStr = date.toISOString().split("T")[0];
+                
+                // Check if there are any availabilities for this date with spots left
+                const hasAvailability = availabilities?.some(a => 
+                  a.date === dateStr && a.spotsLeft > 0
+                );
+                
+                // Disable if past date, day of week with no availabilities, or no specific availabilities for this date
+                return isPast || isDayOfWeekDisabled || !hasAvailability;
+              }}
             />
             
             <div className="flex items-center text-sm mb-6">
