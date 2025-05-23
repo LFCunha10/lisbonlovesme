@@ -15,14 +15,17 @@ export default function TourDetailsPage() {
   const { t } = useTranslation();
   const tourId = parseInt(id as string);
 
-  console.log('Tour ID from params:', id, 'Parsed:', tourId);
-
-  const { data: tour, isLoading: tourLoading, error } = useQuery<Tour>({
+  const { data: tour, isLoading: tourLoading } = useQuery<Tour>({
     queryKey: [`/api/tours/${tourId}`],
-    enabled: !!tourId && !isNaN(tourId)
+    enabled: !!tourId && !isNaN(tourId),
+    queryFn: async () => {
+      const response = await fetch(`/api/tours/${tourId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch tour');
+      }
+      return response.json();
+    }
   });
-
-  console.log('Tour data:', tour, 'Loading:', tourLoading, 'Error:', error);
 
   const { data: testimonials, isLoading: testimonialsLoading } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials'],

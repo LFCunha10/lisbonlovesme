@@ -79,6 +79,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/tours/:id", async (req: Request, res: Response) => {
+    try {
+      const tourId = parseInt(req.params.id);
+      if (isNaN(tourId)) {
+        return res.status(400).json({ message: "Invalid tour ID" });
+      }
+      
+      const tour = await storage.getTour(tourId);
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+      
+      res.json(tour);
+    } catch (error) {
+      console.error("Error fetching tour:", error);
+      res.status(500).json({ message: "Failed to fetch tour" });
+    }
+  });
+
   // Testimonials API endpoints
   app.get("/api/testimonials", async (req: Request, res: Response) => {
     try {
