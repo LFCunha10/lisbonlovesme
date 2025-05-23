@@ -54,11 +54,11 @@ export default function AdminIndexPage() {
               linkText="Manage Testimonials"
             />
             <DashboardCard 
-              title="Admin Login" 
-              description="Access the secure admin area"
+              title="Change Password" 
+              description="Update your administrator credentials"
               icon={<LockIcon className="w-8 h-8" />}
-              linkTo="/admin/login"
-              linkText="Login Now"
+              linkTo="/admin/password"
+              linkText="Update Password"
             />
           </div>
         </main>

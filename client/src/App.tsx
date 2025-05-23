@@ -84,6 +84,18 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/admin/password">
+        {() => {
+          const PasswordChangePage = React.lazy(() => import("@/pages/admin/password"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AdminProtectedRoute>
+                <PasswordChangePage />
+              </AdminProtectedRoute>
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
