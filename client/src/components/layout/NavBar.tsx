@@ -12,6 +12,9 @@ export default function NavBar() {
   const [location] = useLocation();
   const { openBookingModal } = useBookingModal();
   const { t } = useTranslation();
+  
+  // Check if we're on an admin page
+  const isAdminPage = location.startsWith('/admin');
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -28,31 +31,35 @@ export default function NavBar() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center space-x-6">
-            <NavLink href="/#tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
-            <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
-            <NavLink href="/#testimonials" isActive={location === "/"}>{t('testimonials.title')}</NavLink>
-            <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
-            <LanguageSwitcher />
-            <Button onClick={() => openBookingModal()}>{t('nav.booking')}</Button>
-          </div>
+          {!isAdminPage && (
+            <div className="hidden md:flex items-center space-x-6">
+              <NavLink href="/#tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
+              <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
+              <NavLink href="/#testimonials" isActive={location === "/"}>{t('testimonials.title')}</NavLink>
+              <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
+              <LanguageSwitcher />
+              <Button onClick={() => openBookingModal()}>{t('nav.booking')}</Button>
+            </div>
+          )}
 
-          <div className="md:hidden">
-            <button 
-              onClick={toggleMenu} 
-              className="text-neutral-dark"
-              aria-label={isOpen ? "Close menu" : "Open menu"}
-            >
-              {isOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
+          {!isAdminPage && (
+            <div className="md:hidden">
+              <button 
+                onClick={toggleMenu} 
+                className="text-neutral-dark"
+                aria-label={isOpen ? "Close menu" : "Open menu"}
+              >
+                {isOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
-        {isOpen && (
+        {isOpen && !isAdminPage && (
           <div className="md:hidden mt-4 pb-4">
             <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
             <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('nav.about')}</MobileNavLink>
