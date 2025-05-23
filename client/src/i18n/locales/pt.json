@@ -142,16 +142,16 @@
       "valueForMoney": "Boa Relação Custo-Benefício",
       "valueForMoneyDesc": "Preços competitivos sem custos ocultos e descontos especiais para grupos."
     },
-    "testimonials": {
-      "title": "Testemunhos",
+    "customerReviews": {
+      "title": "Avaliações",
       "guestsTitle": "O Que Dizem Nossos Hóspedes",
       "subtitle": "Leia o que os viajantes de todo o mundo têm a dizer sobre as suas experiências com Lisboa Tours.",
-      "leaveTestimonial": "Deixe um Testemunho",
+      "leaveReview": "Deixe uma Avaliação",
       "yourName": "Seu Nome",
       "yourCountry": "Seu País",
       "yourExperience": "Sua Experiência",
       "rating": "Avaliação",
-      "submit": "Enviar Testemunho",
+      "submit": "Enviar Avaliação",
       "thankYou": "Obrigado pelo seu feedback!"
     },
     "photoGallery": {

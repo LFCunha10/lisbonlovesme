@@ -23,7 +23,7 @@
       "subtitle": "Откройте для себя Лиссабон с нашими экскурсиями",
       "explore": "Исследовать туры",
       "featuredTours": "Популярные туры",
-      "testimonials": "Отзывы наших клиентов",
+      "reviews": "Отзывы наших клиентов",
       "viewAll": "Просмотреть все туры"
     },
     "tours": {
@@ -71,9 +71,9 @@
       "bookingConfirmationEmail": "Мы отправили подтверждение на ваш адрес электронной почты.",
       "returnHome": "Вернуться на главную"
     },
-    "testimonials": {
+    "reviews": {
       "title": "Отзывы",
-      "leaveTestimonial": "Оставить отзыв",
+      "leaveReview": "Оставить отзыв",
       "yourName": "Ваше имя",
       "yourCountry": "Ваша страна",
       "yourExperience": "Ваш опыт",
@@ -85,7 +85,7 @@
       "dashboard": "Панель администратора",
       "tours": "Управление турами",
       "bookings": "Бронирования",
-      "testimonials": "Отзывы",
+      "reviews": "Отзывы",
       "logout": "Выйти",
       "login": "Вход для администратора",
       "username": "Имя пользователя",
@@ -142,11 +142,11 @@
       "valueForMoney": "Выгодная цена",
       "valueForMoneyDesc": "Конкурентные цены без скрытых платежей и специальные скидки для групп."
     },
-    "testimonials": {
+    "customerReviews": {
       "title": "Отзывы",
       "guestsTitle": "Что говорят наши гости",
       "subtitle": "Прочитайте, что путешественники со всего мира говорят о своих впечатлениях от Lisboa Tours.",
-      "leaveTestimonial": "Оставить отзыв",
+      "leaveReview": "Оставить отзыв",
       "yourName": "Ваше имя",
       "yourCountry": "Ваша страна",
       "yourExperience": "Ваш опыт",

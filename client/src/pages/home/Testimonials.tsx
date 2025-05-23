@@ -4,7 +4,7 @@ import { useTestimonials } from "@/hooks/use-tours";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 
-export default function Testimonials() {
+export default function Reviews() {
   const { testimonials, isLoading, error } = useTestimonials();
   const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -42,16 +42,16 @@ export default function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="py-16 bg-neutral-light">
+    <section id="reviews" className="py-16 bg-neutral-light">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('testimonials.guestsTitle')}</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('customerReviews.guestsTitle')}</h2>
           <p className="text-lg text-neutral-dark/80 max-w-2xl mx-auto">
-            {t('testimonials.subtitle')}
+            {t('customerReviews.subtitle')}
           </p>
         </div>
         
-        <div className="testimonial-slider relative">
+        <div className="reviews-slider relative">
           <div className="overflow-hidden">
             <div 
               ref={containerRef}
@@ -122,7 +122,7 @@ export default function Testimonials() {
             className="absolute top-1/2 -right-4 md:right-2 transform -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-neutral-dark hover:text-primary transition-all"
             onClick={() => goToSlide(currentSlide + 1)}
             disabled={currentSlide >= testimonials.length - slidesToShow}
-            aria-label="Next testimonial"
+            aria-label="Next review"
           >
             <ChevronRight className="text-xl" />
           </button>
@@ -139,7 +139,7 @@ export default function Testimonials() {
                     : "bg-neutral-dark/30"
                 }`}
                 onClick={() => goToSlide(index * slidesToShow)}
-                aria-label={`Go to testimonial group ${index + 1}`}
+                aria-label={`Go to review group ${index + 1}`}
               />
             ))}
         </div>
