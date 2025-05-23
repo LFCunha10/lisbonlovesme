@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // Generate ICS file
     const icsContent = generateICSFile({
-      summary: `Lisboa Tours: ${tour.name}`,
+      summary: `Lisbonlovesme: ${tour.name}`,
       description: tour.description,
       location: booking.meetingPoint || "Lisboa, Portugal",
       start: `${availability.date}T${availability.time}:00`,

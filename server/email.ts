@@ -40,7 +40,7 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
   const emailContent = `
     Hello ${name},
 
-    Thank you for booking with Lisboa Tours!
+    Thank you for booking with Lisbonlovesme!
 
     Your booking has been confirmed:
 
@@ -57,20 +57,20 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     Important Information:
     - Please arrive 15 minutes before the tour starts
     - Bring comfortable walking shoes, water, and sun protection
-    - Your tour guide will be holding a "Lisboa Tours" sign
+    - Your tour guide will be holding a "Lisbonlovesme" sign
 
-    If you have any questions, please contact us at info@lisboatours.com or +351 21 123 4567.
+    If you have any questions, please contact us at info@lisbonlovesme.com or +351 21 123 4567.
 
     We look forward to showing you the best of Lisbon!
 
     Best regards,
-    Lisboa Tours Team
+    Lisbonlovesme Team
   `;
 
   // Log the email for development purposes
   console.log('=== BOOKING CONFIRMATION EMAIL ===');
   console.log(`To: ${to}`);
-  console.log(`Subject: Lisboa Tours - Booking Confirmation #${bookingReference}`);
+  console.log(`Subject: Lisbonlovesme - Booking Confirmation #${bookingReference}`);
   console.log(emailContent);
   console.log('=== END OF EMAIL ===');
 
@@ -90,9 +90,9 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
       });
 
       await transporter.sendMail({
-        from: `"Lisboa Tours" <${process.env.EMAIL_FROM || 'info@lisboatours.com'}>`,
+        from: `"Lisbonlovesme" <${process.env.EMAIL_FROM || 'info@lisbonlovesme.com'}>`,
         to,
-        subject: `Lisboa Tours - Booking Confirmation #${bookingReference}`,
+        subject: `Lisbonlovesme - Booking Confirmation #${bookingReference}`,
         text: emailContent,
         html: emailContent.replace(/\n/g, '<br>'),
         attachments: [

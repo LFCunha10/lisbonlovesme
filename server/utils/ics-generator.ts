@@ -26,7 +26,7 @@ export function generateICSFile(event: ICSEvent): string {
   // Generate the ICS content
   return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Lisboa Tours//Tour Booking//EN
+PRODID:-//Lisbonlovesme//Tour Booking//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
