@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
-import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -38,11 +38,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <>
-      <Helmet>
-        <title>Admin Login - Lisbonlovesme</title>
-      </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <AdminLayout title="Login">
+      <div className="flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
@@ -90,6 +87,6 @@ export default function AdminLoginPage() {
           </CardFooter>
         </Card>
       </div>
-    </>
+    </AdminLayout>
   );
 }

@@ -1,69 +1,64 @@
 import React from "react";
 import { Link } from "wouter";
-import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CalendarIcon, PencilIcon, BookOpenIcon, MessageSquareIcon, LockIcon } from "lucide-react";
+import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminIndexPage() {
   return (
-    <>
-      <Helmet>
-        <title>Admin Dashboard - Lisbonlovesme</title>
-      </Helmet>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-gray-900">Lisbonlovesme Admin</h1>
-            <div>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/">
-                  Return to Website
-                </Link>
-              </Button>
-            </div>
+    <AdminLayout title="Dashboard">
+      <header className="bg-white shadow-sm mb-6 rounded-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-semibold text-gray-900">Lisbonlovesme Admin</h1>
+          <div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                Return to Website
+              </Link>
+            </Button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2">Welcome to the Admin Dashboard</h2>
-            <p className="text-gray-500">Manage your tours, bookings, and testimonials</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <DashboardCard 
-              title="Manage Tours" 
-              description="Create, edit and delete tours"
-              icon={<PencilIcon className="w-8 h-8" />}
-              linkTo="/admin/tours"
-              linkText="Manage Tours"
-            />
-            <DashboardCard 
-              title="Booking Calendar" 
-              description="View and manage all bookings"
-              icon={<CalendarIcon className="w-8 h-8" />}
-              linkTo="/admin/bookings"
-              linkText="View Calendar"
-            />
-            <DashboardCard 
-              title="Testimonials" 
-              description="Approve and manage testimonials"
-              icon={<MessageSquareIcon className="w-8 h-8" />}
-              linkTo="/admin/testimonials"
-              linkText="Manage Testimonials"
-            />
-            <DashboardCard 
-              title="Change Password" 
-              description="Update your administrator credentials"
-              icon={<LockIcon className="w-8 h-8" />}
-              linkTo="/admin/password"
-              linkText="Update Password"
-            />
-          </div>
-        </main>
-      </div>
-    </>
+      <main>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-2">Welcome to the Admin Dashboard</h2>
+          <p className="text-gray-500">Manage your tours, bookings, and testimonials</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <DashboardCard 
+            title="Manage Tours" 
+            description="Create, edit and delete tours"
+            icon={<PencilIcon className="w-8 h-8" />}
+            linkTo="/admin/tours"
+            linkText="Manage Tours"
+          />
+          <DashboardCard 
+            title="Booking Calendar" 
+            description="View and manage all bookings"
+            icon={<CalendarIcon className="w-8 h-8" />}
+            linkTo="/admin/bookings"
+            linkText="View Calendar"
+          />
+          <DashboardCard 
+            title="Testimonials" 
+            description="Approve and manage testimonials"
+            icon={<MessageSquareIcon className="w-8 h-8" />}
+            linkTo="/admin/testimonials"
+            linkText="Manage Testimonials"
+          />
+          <DashboardCard 
+            title="Change Password" 
+            description="Update your administrator credentials"
+            icon={<LockIcon className="w-8 h-8" />}
+            linkTo="/admin/password"
+            linkText="Update Password"
+          />
+        </div>
+      </main>
+    </AdminLayout>
   );
 }
 
