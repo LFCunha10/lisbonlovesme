@@ -26,7 +26,7 @@ interface BookingConfirmationProps {
   totalAmount: number;
 }
 
-export function BookingConfirmation({ tour, bookingData, bookingReference, totalAmount }: BookingConfirmationProps) {
+export default function BookingConfirmation({ tour, bookingData, bookingReference, totalAmount }: BookingConfirmationProps) {
   const { t } = useTranslation();
 
   return (

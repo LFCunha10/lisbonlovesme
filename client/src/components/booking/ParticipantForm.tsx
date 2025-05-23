@@ -37,7 +37,7 @@ const participantSchema = z.object({
 
 type ParticipantFormData = z.infer<typeof participantSchema>;
 
-export function ParticipantForm({ tour, onSelect, onBack, maxParticipants }: ParticipantFormProps) {
+export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants }: ParticipantFormProps) {
   const { t } = useTranslation();
   const [participants, setParticipants] = useState(1);
 

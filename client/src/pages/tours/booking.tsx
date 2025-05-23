@@ -9,9 +9,9 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, Calendar, Users, Euro, CreditCard, Check } from "lucide-react";
 import DateSelector from "@/components/booking/DateSelector";
-import { ParticipantForm } from "@/components/booking/ParticipantForm";
-import { PaymentForm } from "@/components/booking/PaymentForm";
-import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
+import ParticipantForm from "@/components/booking/ParticipantForm";
+import PaymentForm from "@/components/booking/PaymentForm";
+import BookingConfirmation from "@/components/booking/BookingConfirmation";
 import { Link } from "wouter";
 
 interface BookingData {

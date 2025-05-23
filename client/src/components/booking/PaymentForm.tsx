@@ -30,7 +30,7 @@ interface PaymentFormProps {
   onBack: () => void;
 }
 
-export function PaymentForm({ tour, bookingData, totalAmount, onPaymentComplete, onBack }: PaymentFormProps) {
+export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentComplete, onBack }: PaymentFormProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
