@@ -12,6 +12,7 @@ interface TourCardProps {
 
 export default function TourCard({ tour }: TourCardProps) {
   const { openBookingModal } = useBookingModal();
+  const { t } = useTranslation();
 
   const getBadgeColorClass = (color?: string) => {
     if (!color) return "bg-primary/10 text-primary";
@@ -55,26 +56,26 @@ export default function TourCard({ tour }: TourCardProps) {
         
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Clock className="mr-1 h-4 w-4" /> {tour.duration}
+            <Clock className="mr-1 h-4 w-4" /> {tour.duration} {t('tours.hours')}
           </span>
           <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Users className="mr-1 h-4 w-4" /> Max {tour.maxGroupSize}
+            <Users className="mr-1 h-4 w-4" /> {t('tours.groupSize')}: {tour.maxGroupSize} {t('tours.people')}
           </span>
           <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Activity className="mr-1 h-4 w-4" /> {tour.difficulty}
+            <Activity className="mr-1 h-4 w-4" /> {t(`tours.${tour.difficulty.toLowerCase()}`)}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
           <div className="text-xl font-semibold text-neutral-dark">
             {formatCurrency(tour.price)}
-            <span className="text-sm font-normal text-neutral-dark/70">/person</span>
+            <span className="text-sm font-normal text-neutral-dark/70">/{t('tours.perPerson')}</span>
           </div>
           <Button 
             onClick={() => openBookingModal(tour.id)} 
             size="sm"
           >
-            Book Now
+            {t('tours.bookNow')}
           </Button>
         </div>
       </div>

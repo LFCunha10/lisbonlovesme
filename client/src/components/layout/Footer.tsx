@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MapPin, Send, Facebook, Instagram, Twitter } from "lucide-react";
 import { FaTripadvisor } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-neutral-dark text-white pt-12 pb-6">
       <div className="container mx-auto px-4">

@@ -2,9 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useTestimonials } from "@/hooks/use-tours";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export default function Testimonials() {
   const { testimonials, isLoading, error } = useTestimonials();
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [slidesToShow, setSlidesToShow] = useState(3);
