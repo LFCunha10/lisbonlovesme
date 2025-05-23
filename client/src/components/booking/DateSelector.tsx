@@ -1,0 +1,168 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { useAvailabilities } from "@/hooks/use-tours";
+import { useCalendar } from "@/hooks/use-calendar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { isPastDate, formatTime } from "@/lib/utils";
+
+interface DateSelectorProps {
+  tourId: number;
+  onNext: () => void;
+  onCancel: () => void;
+  onSelect: (data: { date: string; time: string; availabilityId: number }) => void;
+  selectedDate: string;
+  selectedTime: string;
+  selectedAvailabilityId: number;
+}
+
+export default function DateSelector({
+  tourId,
+  onNext,
+  onCancel,
+  onSelect,
+  selectedDate,
+  selectedTime,
+  selectedAvailabilityId
+}: DateSelectorProps) {
+  const { availabilities, isLoading, error } = useAvailabilities(tourId);
+  const [date, setDate] = useState<Date | undefined>(
+    selectedDate ? new Date(selectedDate) : undefined
+  );
+  const [time, setTime] = useState<string>(selectedTime);
+  const [availabilityId, setAvailabilityId] = useState<number>(selectedAvailabilityId);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<{ time: string; availabilityId: number; spotsLeft: number }[]>([]);
+  
+  const { disabledDays } = useCalendar(availabilities);
+
+  useEffect(() => {
+    if (date && availabilities) {
+      const dateStr = date.toISOString().split("T")[0];
+      const slots = availabilities
+        .filter(a => a.date === dateStr && a.spotsLeft > 0)
+        .map(a => ({
+          time: a.time,
+          availabilityId: a.id,
+          spotsLeft: a.spotsLeft
+        }))
+        .sort((a, b) => a.time.localeCompare(b.time));
+      
+      setAvailableTimeSlots(slots);
+      
+      // If there are no slots available or the previously selected time is no longer available,
+      // reset the time selection
+      if (slots.length === 0 || !slots.some(slot => slot.time === time)) {
+        setTime("");
+        setAvailabilityId(0);
+      }
+    } else {
+      setAvailableTimeSlots([]);
+      setTime("");
+      setAvailabilityId(0);
+    }
+  }, [date, availabilities, time]);
+
+  const handleDateSelect = (newDate: Date | undefined) => {
+    setDate(newDate);
+  };
+
+  const handleTimeSelect = (newTime: string, newAvailabilityId: number) => {
+    setTime(newTime);
+    setAvailabilityId(newAvailabilityId);
+  };
+
+  const handleNext = () => {
+    if (date && time && availabilityId) {
+      onSelect({
+        date: date.toISOString().split("T")[0],
+        time,
+        availabilityId
+      });
+      onNext();
+    }
+  };
+
+  return (
+    <div>
+      <h4 className="text-xl font-semibold mb-4">Select Date & Time</h4>
+      
+      <div className="mb-6">
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 text-error">
+            <p>Failed to load availability: {error.message}</p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={handleDateSelect}
+              className="border rounded-md p-4 mb-6"
+              disabled={(date) => isPastDate(date) || disabledDays.includes(date.getDay())}
+            />
+            
+            <div className="flex items-center text-sm mb-6">
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-primary mr-2 rounded-sm"></div>
+                <span>Available</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-neutral-light/70 mr-2 rounded-sm"></div>
+                <span>Unavailable</span>
+              </div>
+            </div>
+            
+            <h5 className="font-semibold mb-2">
+              {date ? (
+                availableTimeSlots.length > 0 
+                  ? "Available Time Slots" 
+                  : "No available time slots for selected date"
+              ) : "Please select a date to see available times"}
+            </h5>
+            
+            {date && (
+              <div className="grid grid-cols-3 gap-3">
+                {availableTimeSlots.map((slot) => (
+                  <button
+                    key={slot.availabilityId}
+                    className={`time-slot border py-2 rounded-md transition-colors ${
+                      time === slot.time 
+                        ? "border-primary bg-primary/5 text-primary" 
+                        : "border-neutral-light/80"
+                    }`}
+                    onClick={() => handleTimeSelect(slot.time, slot.availabilityId)}
+                  >
+                    {formatTime(slot.time)} ({slot.spotsLeft} spots)
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleNext}
+          disabled={!date || !time || !availabilityId || isLoading}
+        >
+          Next Step
+        </Button>
+      </div>
+    </div>
+  );
+}
