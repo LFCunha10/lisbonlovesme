@@ -24,7 +24,7 @@ export default function AdminIndexPage() {
       <main>
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-2">Welcome to the Admin Dashboard</h2>
-          <p className="text-gray-500">Manage your tours, bookings, and testimonials</p>
+          <p className="text-gray-500">Manage your tours, bookings, and reviews</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -43,11 +43,11 @@ export default function AdminIndexPage() {
             linkText="View Calendar"
           />
           <DashboardCard 
-            title="Testimonials" 
-            description="Approve and manage testimonials"
+            title="Reviews" 
+            description="Approve and manage reviews"
             icon={<MessageSquareIcon className="w-8 h-8" />}
-            linkTo="/admin/testimonials"
-            linkText="Manage Testimonials"
+            linkTo="/admin/reviews"
+            linkText="Manage Reviews"
           />
           <DashboardCard 
             title="Change Password" 
