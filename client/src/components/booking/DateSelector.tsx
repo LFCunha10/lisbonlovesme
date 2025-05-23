@@ -45,11 +45,17 @@ export default function DateSelector({
       
       const slots = availabilities
         .filter(a => a.date === dateStr && a.spotsLeft > 0)
-        .map(a => ({
-          time: a.time,
-          availabilityId: a.id,
-          spotsLeft: a.spotsLeft
-        }))
+        .reduce((acc, a) => {
+          // Remove duplicates by time
+          if (!acc.some(slot => slot.time === a.time)) {
+            acc.push({
+              time: a.time,
+              availabilityId: a.id,
+              spotsLeft: a.spotsLeft
+            });
+          }
+          return acc;
+        }, [] as Array<{time: string; availabilityId: number; spotsLeft: number}>)
         .sort((a, b) => a.time.localeCompare(b.time));
       
       setAvailableTimeSlots(slots);
@@ -164,15 +170,18 @@ export default function DateSelector({
               <div className="grid grid-cols-3 gap-3">
                 {availableTimeSlots.map((slot) => (
                   <button
-                    key={slot.availabilityId}
-                    className={`time-slot border py-2 rounded-md transition-colors ${
+                    key={`${slot.time}-${slot.availabilityId}`}
+                    className={`time-slot border py-3 px-4 rounded-md transition-colors font-medium text-sm ${
                       time === slot.time 
-                        ? "border-primary bg-primary/5 text-primary" 
-                        : "border-neutral-light/80"
+                        ? "border-primary bg-primary text-white shadow-md" 
+                        : "border-gray-300 bg-white text-gray-700 hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => handleTimeSelect(slot.time, slot.availabilityId)}
                   >
-                    {formatTime(slot.time)} ({slot.spotsLeft} spots)
+                    <div className="text-center">
+                      <div className="font-semibold">{formatTime(slot.time)}</div>
+                      <div className="text-xs opacity-75">({slot.spotsLeft} spots)</div>
+                    </div>
                   </button>
                 ))}
               </div>
