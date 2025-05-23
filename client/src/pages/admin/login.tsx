@@ -2,7 +2,7 @@ import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Helmet } from "react-helmet";
 
@@ -25,7 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function AdminLogin() {
   const { toast } = useToast();
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -46,7 +46,7 @@ export default function AdminLogin() {
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
-        navigate("/admin/dashboard");
+        setLocation("/admin/dashboard");
       } else {
         const errorData = await response.json();
         toast({
@@ -115,7 +115,7 @@ export default function AdminLogin() {
             </Form>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button variant="link" onClick={() => navigate("/")}>
+            <Button variant="link" onClick={() => setLocation("/")}>
               Return to Website
             </Button>
           </CardFooter>

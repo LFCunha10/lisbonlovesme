@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
@@ -6,6 +6,8 @@ import { insertAvailabilitySchema, insertBookingSchema, insertTestimonialSchema,
 import Stripe from "stripe";
 import { sendBookingConfirmationEmail } from "./email";
 import { generateICSFile } from "./utils/ics-generator";
+import passport from "passport";
+import { isAdmin, isAuthenticated } from "./auth";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('Missing STRIPE_SECRET_KEY environment variable. Payments will be simulated.');
@@ -16,6 +18,35 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : undefined;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication routes
+  app.post("/api/admin/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(401).json({ message: info.message || "Authentication failed" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.json({ success: true, user: { id: user.id, username: user.username, isAdmin: user.isAdmin } });
+      });
+    })(req, res, next);
+  });
+
+  app.get("/api/admin/session", isAuthenticated, (req, res) => {
+    const user = req.user as any;
+    res.json({ user: { id: user.id, username: user.username, isAdmin: user.isAdmin } });
+  });
+
+  app.post("/api/admin/logout", (req, res) => {
+    req.logout(() => {
+      res.json({ success: true });
+    });
+  });
+
   // put application routes here
   // prefix all routes with /api
 
