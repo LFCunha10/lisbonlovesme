@@ -108,6 +108,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Closed days API endpoints
+  app.get("/api/closed-days", async (req: Request, res: Response) => {
+    try {
+      const closedDays = await storage.getClosedDays();
+      res.json(closedDays);
+    } catch (error: any) {
+      console.error("Error fetching closed days:", error);
+      res.status(500).json({ message: "Failed to fetch closed days" });
+    }
+  });
+
+  app.post("/api/closed-days", async (req: Request, res: Response) => {
+    try {
+      // Check if user is admin
+      if (!(req.session && req.session.isAdmin)) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { date, reason } = req.body;
+      if (!date) {
+        return res.status(400).json({ message: "Date is required" });
+      }
+      
+      const closedDay = await storage.addClosedDay(date, reason);
+      res.status(201).json(closedDay);
+    } catch (error: any) {
+      console.error("Error adding closed day:", error);
+      res.status(500).json({ message: error.message || "Failed to add closed day" });
+    }
+  });
+  
+  app.delete("/api/closed-days/:date", async (req: Request, res: Response) => {
+    try {
+      // Check if user is admin
+      if (!(req.session && req.session.isAdmin)) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { date } = req.params;
+      const result = await storage.removeClosedDay(date);
+      
+      if (result) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ message: "Closed day not found" });
+      }
+    } catch (error: any) {
+      console.error("Error removing closed day:", error);
+      res.status(500).json({ message: error.message || "Failed to remove closed day" });
+    }
+  });
+  
+  // Admin settings API endpoints
+  app.get("/api/admin/settings", async (req: Request, res: Response) => {
+    try {
+      // Check if user is admin
+      if (!(req.session && req.session.isAdmin)) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const settings = await storage.getAdminSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error("Error fetching admin settings:", error);
+      res.status(500).json({ message: error.message || "Failed to fetch admin settings" });
+    }
+  });
+  
+  app.put("/api/admin/settings", async (req: Request, res: Response) => {
+    try {
+      // Check if user is admin
+      if (!(req.session && req.session.isAdmin)) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { autoCloseDay } = req.body;
+      const settings = await storage.updateAdminSettings({ autoCloseDay });
+      res.json(settings);
+    } catch (error: any) {
+      console.error("Error updating admin settings:", error);
+      res.status(500).json({ message: error.message || "Failed to update admin settings" });
+    }
+  });
+
+  // Booking API endpoints with auto close day feature
+  app.post("/api/bookings", async (req: Request, res: Response) => {
+    try {
+      // Create the booking
+      const booking = await storage.createBooking(req.body);
+      
+      // Check if auto-close is enabled and close the day if it is
+      const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
+      if (isAutoCloseEnabled) {
+        const availability = await storage.getAvailability(booking.availabilityId);
+        if (availability) {
+          // Add this date to closed days
+          await storage.addClosedDay(
+            availability.date, 
+            `Automatically closed due to booking #${booking.id}`
+          );
+        }
+      }
+      
+      res.status(201).json(booking);
+    } catch (error: any) {
+      console.error("Error creating booking:", error);
+      res.status(500).json({ message: error.message || "Failed to create booking" });
+    }
+  });
+
   // Create an HTTP server
   const httpServer = createServer(app);
 

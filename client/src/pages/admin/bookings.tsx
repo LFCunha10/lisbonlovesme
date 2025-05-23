@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, parseISO } from "date-fns";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 import {
@@ -27,7 +28,27 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -36,9 +57,14 @@ import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
 
 export default function BookingsCalendar() {
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTourId, setSelectedTourId] = useState<string>("all");
   const [showBookedOnly, setShowBookedOnly] = useState<boolean>(false);
+  const [autoCloseDay, setAutoCloseDay] = useState<boolean>(false);
+  const [selectedDayForClosing, setSelectedDayForClosing] = useState<string | null>(null);
+  const [closeReason, setCloseReason] = useState<string>("");
 
   // Fetch bookings
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
@@ -68,6 +94,87 @@ export default function BookingsCalendar() {
       }
       return allAvailabilities;
     },
+  });
+  
+  // Fetch closed days
+  const { data: closedDays = [] } = useQuery({
+    queryKey: ['/api/closed-days'],
+  });
+  
+  // Fetch admin settings
+  const { data: adminSettings } = useQuery({
+    queryKey: ['/api/admin/settings'],
+    onSuccess: (data) => {
+      if (data) {
+        setAutoCloseDay(data.autoCloseDay);
+      }
+    },
+    onError: () => {
+      // If there's an error (e.g., unauthorized), we just use the default value
+      setAutoCloseDay(false);
+    }
+  });
+  
+  // Mutation to mark a day as closed
+  const markDayAsClosed = useMutation({
+    mutationFn: (data: { date: string, reason: string }) => 
+      apiRequest('POST', '/api/closed-days', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/closed-days'] });
+      toast({
+        title: "Day marked as closed",
+        description: "The selected day has been marked as closed",
+      });
+      setSelectedDayForClosing(null);
+      setCloseReason("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to mark day as closed",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Mutation to remove a closed day
+  const removeClosure = useMutation({
+    mutationFn: (date: string) => 
+      apiRequest('DELETE', `/api/closed-days/${date}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/closed-days'] });
+      toast({
+        title: "Closure removed",
+        description: "The day is now available",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to remove closure",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Mutation to update admin settings
+  const updateAdminSettings = useMutation({
+    mutationFn: (settings: { autoCloseDay: boolean }) => 
+      apiRequest('PUT', '/api/admin/settings', settings),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      toast({
+        title: "Settings updated",
+        description: "Auto-close setting has been updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update settings",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    }
   });
 
   // Get days in current month
@@ -117,6 +224,39 @@ export default function BookingsCalendar() {
   // Get availability by ID
   const getAvailabilityById = (id: number) => {
     return availabilities?.find((a: any) => a.id === id);
+  };
+  
+  // Check if a day has bookings
+  const hasBookings = (day: Date) => {
+    return getBookingsForDay(day).length > 0;
+  };
+  
+  // Check if a day is closed
+  const isDayClosed = (day: Date) => {
+    const dayStr = format(day, 'yyyy-MM-dd');
+    return closedDays.some((closedDay: any) => closedDay.date === dayStr);
+  };
+  
+  // Get closed day info
+  const getClosedDayInfo = (day: Date) => {
+    const dayStr = format(day, 'yyyy-MM-dd');
+    return closedDays.find((closedDay: any) => closedDay.date === dayStr);
+  };
+  
+  // Handle auto-close day setting change
+  const handleAutoCloseChange = (checked: boolean) => {
+    setAutoCloseDay(checked);
+    updateAdminSettings.mutate({ autoCloseDay: checked });
+  };
+  
+  // Handle marking a day as closed
+  const handleMarkDayClosed = () => {
+    if (selectedDayForClosing) {
+      markDayAsClosed.mutate({
+        date: selectedDayForClosing,
+        reason: closeReason || 'Manually closed'
+      });
+    }
   };
 
   if (isLoadingTours || isLoadingBookings) {
