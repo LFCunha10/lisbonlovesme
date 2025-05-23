@@ -43,7 +43,12 @@
       "moderate": "Средний",
       "challenging": "Сложный",
       "hours": "часов",
-      "meetingPoint": "Место встречи"
+      "meetingPoint": "Место встречи",
+      "reviews": "Отзывы клиентов",
+      "aboutTour": "Об этом туре",
+      "tourDetails": "Детали тура",
+      "maxPeople": "Максимум человек",
+      "freeBooking": "Бесплатное бронирование и отмена"
     },
     "booking": {
       "title": "Забронировать тур",

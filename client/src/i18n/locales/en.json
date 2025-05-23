@@ -43,7 +43,12 @@
       "moderate": "Moderate",
       "challenging": "Challenging",
       "hours": "hours",
-      "meetingPoint": "Meeting Point"
+      "meetingPoint": "Meeting Point",
+      "reviews": "Customer Reviews",
+      "aboutTour": "About This Tour",
+      "tourDetails": "Tour Details",
+      "maxPeople": "Max People",
+      "freeBooking": "Free booking & cancellation"
     },
     "booking": {
       "title": "Book Your Tour",

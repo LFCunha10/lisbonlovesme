@@ -43,7 +43,12 @@
       "moderate": "Moderado",
       "challenging": "Desafiante",
       "hours": "horas",
-      "meetingPoint": "Ponto de Encontro"
+      "meetingPoint": "Ponto de Encontro",
+      "reviews": "Avaliações dos Clientes",
+      "aboutTour": "Sobre Este Passeio",
+      "tourDetails": "Detalhes do Passeio",
+      "maxPeople": "Máximo de Pessoas",
+      "freeBooking": "Reserva e cancelamento gratuitos"
     },
     "booking": {
       "title": "Reserve seu Passeio",
