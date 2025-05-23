@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
 import { sendBookingConfirmationEmail } from "./email";
+import { exportDatabase } from "./utils/export-database";
+import path from "path";
+import fs from "fs";
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -338,6 +341,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: error.message || "Failed to create booking" });
+    }
+  });
+
+  // Export Database Endpoint
+  app.get("/api/export-database", async (req: Request, res: Response) => {
+    try {
+      console.log("Starting database export...");
+      
+      // Create export directory if it doesn't exist
+      const exportDir = path.join(process.cwd(), 'exports');
+      if (!fs.existsSync(exportDir)) {
+        fs.mkdirSync(exportDir);
+      }
+      
+      // Generate the export file
+      const exportPath = await exportDatabase();
+      
+      // Set appropriate headers for the response
+      res.setHeader('Content-Type', 'application/sql');
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(exportPath)}"`);
+      
+      // Stream the file to the response
+      const fileStream = fs.createReadStream(exportPath);
+      fileStream.pipe(res);
+      
+      // Handle errors in streaming
+      fileStream.on('error', (error) => {
+        console.error("Error streaming export file:", error);
+        res.status(500).json({ message: "Error downloading export file" });
+      });
+    } catch (error: any) {
+      console.error("Database export failed:", error);
+      res.status(500).json({ message: error.message || "Database export failed" });
     }
   });
 
