@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon } from "lucide-react";
+import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminIndexPage() {
@@ -55,6 +55,13 @@ export default function AdminIndexPage() {
             icon={<LockIcon className="w-8 h-8" />}
             linkTo="/admin/password"
             linkText="Update Password"
+          />
+          <DashboardCard 
+            title="Database Export" 
+            description="Download your entire database as SQL"
+            icon={<DatabaseIcon className="w-8 h-8" />}
+            linkTo="/admin/database-export"
+            linkText="Export Database"
           />
         </div>
       </main>

@@ -116,6 +116,18 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/admin/database-export">
+        {() => {
+          const DatabaseExportPage = React.lazy(() => import("@/pages/admin/database-export"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AdminProtectedRoute>
+                <DatabaseExportPage />
+              </AdminProtectedRoute>
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
