@@ -68,17 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Tours API endpoints
-  app.get("/api/tours", async (req: Request, res: Response) => {
-    try {
-      const tours = await storage.getTours();
-      res.json(tours);
-    } catch (error) {
-      console.error("Error fetching tours:", error);
-      res.status(500).json({ message: "Failed to fetch tours" });
-    }
-  });
-
+  // Tours API endpoints - specific routes first
   app.get("/api/tours/:id", async (req: Request, res: Response) => {
     try {
       const tourId = parseInt(req.params.id);
@@ -95,6 +85,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching tour:", error);
       res.status(500).json({ message: "Failed to fetch tour" });
+    }
+  });
+
+  app.get("/api/tours", async (req: Request, res: Response) => {
+    try {
+      const tours = await storage.getTours();
+      res.json(tours);
+    } catch (error) {
+      console.error("Error fetching tours:", error);
+      res.status(500).json({ message: "Failed to fetch tours" });
     }
   });
 
