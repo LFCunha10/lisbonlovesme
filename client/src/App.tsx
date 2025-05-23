@@ -9,6 +9,7 @@ import TourDetailPage from "@/pages/tours/[tourId]";
 import AdminPage from "@/pages/admin";
 import NavBar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
+import AdminProtectedRoute from "@/components/admin/protected-route";
 
 // Define admin routes
 function Router() {
@@ -17,10 +18,16 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/tours" component={ToursPage} />
       <Route path="/tours/:tourId" component={TourDetailPage} />
-      <Route path="/admin" component={AdminPage} />
+      <Route path="/admin">
+        {() => (
+          <AdminProtectedRoute>
+            <AdminPage />
+          </AdminProtectedRoute>
+        )}
+      </Route>
       <Route path="/admin/login">
         {() => {
-          // We need to use dynamic imports for these admin pages 
+          // No protection for login page
           const AdminLoginPage = React.lazy(() => import("@/pages/admin/login"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
@@ -34,7 +41,9 @@ function Router() {
           const AdminDashboardPage = React.lazy(() => import("@/pages/admin/dashboard"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminDashboardPage />
+              <AdminProtectedRoute>
+                <AdminDashboardPage />
+              </AdminProtectedRoute>
             </React.Suspense>
           );
         }}
@@ -44,7 +53,9 @@ function Router() {
           const AdminToursPage = React.lazy(() => import("@/pages/admin/tours"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminToursPage />
+              <AdminProtectedRoute>
+                <AdminToursPage />
+              </AdminProtectedRoute>
             </React.Suspense>
           );
         }}
@@ -54,7 +65,9 @@ function Router() {
           const AdminBookingsPage = React.lazy(() => import("@/pages/admin/bookings"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminBookingsPage />
+              <AdminProtectedRoute>
+                <AdminBookingsPage />
+              </AdminProtectedRoute>
             </React.Suspense>
           );
         }}
@@ -64,7 +77,9 @@ function Router() {
           const AdminTestimonialsPage = React.lazy(() => import("@/pages/admin/testimonials"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminTestimonialsPage />
+              <AdminProtectedRoute>
+                <AdminTestimonialsPage />
+              </AdminProtectedRoute>
             </React.Suspense>
           );
         }}

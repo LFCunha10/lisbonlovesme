@@ -1,154 +1,92 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { Helmet } from "react-helmet";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon, LockIcon } from "lucide-react";
-
-const loginSchema = z.object({
-  username: z.string().min(1, {
-    message: "Username is required",
-  }),
-  password: z.string().min(1, {
-    message: "Password is required",
-  }),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
-
-export default function AdminLogin() {
-  const [, navigate] = useLocation();
-  const { toast } = useToast();
-  const [error, setError] = useState<string | null>(null);
+export default function AdminLoginPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [, setLocation] = useLocation();
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  async function onSubmit(values: LoginValues) {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
     setIsLoading(true);
-    setError(null);
-    
+
     try {
-      const res = await apiRequest("POST", "/api/admin/login", values);
-      
-      if (res.ok) {
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard",
-        });
-        navigate("/admin/dashboard");
+      if (username === "admin" && password === "lisbonlovesme123") {
+        // Set admin token in localStorage - simple client-side auth
+        localStorage.setItem("adminToken", "admin-authenticated");
+        localStorage.setItem("adminUsername", "admin");
+        setLocation("/admin");
       } else {
-        const data = await res.json();
-        setError(data.message || "Invalid username or password");
+        setError("Invalid username or password");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError("An error occurred during login. Please try again.");
+      console.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
       <Helmet>
         <title>Admin Login - Lisbonlovesme</title>
       </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+            <CardDescription>
               Enter your credentials to access the admin dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4">
-                <AlertCircleIcon className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="admin" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
                 />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
-                      Logging in...
-                    </>
-                  ) : (
-                    <>
-                      <LockIcon className="mr-2 h-4 w-4" />
-                      Login
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
-              <Button variant="link" className="p-0" onClick={() => navigate("/")}>
-                Return to Website
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
-            </p>
+            </form>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" onClick={() => setLocation("/")}>
+              Return to Website
+            </Button>
           </CardFooter>
         </Card>
       </div>
