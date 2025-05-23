@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useBookingModal } from "@/hooks/use-bookings";
+import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
   const { openBookingModal } = useBookingModal();
+  const { t } = useTranslation();
 
   return (
     <section className="pt-24 pb-12 md:pt-32 md:pb-20 relative">
@@ -19,10 +21,10 @@ export default function HeroSection() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl text-white">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-4">
-            Discover the Soul of Lisbon with Local Guides
+            {t('home.welcome')}
           </h1>
           <p className="text-xl md:text-2xl mb-8">
-            Experience authentic Portuguese culture, breathtaking architecture, and hidden gems with our expert-guided tours.
+            {t('home.subtitle')}
           </p>
           <div className="flex flex-wrap gap-4">
             <Button
@@ -31,7 +33,7 @@ export default function HeroSection() {
               variant="secondary"
               className="font-semibold"
             >
-              <a href="#tours">Explore Tours</a>
+              <a href="#tours">{t('home.explore')}</a>
             </Button>
             <Button
               size="lg"
@@ -39,7 +41,7 @@ export default function HeroSection() {
               className="bg-white hover:bg-white/90 text-primary font-semibold border-none"
               onClick={() => openBookingModal()}
             >
-              Book Now
+              {t('nav.booking')}
             </Button>
           </div>
         </div>

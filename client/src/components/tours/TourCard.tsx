@@ -4,6 +4,7 @@ import { Clock, Users, Activity } from "lucide-react";
 import { Tour } from "@shared/schema";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useBookingModal } from "@/hooks/use-bookings";
+import { useTranslation } from "react-i18next";
 
 interface TourCardProps {
   tour: Tour;

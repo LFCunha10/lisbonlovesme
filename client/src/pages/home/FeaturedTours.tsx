@@ -4,17 +4,19 @@ import { ArrowRight } from "lucide-react";
 import { useTours } from "@/hooks/use-tours";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 
 export default function FeaturedTours() {
   const { tours, isLoading, error } = useTours();
+  const { t } = useTranslation();
 
   return (
     <section id="tours" className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Our Featured Tours</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('home.featuredTours')}</h2>
           <p className="text-lg text-neutral-dark/80 max-w-2xl mx-auto">
-            Discover Lisbon's rich history, vibrant culture, and stunning landmarks with our carefully curated tours.
+            {t('home.subtitle')}
           </p>
         </div>
         
