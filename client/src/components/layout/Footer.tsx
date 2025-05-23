@@ -82,7 +82,7 @@ export default function Footer() {
           <div className="flex space-x-4">
             <Link href="#" className="hover:text-white">{t('footer.termsOfService')}</Link>
             <Link href="#" className="hover:text-white">{t('footer.privacyPolicy')}</Link>
-            <Link href="#" className="hover:text-white">Cookie Policy</Link>
+            <Link href="#" className="hover:text-white">{t('footer.cookiePolicy')}</Link>
           </div>
         </div>
       </div>
