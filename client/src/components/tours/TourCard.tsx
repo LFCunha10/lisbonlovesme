@@ -39,7 +39,7 @@ export default function TourCard({ tour }: TourCardProps) {
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-display font-bold">
-            <Link href={`/tours/${tour.id}`}>{tour.name}</Link>
+            <Link href={`/tour/${tour.id}`}>{tour.name}</Link>
           </h3>
           {tour.badge && (
             <span className={cn("px-3 py-1 rounded-full text-sm font-semibold", getBadgeColorClass(tour.badgeColor))}>
@@ -71,12 +71,11 @@ export default function TourCard({ tour }: TourCardProps) {
             {formatCurrency(tour.price)}
             <span className="text-sm font-normal text-neutral-dark/70">/{t('tours.perPerson')}</span>
           </div>
-          <Button 
-            onClick={() => openBookingModal(tour.id)} 
-            size="sm"
-          >
-            {t('tours.bookNow')}
-          </Button>
+          <Link href={`/tour/${tour.id}`}>
+            <Button size="sm">
+              {t('tours.viewDetails')}
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

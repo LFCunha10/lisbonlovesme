@@ -18,6 +18,26 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/tours" component={ToursPage} />
       <Route path="/tours/:tourId" component={TourDetailPage} />
+      <Route path="/tour/:id">
+        {() => {
+          const TourDetailsPage = React.lazy(() => import("@/pages/tours/tour-details"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <TourDetailsPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
+      <Route path="/book/:id">
+        {() => {
+          const BookingPage = React.lazy(() => import("@/pages/tours/booking"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <BookingPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/admin">
         {() => (
           <AdminProtectedRoute>
