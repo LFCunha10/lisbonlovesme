@@ -111,7 +111,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
               </Select>
               
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{participants * tour.price}</span>
+                {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{((participants * tour.price) / 100).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
