@@ -89,7 +89,8 @@
     "footer": {
       "rights": "All Rights Reserved",
       "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
+      "termsOfService": "Terms of Service", 
+      "cookiePolicy": "Cookie Policy",
       "contactUs": "Contact Us"
     },
     "common": {

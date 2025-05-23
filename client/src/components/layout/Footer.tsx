@@ -53,14 +53,14 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('common.newsletter')}</h4>
             <p className="text-white/70 mb-4">
-              Subscribe to our newsletter for the latest tour updates and exclusive offers.
+              {t('common.subscribeText')}
             </p>
             <form className="flex" onSubmit={(e) => e.preventDefault()}>
               <Input 
                 type="email" 
-                placeholder="Your email address" 
+                placeholder={t('common.emailPlaceholder')} 
                 className="bg-white/10 text-white placeholder:text-white/50 rounded-r-none focus:ring-primary/50 border-white/10"
               />
               <Button 
@@ -77,11 +77,11 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-white/70 text-sm">
           <div className="mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Lisbonlovesme. All rights reserved.
+            &copy; {new Date().getFullYear()} Lisbonlovesme. {t('footer.rights')}
           </div>
           <div className="flex space-x-4">
-            <Link href="#" className="hover:text-white">Terms of Service</Link>
-            <Link href="#" className="hover:text-white">Privacy Policy</Link>
+            <Link href="#" className="hover:text-white">{t('footer.termsOfService')}</Link>
+            <Link href="#" className="hover:text-white">{t('footer.privacyPolicy')}</Link>
             <Link href="#" className="hover:text-white">Cookie Policy</Link>
           </div>
         </div>

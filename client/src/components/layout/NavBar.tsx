@@ -31,7 +31,7 @@ export default function NavBar() {
           <div className="hidden md:flex items-center space-x-6">
             <NavLink href="/#tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
             <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
-            <NavLink href="/#testimonials" isActive={location === "/"}>Testimonials</NavLink>
+            <NavLink href="/#testimonials" isActive={location === "/"}>{t('testimonials.title')}</NavLink>
             <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
             <LanguageSwitcher />
             <Button onClick={() => openBookingModal()}>{t('nav.booking')}</Button>
@@ -54,10 +54,10 @@ export default function NavBar() {
 
         {isOpen && (
           <div className="md:hidden mt-4 pb-4">
-            <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>Tours</MobileNavLink>
-            <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>About Us</MobileNavLink>
-            <MobileNavLink href="/#testimonials" onClick={() => setIsOpen(false)}>Testimonials</MobileNavLink>
-            <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>Contact</MobileNavLink>
+            <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
+            <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('nav.about')}</MobileNavLink>
+            <MobileNavLink href="/#testimonials" onClick={() => setIsOpen(false)}>{t('testimonials.title')}</MobileNavLink>
+            <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>{t('nav.contact')}</MobileNavLink>
             <div className="mt-2">
               <Button 
                 className="w-full" 
@@ -66,7 +66,7 @@ export default function NavBar() {
                   setIsOpen(false);
                 }}
               >
-                Book Now
+                {t('nav.booking')}
               </Button>
             </div>
           </div>
