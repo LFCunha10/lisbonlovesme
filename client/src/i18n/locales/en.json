@@ -105,7 +105,12 @@
       "delete": "Delete",
       "create": "Create",
       "search": "Search",
-      "noResults": "No results found"
+      "noResults": "No results found",
+      "quickLinks": "Quick Links",
+      "ourTours": "Our Tours",
+      "newsletter": "Newsletter",
+      "subscribeText": "Subscribe to our newsletter for the latest tour updates and exclusive offers",
+      "emailPlaceholder": "Your email address"
     }
   }
 }

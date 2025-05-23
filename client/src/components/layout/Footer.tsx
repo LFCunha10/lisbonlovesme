@@ -29,19 +29,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('common.quickLinks')}</h4>
             <ul className="space-y-2">
-              <FooterLink href="/">Home</FooterLink>
-              <FooterLink href="/#tours">Tours</FooterLink>
-              <FooterLink href="/#about">About Us</FooterLink>
-              <FooterLink href="/#testimonials">Testimonials</FooterLink>
-              <FooterLink href="/#contact">Contact</FooterLink>
-              <FooterLink href="/#book-now">Book Now</FooterLink>
+              <FooterLink href="/">{t('nav.home')}</FooterLink>
+              <FooterLink href="/#tours">{t('nav.tours')}</FooterLink>
+              <FooterLink href="/#about">{t('nav.about')}</FooterLink>
+              <FooterLink href="/#testimonials">{t('testimonials.title')}</FooterLink>
+              <FooterLink href="/#contact">{t('nav.contact')}</FooterLink>
+              <FooterLink href="/#book-now">{t('nav.booking')}</FooterLink>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Our Tours</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('common.ourTours')}</h4>
             <ul className="space-y-2">
               <FooterLink href="/tours/1">Historic Belém Tour</FooterLink>
               <FooterLink href="/tours/2">Alfama & Fado Experience</FooterLink>
