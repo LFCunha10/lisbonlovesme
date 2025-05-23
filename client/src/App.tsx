@@ -16,6 +16,11 @@ function Router() {
       <Route path="/tours" component={ToursPage} />
       <Route path="/tours/:tourId" component={TourDetailPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin/login" component={() => import("@/pages/admin/login").then(mod => <mod.default />)} />
+      <Route path="/admin/dashboard" component={() => import("@/pages/admin/dashboard").then(mod => <mod.default />)} />
+      <Route path="/admin/tours" component={() => import("@/pages/admin/tours").then(mod => <mod.default />)} />
+      <Route path="/admin/bookings" component={() => import("@/pages/admin/bookings").then(mod => <mod.default />)} />
+      <Route path="/admin/testimonials" component={() => import("@/pages/admin/testimonials").then(mod => <mod.default />)} />
       <Route component={NotFound} />
     </Switch>
   );

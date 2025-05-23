@@ -1,34 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
+import { useLocation } from "wouter";
+import { Helmet } from "react-helmet";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Helmet } from "react-helmet";
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon, LockIcon } from "lucide-react";
 
 const loginSchema = z.object({
-  username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
+  username: z.string().min(1, {
+    message: "Username is required",
   }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
+  password: z.string().min(1, {
+    message: "Password is required",
   }),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginValues = z.infer<typeof loginSchema>;
 
 export default function AdminLogin() {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
+  const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
@@ -36,31 +53,25 @@ export default function AdminLogin() {
     },
   });
 
-  async function onSubmit(data: LoginFormValues) {
+  async function onSubmit(values: LoginValues) {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const response = await apiRequest("POST", "/api/admin/login", data);
+      const res = await apiRequest("POST", "/api/admin/login", values);
       
-      if (response.ok) {
+      if (res.ok) {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
-        setLocation("/admin/dashboard");
+        navigate("/admin/dashboard");
       } else {
-        const errorData = await response.json();
-        toast({
-          title: "Login failed",
-          description: errorData.message || "Invalid credentials",
-          variant: "destructive",
-        });
+        const data = await res.json();
+        setError(data.message || "Invalid username or password");
       }
-    } catch (error) {
-      toast({
-        title: "Login error",
-        description: "Could not connect to the server",
-        variant: "destructive",
-      });
+    } catch (err) {
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +82,7 @@ export default function AdminLogin() {
       <Helmet>
         <title>Admin Login - Lisbonlovesme</title>
       </Helmet>
-      <div className="h-screen w-full flex justify-center items-center bg-neutral-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
@@ -80,6 +91,14 @@ export default function AdminLogin() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircleIcon className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -102,22 +121,34 @@ export default function AdminLogin() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="******" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Logging in..." : "Login"}
+                  {isLoading ? (
+                    <>
+                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
+                      Logging in...
+                    </>
+                  ) : (
+                    <>
+                      <LockIcon className="mr-2 h-4 w-4" />
+                      Login
+                    </>
+                  )}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button variant="link" onClick={() => setLocation("/")}>
-              Return to Website
-            </Button>
+            <p className="text-sm text-gray-500">
+              <Button variant="link" className="p-0" onClick={() => navigate("/")}>
+                Return to Website
+              </Button>
+            </p>
           </CardFooter>
         </Card>
       </div>
