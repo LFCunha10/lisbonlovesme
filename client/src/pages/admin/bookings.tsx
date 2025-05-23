@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Helmet } from "react-helmet";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 import {
   Card,
@@ -127,11 +127,8 @@ export default function BookingsCalendar() {
   const selectedBookingAvailability = selectedBooking ? getAvailabilityById(selectedBooking.availabilityId) : null;
 
   return (
-    <>
-      <Helmet>
-        <title>Booking Calendar - Lisbonlovesme Admin</title>
-      </Helmet>
-      <div className="p-6">
+    <AdminLayout title="Booking Calendar">
+      <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold">Booking Calendar</h1>
@@ -294,6 +291,6 @@ export default function BookingsCalendar() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </AdminLayout>
   );
 }

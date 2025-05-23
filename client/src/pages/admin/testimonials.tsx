@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
-import { Helmet } from "react-helmet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 import {
   Card,

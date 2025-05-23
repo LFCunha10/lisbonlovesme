@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
-import { Helmet } from "react-helmet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +7,7 @@ import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 import {
   Card,
@@ -281,11 +281,8 @@ export default function AdminTours() {
   }
 
   return (
-    <>
-      <Helmet>
-        <title>Tour Management - Lisbonlovesme Admin</title>
-      </Helmet>
-      <div className="p-6">
+    <AdminLayout title="Tour Management">
+      <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold">Tour Management</h1>
@@ -967,6 +964,6 @@ export default function AdminTours() {
           </Card>
         </div>
       </div>
-    </>
+    </AdminLayout>
   );
 }
