@@ -125,6 +125,31 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   isApproved: true,
 });
 
+// Closed Days model
+export const closedDays = pgTable("closed_days", {
+  id: serial("id").primaryKey(),
+  date: text("date").notNull().unique(), // Format: YYYY-MM-DD
+  reason: text("reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertClosedDaySchema = createInsertSchema(closedDays).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Admin Settings model
+export const adminSettings = pgTable("admin_settings", {
+  id: serial("id").primaryKey(),
+  autoCloseDay: boolean("auto_close_day").default(false),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
+export const insertAdminSettingsSchema = createInsertSchema(adminSettings).omit({
+  id: true,
+  lastUpdated: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -140,3 +165,9 @@ export type InsertBooking = z.infer<typeof insertBookingSchema>;
 
 export type Testimonial = typeof testimonials.$inferSelect;
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+
+export type ClosedDay = typeof closedDays.$inferSelect;
+export type InsertClosedDay = z.infer<typeof insertClosedDaySchema>;
+
+export type AdminSetting = typeof adminSettings.$inferSelect;
+export type InsertAdminSetting = z.infer<typeof insertAdminSettingsSchema>;

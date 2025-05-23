@@ -3,7 +3,9 @@ import {
   tours, type Tour, type InsertTour,
   availabilities, type Availability, type InsertAvailability,
   bookings, type Booking, type InsertBooking,
-  testimonials, type Testimonial, type InsertTestimonial
+  testimonials, type Testimonial, type InsertTestimonial,
+  closedDays, type ClosedDay, type InsertClosedDay,
+  adminSettings, type AdminSetting, type InsertAdminSetting
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 
@@ -44,6 +46,18 @@ export interface IStorage {
   getTestimonials(tourId?: number, approvedOnly?: boolean): Promise<Testimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   approveTestimonial(id: number): Promise<Testimonial | undefined>;
+
+  // Closed Days operations
+  getClosedDays(): Promise<ClosedDay[]>;
+  getClosedDay(date: string): Promise<ClosedDay | undefined>;
+  addClosedDay(date: string, reason?: string): Promise<ClosedDay>;
+  removeClosedDay(date: string): Promise<boolean>;
+  isDateClosed(date: string): Promise<boolean>;
+
+  // Admin Settings operations
+  getAdminSettings(): Promise<AdminSetting | undefined>;
+  updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting>;
+  getAutoCloseDaySetting(): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {

@@ -1,17 +1,85 @@
 import { eq, and, desc, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, tours, availabilities, bookings, testimonials,
+  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings,
   type User, type InsertUser,
   type Tour, type InsertTour,
   type Availability, type InsertAvailability,
   type Booking, type InsertBooking,
-  type Testimonial, type InsertTestimonial
+  type Testimonial, type InsertTestimonial,
+  type ClosedDay, type InsertClosedDay,
+  type AdminSetting, type InsertAdminSetting
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  // Closed Days operations
+  async getClosedDays(): Promise<ClosedDay[]> {
+    const closedDaysList = await db.select().from(closedDays).orderBy(asc(closedDays.date));
+    return closedDaysList;
+  }
+
+  async getClosedDay(date: string): Promise<ClosedDay | undefined> {
+    const [closedDay] = await db.select().from(closedDays).where(eq(closedDays.date, date));
+    return closedDay;
+  }
+
+  async addClosedDay(date: string, reason?: string): Promise<ClosedDay> {
+    const [closedDay] = await db.insert(closedDays).values({
+      date,
+      reason: reason || 'Manually closed'
+    }).returning();
+    return closedDay;
+  }
+
+  async removeClosedDay(date: string): Promise<boolean> {
+    const result = await db.delete(closedDays).where(eq(closedDays.date, date));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async isDateClosed(date: string): Promise<boolean> {
+    const [closedDay] = await db.select().from(closedDays).where(eq(closedDays.date, date));
+    return !!closedDay;
+  }
+
+  // Admin Settings operations
+  async getAdminSettings(): Promise<AdminSetting | undefined> {
+    const [settings] = await db.select().from(adminSettings);
+    if (!settings) {
+      // Create default settings if none exist
+      return this.updateAdminSettings({ autoCloseDay: false });
+    }
+    return settings;
+  }
+
+  async updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting> {
+    const existingSettings = await this.getAdminSettings();
+    
+    if (existingSettings) {
+      const [updated] = await db.update(adminSettings)
+        .set({
+          ...settings,
+          lastUpdated: new Date()
+        })
+        .where(eq(adminSettings.id, existingSettings.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(adminSettings)
+        .values({
+          ...settings,
+          lastUpdated: new Date()
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async getAutoCloseDaySetting(): Promise<boolean> {
+    const settings = await this.getAdminSettings();
+    return settings?.autoCloseDay || false;
+  }
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
