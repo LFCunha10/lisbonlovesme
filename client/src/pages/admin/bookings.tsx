@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameMonth } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -30,16 +28,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
 
 export default function BookingsCalendar() {
   const [, navigate] = useLocation();
-  const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTourId, setSelectedTourId] = useState<string>("all");
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
+  const [showBookedOnly, setShowBookedOnly] = useState<boolean>(false);
 
   // Fetch bookings
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
@@ -110,11 +109,6 @@ export default function BookingsCalendar() {
     return availabilities.filter((a: any) => a.date === dayStr);
   };
 
-  // Get booking by ID
-  const getBookingById = (id: number) => {
-    return bookings?.find((booking: any) => booking.id === id);
-  };
-
   // Get tour by ID
   const getTourById = (id: number) => {
     return tours?.find((tour: any) => tour.id === id);
@@ -132,10 +126,6 @@ export default function BookingsCalendar() {
       </div>
     );
   }
-
-  const selectedBooking = selectedBookingId ? getBookingById(selectedBookingId) : null;
-  const selectedBookingTour = selectedBooking ? getTourById(selectedBooking.tourId) : null;
-  const selectedBookingAvailability = selectedBooking ? getAvailabilityById(selectedBooking.availabilityId) : null;
 
   return (
     <AdminLayout title="Booking Calendar">
@@ -169,6 +159,17 @@ export default function BookingsCalendar() {
           </div>
         </div>
 
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch
+            id="show-booked-only"
+            checked={showBookedOnly}
+            onCheckedChange={setShowBookedOnly}
+          />
+          <Label htmlFor="show-booked-only">
+            Show only days with bookings
+          </Label>
+        </div>
+        
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-bold">
@@ -204,6 +205,21 @@ export default function BookingsCalendar() {
               {daysInMonth.map((day) => {
                 const dayBookings = getBookingsForDay(day);
                 const dayAvailabilities = getAvailabilitiesForDay(day);
+                const hasDayBookings = dayBookings.length > 0;
+                
+                // Skip this day if we're only showing booked days and there are no bookings
+                if (showBookedOnly && !hasDayBookings) {
+                  return (
+                    <div
+                      key={day.toString()}
+                      className="p-1 min-h-[100px] opacity-30 bg-gray-50"
+                    >
+                      <div className="text-right p-1 text-sm font-medium text-gray-400">
+                        {format(day, 'd')}
+                      </div>
+                    </div>
+                  );
+                }
                 
                 return (
                   <div
@@ -213,14 +229,16 @@ export default function BookingsCalendar() {
                         ? 'bg-primary/10 border-primary' 
                         : !isSameMonth(day, currentDate) 
                           ? 'bg-gray-100 text-gray-400' 
-                          : ''
+                          : hasDayBookings
+                            ? 'bg-green-50 border-green-200'
+                            : ''
                     }`}
                   >
                     <div className="text-right p-1 text-sm font-medium">
                       {format(day, 'd')}
                     </div>
                     <div className="space-y-1">
-                      {dayAvailabilities.map((availability: any) => (
+                      {!showBookedOnly && dayAvailabilities.map((availability: any) => (
                         <div 
                           key={availability.id} 
                           className="text-xs px-1 py-0.5 bg-gray-100 rounded"
@@ -234,7 +252,6 @@ export default function BookingsCalendar() {
                           <DialogTrigger asChild>
                             <div 
                               className="text-xs px-1 py-0.5 bg-primary/20 hover:bg-primary/30 rounded cursor-pointer"
-                              onClick={() => setSelectedBookingId(booking.id)}
                             >
                               {booking.customerLastName}, {booking.numberOfParticipants} ppl
                             </div>
