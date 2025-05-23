@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
+import { sendBookingConfirmationEmail } from "./email";
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -215,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Booking API endpoints with auto close day feature
+  // Booking API endpoints with confirmation emails and auto close day feature
   app.post("/api/bookings", async (req: Request, res: Response) => {
     try {
       console.log("Creating booking with data:", req.body);
@@ -224,24 +225,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const booking = await storage.createBooking(req.body);
       console.log("Booking created successfully:", booking);
       
-      // Immediately return success without auto-close for now
+      // Immediately return success while email and auto-close run asynchronously
       res.status(201).json(booking);
       
-      // Auto-close logic runs asynchronously to avoid blocking
+      // Process email and auto-close asynchronously to avoid blocking
       setTimeout(async () => {
         try {
-          const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
-          if (isAutoCloseEnabled) {
-            const availability = await storage.getAvailability(booking.availabilityId);
-            if (availability) {
-              await storage.addClosedDay(
-                availability.date, 
-                `Automatically closed due to booking #${booking.id}`
-              );
-            }
+          // Get the tour and availability details for the email
+          const tour = await storage.getTour(booking.tourId);
+          const availability = await storage.getAvailability(booking.availabilityId);
+          
+          if (tour && availability) {
+            // Format the total amount as a currency string (convert from cents to euros)
+            const totalAmount = (booking.totalAmount / 100).toFixed(2);
+            
+            // Send confirmation email
+            await sendBookingConfirmationEmail({
+              to: booking.customerEmail,
+              name: `${booking.customerFirstName} ${booking.customerLastName}`,
+              bookingReference: booking.bookingReference,
+              tourName: tour.name,
+              date: availability.date,
+              time: availability.time,
+              participants: booking.numberOfParticipants,
+              totalAmount: totalAmount,
+              meetingPoint: tour.meetingPoint || "Details will be sent separately",
+              duration: parseFloat(tour.duration) || 2 // Extract hours from duration string or default to 2
+            });
+            
+            console.log(`Confirmation email sent to ${booking.customerEmail}`);
           }
-        } catch (autoCloseError) {
-          console.warn("Auto-close failed but booking was successful:", autoCloseError);
+          
+          // Handle auto-close day feature
+          const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
+          if (isAutoCloseEnabled && availability) {
+            await storage.addClosedDay(
+              availability.date, 
+              `Automatically closed due to booking #${booking.id}`
+            );
+            console.log(`Date ${availability.date} automatically closed after booking`);
+          }
+        } catch (error) {
+          // Non-critical errors with email or auto-close shouldn't fail the booking process
+          console.warn("Email or auto-close process failed but booking was successful:", error);
         }
       }, 0);
       
