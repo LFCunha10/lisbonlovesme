@@ -45,9 +45,9 @@ export default function Testimonials() {
     <section id="testimonials" className="py-16 bg-neutral-light">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">What Our Guests Say</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('testimonials.guestsTitle')}</h2>
           <p className="text-lg text-neutral-dark/80 max-w-2xl mx-auto">
-            Read what travelers from around the world have to say about their experiences with Lisboa Tours.
+            {t('testimonials.subtitle')}
           </p>
         </div>
         

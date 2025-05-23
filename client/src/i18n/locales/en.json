@@ -123,6 +123,56 @@
       "newsletter": "Newsletter",
       "subscribeText": "Subscribe to our newsletter for the latest tour updates and exclusive offers",
       "emailPlaceholder": "Your email address"
+    },
+    "whyChooseUs": {
+      "title": "Why Choose Lisboa Tours",
+      "subtitle": "We deliver unforgettable experiences through authentic local insights and personalized attention.",
+      "smallGroups": "Small Groups",
+      "smallGroupsDesc": "Maximum of 12 people per tour for a more intimate and personalized experience.",
+      "localExpertise": "Local Expertise",
+      "localExpertiseDesc": "All our guides are local Lisboetas with deep knowledge of the city's history and culture.",
+      "customTours": "Customizable Tours",
+      "customToursDesc": "We can adjust our tours to match your interests, pace, and accessibility requirements.",
+      "valueForMoney": "Value for Money",
+      "valueForMoneyDesc": "Competitive pricing with no hidden costs and special discounts for groups."
+    },
+    "testimonials": {
+      "title": "Testimonials",
+      "guestsTitle": "What Our Guests Say",
+      "leaveTestimonial": "Leave a Testimonial",
+      "yourName": "Your Name",
+      "yourCountry": "Your Country",
+      "yourExperience": "Your Experience",
+      "rating": "Rating",
+      "submit": "Submit Testimonial",
+      "thankYou": "Thank you for your feedback!"
+    },
+    "photoGallery": {
+      "title": "Discover Lisbon Through Our Lens",
+      "subtitle": "Get inspired by the beauty and charm of Lisbon with these snapshots from our tours.",
+      "viewGallery": "View Full Gallery"
+    },
+    "callToAction": {
+      "title": "Ready to Experience Lisbon?",
+      "subtitle": "Book your tour today and discover the magic of Portugal's capital city.",
+      "bookNow": "Book Now"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Have questions about our tours or need help with your booking? Our team is here to assist you.",
+      "address": "Office Address",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "hours": "Office Hours",
+      "weekdays": "Monday to Friday: 9AM - 6PM",
+      "saturday": "Saturday: 10AM - 2PM",
+      "sunday": "Sunday: Closed",
+      "sendMessage": "Send Us a Message",
+      "formName": "Your Name",
+      "formEmail": "Your Email",
+      "formSubject": "Subject",
+      "formMessage": "Your Message",
+      "formSubmit": "Send Message"
     }
   }
 }

@@ -123,6 +123,56 @@
       "newsletter": "Newsletter",
       "subscribeText": "Inscreva-se na nossa newsletter para receber as últimas atualizações e ofertas exclusivas",
       "emailPlaceholder": "O seu endereço de email"
+    },
+    "whyChooseUs": {
+      "title": "Porquê Escolher Lisboa Tours",
+      "subtitle": "Proporcionamos experiências inesquecíveis através de perspectivas locais autênticas e atenção personalizada.",
+      "smallGroups": "Grupos Pequenos",
+      "smallGroupsDesc": "Máximo de 12 pessoas por passeio para uma experiência mais íntima e personalizada.",
+      "localExpertise": "Conhecimento Local",
+      "localExpertiseDesc": "Todos os nossos guias são lisboetas com profundo conhecimento da história e cultura da cidade.",
+      "customTours": "Passeios Personalizáveis",
+      "customToursDesc": "Podemos ajustar os nossos passeios aos seus interesses, ritmo e requisitos de acessibilidade.",
+      "valueForMoney": "Boa Relação Custo-Benefício",
+      "valueForMoneyDesc": "Preços competitivos sem custos ocultos e descontos especiais para grupos."
+    },
+    "testimonials": {
+      "title": "Testemunhos",
+      "guestsTitle": "O Que Dizem Nossos Hóspedes",
+      "leaveTestimonial": "Deixe um Testemunho",
+      "yourName": "Seu Nome",
+      "yourCountry": "Seu País",
+      "yourExperience": "Sua Experiência",
+      "rating": "Avaliação",
+      "submit": "Enviar Testemunho",
+      "thankYou": "Obrigado pelo seu feedback!"
+    },
+    "photoGallery": {
+      "title": "Descubra Lisboa Através da Nossa Lente",
+      "subtitle": "Inspire-se com a beleza e o charme de Lisboa com estas fotografias dos nossos passeios.",
+      "viewGallery": "Ver Galeria Completa"
+    },
+    "callToAction": {
+      "title": "Pronto para Experienciar Lisboa?",
+      "subtitle": "Reserve o seu passeio hoje e descubra a magia da capital de Portugal.",
+      "bookNow": "Reservar Agora"
+    },
+    "contact": {
+      "title": "Contacte-nos",
+      "subtitle": "Tem perguntas sobre os nossos passeios ou precisa de ajuda com a sua reserva? A nossa equipa está aqui para o ajudar.",
+      "address": "Endereço do Escritório",
+      "phone": "Número de Telefone",
+      "email": "Endereço de Email",
+      "hours": "Horário de Funcionamento",
+      "weekdays": "Segunda a Sexta: 9h - 18h",
+      "saturday": "Sábado: 10h - 14h",
+      "sunday": "Domingo: Fechado",
+      "sendMessage": "Envie-nos uma Mensagem",
+      "formName": "O Seu Nome",
+      "formEmail": "O Seu Email",
+      "formSubject": "Assunto",
+      "formMessage": "A Sua Mensagem",
+      "formSubmit": "Enviar Mensagem"
     }
   }
 }
