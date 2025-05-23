@@ -188,7 +188,7 @@ Lisbonlovesme Team
     try {
       const msg = {
         to,
-        from: 'info@lisbonlovesme.com', // Use your verified sender
+        from: 'noreply@replit.com', // Use the Replit verified sender email
         subject: `Lisbonlovesme - Booking Confirmation #${bookingReference}`,
         text: textContent,
         html: htmlContent,

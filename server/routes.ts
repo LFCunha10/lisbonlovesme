@@ -239,21 +239,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Format the total amount as a currency string (convert from cents to euros)
             const totalAmount = (booking.totalAmount / 100).toFixed(2);
             
-            // Send confirmation email
-            await sendBookingConfirmationEmail({
-              to: booking.customerEmail,
-              name: `${booking.customerFirstName} ${booking.customerLastName}`,
-              bookingReference: booking.bookingReference,
+            // Get the meeting point (safely handle missing property)
+            const meetingPoint = tour.meetingPoint || 
+              "Meeting point details will be sent separately. Please check your email closer to the tour date.";
+            
+            console.log("Preparing to send email with tour data:", {
               tourName: tour.name,
               date: availability.date,
               time: availability.time,
-              participants: booking.numberOfParticipants,
-              totalAmount: totalAmount,
-              meetingPoint: tour.meetingPoint || "Details will be sent separately",
-              duration: parseFloat(tour.duration) || 2 // Extract hours from duration string or default to 2
+              meetingPoint
             });
             
-            console.log(`Confirmation email sent to ${booking.customerEmail}`);
+            try {
+              // Send confirmation email with better error handling
+              await sendBookingConfirmationEmail({
+                to: booking.customerEmail,
+                name: `${booking.customerFirstName} ${booking.customerLastName}`,
+                bookingReference: booking.bookingReference,
+                tourName: tour.name,
+                date: availability.date,
+                time: availability.time,
+                participants: booking.numberOfParticipants,
+                totalAmount: totalAmount,
+                meetingPoint: meetingPoint,
+                duration: 2 // Default to 2 hours
+              });
+              
+              console.log(`Confirmation email successfully sent to ${booking.customerEmail}`);
+            } catch (emailError: any) {
+              console.error("Failed to send confirmation email:", emailError);
+              if (emailError.response) {
+                console.error("SendGrid API error:", emailError.response.body);
+              }
+            }
+          } else {
+            console.error("Missing tour or availability data for email:", { 
+              tourFound: !!tour, 
+              availabilityFound: !!availability 
+            });
           }
           
           // Handle auto-close day feature
@@ -265,9 +288,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             );
             console.log(`Date ${availability.date} automatically closed after booking`);
           }
-        } catch (error) {
+        } catch (error: any) {
           // Non-critical errors with email or auto-close shouldn't fail the booking process
-          console.warn("Email or auto-close process failed but booking was successful:", error);
+          console.error("Email or auto-close process failed but booking was successful:", error);
+          if (error.stack) {
+            console.error("Error stack:", error.stack);
+          }
         }
       }, 0);
       
