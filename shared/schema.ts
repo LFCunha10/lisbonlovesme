@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, primaryKey, foreignKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // User model (imported from the existing schema)
 export const users = pgTable("users", {
@@ -29,6 +30,12 @@ export const tours = pgTable("tours", {
   isActive: boolean("is_active").default(true),
 });
 
+export const toursRelations = relations(tours, ({ many }) => ({
+  availabilities: many(availabilities),
+  bookings: many(bookings),
+  testimonials: many(testimonials),
+}));
+
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
 });
@@ -36,12 +43,20 @@ export const insertTourSchema = createInsertSchema(tours).omit({
 // Availability model
 export const availabilities = pgTable("availabilities", {
   id: serial("id").primaryKey(),
-  tourId: integer("tour_id").notNull(),
+  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
   date: text("date").notNull(), // Format: YYYY-MM-DD
   time: text("time").notNull(), // Format: HH:MM
   maxSpots: integer("max_spots").notNull(),
   spotsLeft: integer("spots_left").notNull(),
 });
+
+export const availabilitiesRelations = relations(availabilities, ({ one, many }) => ({
+  tour: one(tours, {
+    fields: [availabilities.tourId],
+    references: [tours.id],
+  }),
+  bookings: many(bookings),
+}));
 
 export const insertAvailabilitySchema = createInsertSchema(availabilities).omit({
   id: true,
@@ -50,8 +65,8 @@ export const insertAvailabilitySchema = createInsertSchema(availabilities).omit(
 // Booking model
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
-  tourId: integer("tour_id").notNull(),
-  availabilityId: integer("availability_id").notNull(),
+  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
+  availabilityId: integer("availability_id").notNull().references(() => availabilities.id, { onDelete: "cascade" }),
   customerFirstName: text("customer_first_name").notNull(),
   customerLastName: text("customer_last_name").notNull(),
   customerEmail: text("customer_email").notNull(),
@@ -68,6 +83,17 @@ export const bookings = pgTable("bookings", {
   remindersSent: boolean("reminders_sent").default(false),
 });
 
+export const bookingsRelations = relations(bookings, ({ one }) => ({
+  tour: one(tours, {
+    fields: [bookings.tourId],
+    references: [tours.id],
+  }),
+  availability: one(availabilities, {
+    fields: [bookings.availabilityId],
+    references: [availabilities.id],
+  }),
+}));
+
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   bookingReference: true,
@@ -83,8 +109,15 @@ export const testimonials = pgTable("testimonials", {
   rating: integer("rating").notNull(),
   text: text("text").notNull(),
   isApproved: boolean("is_approved").default(false),
-  tourId: integer("tour_id").notNull(),
+  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
 });
+
+export const testimonialsRelations = relations(testimonials, ({ one }) => ({
+  tour: one(tours, {
+    fields: [testimonials.tourId],
+    references: [tours.id],
+  }),
+}));
 
 export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   id: true,
