@@ -110,11 +110,8 @@ export default function AdminTestimonials() {
   }
 
   return (
-    <>
-      <Helmet>
-        <title>Testimonial Management - Lisbonlovesme Admin</title>
-      </Helmet>
-      <div className="p-6">
+    <AdminLayout title="Testimonial Management">
+      <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold">Testimonial Management</h1>
@@ -323,6 +320,6 @@ export default function AdminTestimonials() {
           </DialogContent>
         </Dialog>
       </div>
-    </>
+    </AdminLayout>
   );
 }

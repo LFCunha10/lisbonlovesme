@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Helmet } from "react-helmet";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import AdminProtectedRoute from "@/components/admin/protected-route";
 import { Link } from "wouter";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function ChangePasswordPage() {
   return (
@@ -75,11 +75,8 @@ function PasswordChangeForm() {
   };
 
   return (
-    <>
-      <Helmet>
-        <title>Change Password - Admin Dashboard</title>
-      </Helmet>
-      <div className="container py-8">
+    <AdminLayout title="Change Password">
+      <div className="container">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Change Admin Password</h1>
           <Button variant="outline" asChild>
@@ -147,6 +144,6 @@ function PasswordChangeForm() {
           </CardFooter>
         </Card>
       </div>
-    </>
+    </AdminLayout>
   );
 }
