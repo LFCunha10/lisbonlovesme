@@ -3,7 +3,7 @@ import HeroSection from "./HeroSection";
 import FeaturedTours from "./FeaturedTours";
 import AboutUs from "./AboutUs";
 import WhyChooseUs from "./WhyChooseUs";
-import Testimonials from "./Testimonials";
+import Reviews from "./Reviews";
 import PhotoGallery from "./PhotoGallery";
 import CallToAction from "./CallToAction";
 import ContactInformation from "./ContactInformation";
@@ -31,7 +31,7 @@ export default function HomePage() {
       <FeaturedTours />
       <AboutUs />
       <WhyChooseUs />
-      <Testimonials />
+      <Reviews />
       <PhotoGallery />
       <CallToAction />
       <ContactInformation />
