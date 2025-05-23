@@ -116,11 +116,11 @@ export default function AdminDashboard() {
                   linkText="View Calendar"
                 />
                 <DashboardCard 
-                  title="Testimonials" 
-                  description="Approve and manage testimonials"
+                  title="Reviews" 
+                  description="Approve and manage customer reviews"
                   icon={<MessageSquareIcon className="w-8 h-8" />}
-                  linkTo="/admin/testimonials"
-                  linkText="Manage Testimonials"
+                  linkTo="/admin/reviews"
+                  linkText="Manage Reviews"
                 />
               </div>
             </TabsContent>

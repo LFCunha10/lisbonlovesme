@@ -72,13 +72,13 @@ function Router() {
           );
         }}
       </Route>
-      <Route path="/admin/testimonials">
+      <Route path="/admin/reviews">
         {() => {
-          const AdminTestimonialsPage = React.lazy(() => import("@/pages/admin/testimonials"));
+          const AdminReviewsPage = React.lazy(() => import("@/pages/admin/reviews"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>
-                <AdminTestimonialsPage />
+                <AdminReviewsPage />
               </AdminProtectedRoute>
             </React.Suspense>
           );
