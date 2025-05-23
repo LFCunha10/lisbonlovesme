@@ -27,6 +27,15 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
+  
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
 
   // Tour operations
   async getTours(): Promise<Tour[]> {
