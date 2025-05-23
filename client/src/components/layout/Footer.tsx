@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div className="text-2xl font-display font-bold mb-4 flex items-center">
               <MapPin className="mr-2" />
-              <span>Lisboa Tours</span>
+              <span>Lisbonlovesme</span>
             </div>
             <p className="text-white/70 mb-4">
               Authentic guided tours through the heart of Lisbon, showcasing the city's rich history, 
@@ -75,7 +75,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-white/70 text-sm">
           <div className="mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Lisboa Tours. All rights reserved.
+            &copy; {new Date().getFullYear()} Lisbonlovesme. All rights reserved.
           </div>
           <div className="flex space-x-4">
             <Link href="#" className="hover:text-white">Terms of Service</Link>

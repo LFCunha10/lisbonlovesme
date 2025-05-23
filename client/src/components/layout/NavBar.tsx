@@ -20,7 +20,7 @@ export default function NavBar() {
             <div className="text-2xl font-display font-bold text-primary">
               <Link href="/" className="flex items-center">
                 <MapPin className="mr-2" />
-                <span>Lisboa Tours</span>
+                <span>Lisbonlovesme</span>
               </Link>
             </div>
           </div>

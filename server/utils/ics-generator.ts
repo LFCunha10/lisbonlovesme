@@ -9,7 +9,7 @@ interface ICSEvent {
 
 export function generateICSFile(event: ICSEvent): string {
   // Generate a unique ID for the event
-  const uid = `event-${Date.now()}@lisboatours.com`;
+  const uid = `event-${Date.now()}@lisbonlovesme.com`;
   
   // Format the start date
   const startDate = new Date(event.start);
