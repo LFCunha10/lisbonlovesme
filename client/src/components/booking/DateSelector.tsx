@@ -37,7 +37,12 @@ export default function DateSelector({
 
   useEffect(() => {
     if (date && availabilities) {
-      const dateStr = date.toISOString().split("T")[0];
+      // Convert to local date string format (YYYY-MM-DD) consistently
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       const slots = availabilities
         .filter(a => a.date === dateStr && a.spotsLeft > 0)
         .map(a => ({
@@ -60,7 +65,7 @@ export default function DateSelector({
       setTime("");
       setAvailabilityId(0);
     }
-  }, [date, availabilities, time]);
+  }, [date, availabilities]);
 
   const handleDateSelect = (newDate: Date | undefined) => {
     setDate(newDate);
@@ -114,8 +119,11 @@ export default function DateSelector({
                 const isPast = isPastDate(date);
                 const isDayOfWeekDisabled = disabledDays.includes(date.getDay());
                 
-                // Convert to ISO date string format (YYYY-MM-DD) to check against availabilities
-                const dateStr = date.toISOString().split("T")[0];
+                // Convert to local date string format (YYYY-MM-DD) to check against availabilities
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
                 
                 // Check if there are any availabilities for this date with spots left
                 const hasAvailability = availabilities?.some(a => 

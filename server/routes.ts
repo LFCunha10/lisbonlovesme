@@ -107,22 +107,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all closed days
       const closedDays = await storage.getClosedDays();
       
-      // Debug: Log the closed days
-      console.log("Closed days:", closedDays);
-      
-      // Filter out availabilities on closed days with consistent date formatting
+      // Filter out availabilities on closed days
       const filteredAvailabilities = availabilities.filter(availability => {
-        // For debugging the date formats
-        console.log(`Checking availability date: ${availability.date}`);
-        
         // Check if this date is in the closed days list (exact string match)
-        return !closedDays.some(closedDay => {
-          const match = closedDay.date === availability.date;
-          if (match) {
-            console.log(`Match found! Closed day: ${closedDay.date}, Availability date: ${availability.date}`);
-          }
-          return match;
-        });
+        return !closedDays.some(closedDay => closedDay.date === availability.date);
       });
       
       res.json(filteredAvailabilities);
