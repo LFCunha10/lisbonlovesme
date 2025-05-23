@@ -102,17 +102,7 @@ async function exportDatabase() {
   }
 }
 
-// Run the export if this file is executed directly
-if (require.main === module) {
-  exportDatabase()
-    .then(() => {
-      console.log('Export process completed.');
-      process.exit(0);
-    })
-    .catch(error => {
-      console.error('Export process failed:', error);
-      process.exit(1);
-    });
-}
+// ES modules don't support require.main === module check
+// This will run only when imported, not executed directly
 
 export { exportDatabase };

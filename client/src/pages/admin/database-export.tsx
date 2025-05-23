@@ -14,15 +14,42 @@ export default function DatabaseExportPage() {
       setIsExporting(true);
       setExportError(null);
       
-      // Simply redirect to the API endpoint for downloading
-      window.location.href = "/api/export-database";
+      // Use fetch to get the file as a blob
+      const response = await fetch("/api/export-database");
       
-      // Set a timeout to reset the loading state after a few seconds
-      // since we can't detect when the download is complete
-      setTimeout(() => {
-        setIsExporting(false);
-      }, 3000);
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+      
+      // Get the filename from the Content-Disposition header if available
+      let filename = "lisbonlovesme_database_export.sql";
+      const contentDisposition = response.headers.get('Content-Disposition');
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      // Convert response to blob
+      const blob = await response.blob();
+      
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      setIsExporting(false);
     } catch (error: any) {
+      console.error("Export error:", error);
       setExportError(error.message || "Failed to export database");
       setIsExporting(false);
     }

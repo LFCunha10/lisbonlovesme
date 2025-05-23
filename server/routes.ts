@@ -352,24 +352,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create export directory if it doesn't exist
       const exportDir = path.join(process.cwd(), 'exports');
       if (!fs.existsSync(exportDir)) {
-        fs.mkdirSync(exportDir);
+        fs.mkdirSync(exportDir, { recursive: true });
       }
       
       // Generate the export file
       const exportPath = await exportDatabase();
       
+      // Check if file exists and is readable
+      if (!fs.existsSync(exportPath)) {
+        throw new Error(`Export file does not exist at ${exportPath}`);
+      }
+      
       // Set appropriate headers for the response
-      res.setHeader('Content-Type', 'application/sql');
+      res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Disposition', `attachment; filename="${path.basename(exportPath)}"`);
       
-      // Stream the file to the response
-      const fileStream = fs.createReadStream(exportPath);
-      fileStream.pipe(res);
-      
-      // Handle errors in streaming
-      fileStream.on('error', (error) => {
-        console.error("Error streaming export file:", error);
-        res.status(500).json({ message: "Error downloading export file" });
+      // Send the file directly instead of streaming
+      fs.readFile(exportPath, (err, data) => {
+        if (err) {
+          console.error("Error reading export file:", err);
+          return res.status(500).json({ message: "Error reading export file" });
+        }
+        
+        // Log success and send file
+        console.log(`Sending file: ${exportPath} (${data.length} bytes)`);
+        res.send(data);
       });
     } catch (error: any) {
       console.error("Database export failed:", error);
