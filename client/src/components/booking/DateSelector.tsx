@@ -62,7 +62,10 @@ export default function DateSelector({
       
       // If there are no slots available or the previously selected time is no longer available,
       // reset the time selection
-      if (slots.length === 0 || !slots.some(slot => slot.time === time)) {
+      if (slots.length === 0) {
+        setTime("");
+        setAvailabilityId(0);
+      } else if (time && !slots.some(slot => slot.time === time)) {
         setTime("");
         setAvailabilityId(0);
       }
