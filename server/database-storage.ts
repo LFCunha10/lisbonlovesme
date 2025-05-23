@@ -216,25 +216,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
+    console.log("Starting booking creation with data:", booking);
+    
     // Generate a unique booking reference
     const bookingReference = `LT-${nanoid(7).toUpperCase()}`;
     
-    const [newBooking] = await db
-      .insert(bookings)
-      .values({
-        ...booking,
-        bookingReference,
-      })
-      .returning();
-    
-    // Update the spots left in the availability
-    const availability = await this.getAvailability(booking.availabilityId);
-    if (availability) {
-      const spotsLeft = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
-      await this.updateAvailability(availability.id, { spotsLeft });
+    try {
+      const [newBooking] = await db
+        .insert(bookings)
+        .values({
+          ...booking,
+          bookingReference,
+        })
+        .returning();
+      
+      console.log("Booking inserted successfully:", newBooking);
+      
+      // Update the spots left in the availability (simplified to prevent hanging)
+      try {
+        const availability = await this.getAvailability(booking.availabilityId);
+        if (availability && availability.spotsLeft > 0) {
+          const spotsLeft = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
+          await this.updateAvailability(availability.id, { spotsLeft });
+          console.log("Availability updated successfully");
+        }
+      } catch (availabilityError) {
+        console.warn("Failed to update availability but booking created:", availabilityError);
+      }
+      
+      return newBooking;
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      throw error;
     }
-    
-    return newBooking;
   }
 
   async updateBooking(
