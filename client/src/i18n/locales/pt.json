@@ -7,6 +7,17 @@
       "contact": "Contacto",
       "booking": "Reservar Passeio"
     },
+    "aboutUs": {
+      "title": "Guias Locais com Paixão por Lisboa",
+      "description": "A nossa equipa é composta por guias locais certificados que têm paixão por partilhar a rica história de Lisboa, a cultura vibrante e as jóias escondidas com visitantes de todo o mundo.",
+      "feature1Title": "Conhecimento Local",
+      "feature1Description": "Nascidos e criados em Lisboa, os nossos guias conhecem a cidade por dentro e por fora.",
+      "feature2Title": "Proficiência em Idiomas",
+      "feature2Description": "Os nossos guias falam fluentemente inglês, espanhol, francês e português.",
+      "feature3Title": "Experiências Personalizadas",
+      "feature3Description": "Adaptamos cada tour para corresponder aos interesses e ritmo dos nossos clientes.",
+      "meetOurTeam": "Conheça a Nossa Equipa"
+    },
     "home": {
       "welcome": "Bem-vindo à Lisbonlovesme",
       "subtitle": "Descubra Lisboa com os nossos passeios guiados",

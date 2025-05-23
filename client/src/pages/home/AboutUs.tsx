@@ -1,38 +1,40 @@
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function AboutUs() {
+  const { t } = useTranslation();
+  
   return (
     <section id="about" className="py-16 bg-neutral-light">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Local Guides with Passion for Lisbon
+              {t('aboutUs.title')}
             </h2>
             <p className="text-lg mb-6">
-              Our team consists of certified local guides who are passionate about sharing Lisbon's rich history, 
-              vibrant culture, and hidden gems with visitors from around the world.
+              {t('aboutUs.description')}
             </p>
             
             <div className="mb-8">
               <Feature 
-                title="Local Expertise"
-                description="Born and raised in Lisbon, our guides know the city inside out."
+                title={t('aboutUs.feature1Title')}
+                description={t('aboutUs.feature1Description')}
               />
               
               <Feature 
-                title="Language Proficiency"
-                description="Our guides are fluent in English, Spanish, French, and Portuguese."
+                title={t('aboutUs.feature2Title')}
+                description={t('aboutUs.feature2Description')}
               />
               
               <Feature 
-                title="Customized Experiences"
-                description="We tailor each tour to match the interests and pace of our clients."
+                title={t('aboutUs.feature3Title')}
+                description={t('aboutUs.feature3Description')}
               />
             </div>
             
             <a href="#our-guides" className="inline-flex items-center text-primary font-semibold hover:underline">
-              Meet Our Team <ArrowRightIcon className="ml-1" />
+              {t('aboutUs.meetOurTeam')} <ArrowRightIcon className="ml-1" />
             </a>
           </div>
           

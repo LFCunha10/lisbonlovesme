@@ -7,6 +7,17 @@
       "contact": "Contact",
       "booking": "Book a Tour"
     },
+    "aboutUs": {
+      "title": "Local Guides with Passion for Lisbon",
+      "description": "Our team consists of certified local guides who are passionate about sharing Lisbon's rich history, vibrant culture, and hidden gems with visitors from around the world.",
+      "feature1Title": "Local Expertise",
+      "feature1Description": "Born and raised in Lisbon, our guides know the city inside out.",
+      "feature2Title": "Language Proficiency",
+      "feature2Description": "Our guides are fluent in English, Spanish, French, and Portuguese.",
+      "feature3Title": "Customized Experiences",
+      "feature3Description": "We tailor each tour to match the interests and pace of our clients.",
+      "meetOurTeam": "Meet Our Team"
+    },
     "home": {
       "welcome": "Welcome to Lisbonlovesme",
       "subtitle": "Discover Lisbon with our guided tours",
