@@ -3,12 +3,15 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/language-switcher";
 import { useBookingModal } from "@/hooks/use-bookings";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
   const { openBookingModal } = useBookingModal();
+  const { t } = useTranslation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -25,12 +28,13 @@ export default function NavBar() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <NavLink href="/#tours" isActive={location === "/"}>Tours</NavLink>
-            <NavLink href="/#about" isActive={location === "/"}>About Us</NavLink>
+          <div className="hidden md:flex items-center space-x-6">
+            <NavLink href="/#tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
+            <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
             <NavLink href="/#testimonials" isActive={location === "/"}>Testimonials</NavLink>
-            <NavLink href="/#contact" isActive={location === "/"}>Contact</NavLink>
-            <Button onClick={() => openBookingModal()}>Book Now</Button>
+            <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
+            <LanguageSwitcher />
+            <Button onClick={() => openBookingModal()}>{t('nav.booking')}</Button>
           </div>
 
           <div className="md:hidden">
