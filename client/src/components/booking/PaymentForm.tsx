@@ -1,298 +1,248 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tour, InsertBooking } from "@shared/schema";
-import { formatCurrency } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { SendEmail } from "@/lib/email";
-import { AddToCalendar } from "@/lib/calendar";
-import { CreditCard, Slack } from "lucide-react";
+import { CreditCard, ChevronLeft, Lock, Calendar, Users, MapPin, Euro } from "lucide-react";
+import type { Tour } from "@shared/schema";
 
-interface PaymentFormProps {
-  onPrevious: () => void;
-  onComplete: () => void;
-  bookingData: any;
-  tour?: Tour;
-  updateBookingData: (data: any) => void;
+interface BookingData {
+  date: string;
+  time: string;
+  availabilityId: number;
+  numberOfParticipants: number;
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  specialRequests: string;
 }
 
-export default function PaymentForm({
-  onPrevious,
-  onComplete,
-  bookingData,
-  tour,
-  updateBookingData
-}: PaymentFormProps) {
+interface PaymentFormProps {
+  tour: Tour;
+  bookingData: BookingData;
+  totalAmount: number;
+  onPaymentComplete: (reference: string) => void;
+  onBack: () => void;
+}
+
+export function PaymentForm({ tour, bookingData, totalAmount, onPaymentComplete, onBack }: PaymentFormProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"credit-card" | "paypal">("credit-card");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardholderName, setCardholderName] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvc, setCvc] = useState("");
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const validateForm = (): boolean => {
-    const errors: Record<string, boolean> = {};
-    
-    if (paymentMethod === "credit-card") {
-      if (!cardNumber || cardNumber.replace(/\s/g, "").length < 16) 
-        errors.cardNumber = true;
-      if (!cardholderName) errors.cardholderName = true;
-      if (!expiryDate || !expiryDate.match(/^\d{2}\/\d{2}$/)) 
-        errors.expiryDate = true;
-      if (!cvc || cvc.length < 3) errors.cvc = true;
-    }
-    
-    if (!agreeToTerms) errors.agreeToTerms = true;
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) {
+  const createBooking = useMutation({
+    mutationFn: (data: any) => apiRequest('POST', '/api/bookings', data),
+    onSuccess: (response: any) => {
       toast({
-        variant: "destructive",
-        title: "Form Error",
-        description: "Please fill in all required fields and agree to the terms."
+        title: t('booking.success'),
+        description: t('booking.successMessage'),
       });
-      return;
+      onPaymentComplete(response.bookingReference);
+    },
+    onError: (error: any) => {
+      setIsProcessing(false);
+      toast({
+        title: t('booking.error'),
+        description: error.message || t('booking.errorMessage'),
+        variant: "destructive",
+      });
     }
+  });
+
+  const handlePayment = async () => {
+    setIsProcessing(true);
     
-    setIsLoading(true);
-    
-    try {
-      // Create the booking first
-      const bookingPayload: Partial<InsertBooking> = {
-        tourId: bookingData.tourId,
+    // Simulate payment processing for demo
+    setTimeout(() => {
+      createBooking.mutate({
+        tourId: tour.id,
         availabilityId: bookingData.availabilityId,
         customerFirstName: bookingData.customerFirstName,
         customerLastName: bookingData.customerLastName,
         customerEmail: bookingData.customerEmail,
         customerPhone: bookingData.customerPhone,
         numberOfParticipants: bookingData.numberOfParticipants,
-        specialRequests: bookingData.specialRequests,
-        totalAmount: bookingData.totalAmount
-      };
-      
-      const response = await apiRequest("POST", "/api/bookings", bookingPayload);
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Simulate payment processing
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Update booking status to confirm
-        const confirmResponse = await apiRequest(
-          "POST", 
-          `/api/bookings/${data.booking.id}/confirm`,
-          {}
-        );
-        
-        if (confirmResponse.ok) {
-          // Update bookingData with reference number and other details
-          updateBookingData({
-            ...data.booking,
-            bookingReference: data.booking.bookingReference
-          });
-          
-          toast({
-            title: "Booking Successful",
-            description: "Your tour has been booked successfully!"
-          });
-          
-          onComplete();
-        } else {
-          throw new Error("Failed to confirm booking");
-        }
-      } else {
-        throw new Error(data.message || "Failed to create booking");
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Booking Failed",
-        description: error instanceof Error ? error.message : "An unexpected error occurred"
+        specialRequests: bookingData.specialRequests || null,
+        paymentStatus: 'completed',
+        totalAmount,
+        currency: 'EUR'
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Format card number as it's entered (add spaces)
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s/g, "");
-    if (value.length > 16) return;
-    
-    // Add space every 4 characters
-    const formattedValue = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-    setCardNumber(formattedValue);
-  };
-
-  // Format expiry date as MM/YY
-  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
-    if (value.length > 4) return;
-    
-    if (value.length > 2) {
-      setExpiryDate(`${value.substring(0, 2)}/${value.substring(2)}`);
-    } else {
-      setExpiryDate(value);
-    }
+    }, 2000);
   };
 
   return (
-    <div>
-      <h4 className="text-xl font-semibold mb-4">Payment Details</h4>
-      
-      <div className="bg-neutral-light p-4 rounded-md mb-6">
-        <h5 className="font-semibold mb-2">Order Summary</h5>
-        {tour && (
-          <div className="flex justify-between mb-2">
-            <span>{tour.name}</span>
-            <span>{formatCurrency(tour.price)} x {bookingData.numberOfParticipants}</span>
-          </div>
-        )}
-        <div className="border-t border-neutral-dark/10 my-2"></div>
-        <div className="flex justify-between font-semibold">
-          <span>Total</span>
-          <span>{formatCurrency(bookingData.totalAmount)}</span>
-        </div>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+          {t('booking.payment')}
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          {t('booking.paymentSubtitle')}
+        </p>
       </div>
-      
-      <div className="mb-6">
-        <h5 className="font-semibold mb-3">Payment Method</h5>
-        <RadioGroup 
-          defaultValue="credit-card" 
-          value={paymentMethod}
-          onValueChange={(value) => setPaymentMethod(value as "credit-card" | "paypal")}
-          className="grid grid-cols-1 gap-3"
-        >
-          <div className={`flex items-center p-3 border rounded-md cursor-pointer ${paymentMethod === 'credit-card' ? 'border-primary' : 'border-neutral-light/80'}`}>
-            <RadioGroupItem value="credit-card" id="credit-card" className="mr-3" />
-            <Label htmlFor="credit-card" className="cursor-pointer flex-grow">Credit Card</Label>
-            <div className="ml-auto flex space-x-2 text-neutral-dark/70">
-              <CreditCard className="h-5 w-5" />
+
+      {/* Booking Summary */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('booking.bookingSummary')}
+          </h3>
+          
+          <div className="flex space-x-4 mb-4">
+            <img
+              src={tour.imageUrl}
+              alt={tour.name}
+              className="w-20 h-20 object-cover rounded-lg"
+            />
+            <div className="flex-1">
+              <h4 className="font-medium text-gray-900 dark:text-white">
+                {tour.name}
+              </h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                {tour.duration}
+              </p>
+              {tour.badge && (
+                <Badge variant="secondary" className="text-xs">
+                  {tour.badge}
+                </Badge>
+              )}
             </div>
           </div>
-          
-          <div className={`flex items-center p-3 border rounded-md cursor-pointer ${paymentMethod === 'paypal' ? 'border-primary' : 'border-neutral-light/80'}`}>
-            <RadioGroupItem value="paypal" id="paypal" className="mr-3" />
-            <Label htmlFor="paypal" className="cursor-pointer flex-grow">PayPal</Label>
-            <Slack className="h-5 w-5 ml-auto text-[#0070BA]" />
+
+          <Separator className="my-4" />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-400">{t('booking.dateTime')}</span>
+              </div>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {new Date(bookingData.date).toLocaleDateString()} {bookingData.time}
+              </span>
+            </div>
+            
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-400">{t('booking.participants')}</span>
+              </div>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {bookingData.numberOfParticipants} {bookingData.numberOfParticipants === 1 ? t('booking.person') : t('booking.people')}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-2">
+                <Euro className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-400">{t('booking.pricePerPerson')}</span>
+              </div>
+              <span className="font-medium text-gray-900 dark:text-white">€{tour.price}</span>
+            </div>
+
+            <Separator className="my-2" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('booking.total')}
+              </span>
+              <span className="text-2xl font-bold text-primary">
+                €{totalAmount}
+              </span>
+            </div>
           </div>
-        </RadioGroup>
-      </div>
-      
-      {paymentMethod === "credit-card" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="md:col-span-2">
-            <Label htmlFor="cardNumber" className="block text-neutral-dark/80 mb-1">Card Number</Label>
-            <Input
-              id="cardNumber"
-              type="text"
-              placeholder="1234 5678 9012 3456"
-              value={cardNumber}
-              onChange={handleCardNumberChange}
-              className={formErrors.cardNumber ? "border-error" : ""}
-            />
-            {formErrors.cardNumber && (
-              <p className="text-error text-sm mt-1">Please enter a valid card number</p>
+        </CardContent>
+      </Card>
+
+      {/* Customer Information */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            {t('booking.customerInformation')}
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">{t('booking.name')}</span>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {bookingData.customerFirstName} {bookingData.customerLastName}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">{t('booking.email')}</span>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {bookingData.customerEmail}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">{t('booking.phone')}</span>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {bookingData.customerPhone}
+              </p>
+            </div>
+            {bookingData.specialRequests && (
+              <div className="md:col-span-2">
+                <span className="text-gray-600 dark:text-gray-400">{t('booking.specialRequests')}</span>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {bookingData.specialRequests}
+                </p>
+              </div>
             )}
           </div>
-          
-          <div className="md:col-span-2">
-            <Label htmlFor="cardholderName" className="block text-neutral-dark/80 mb-1">Cardholder Name</Label>
-            <Input
-              id="cardholderName"
-              type="text"
-              placeholder="John Doe"
-              value={cardholderName}
-              onChange={(e) => setCardholderName(e.target.value)}
-              className={formErrors.cardholderName ? "border-error" : ""}
-            />
-            {formErrors.cardholderName && (
-              <p className="text-error text-sm mt-1">Please enter the cardholder name</p>
-            )}
+        </CardContent>
+      </Card>
+
+      {/* Payment Section */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center space-x-2 text-green-600">
+              <Lock className="w-5 h-5" />
+              <span className="text-sm font-medium">{t('booking.securePayment')}</span>
+            </div>
+            
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                {t('booking.demoNotice')}
+              </h4>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                {t('booking.demoDescription')}
+              </p>
+            </div>
+
+            <Button
+              onClick={handlePayment}
+              disabled={isProcessing}
+              className="w-full text-lg py-6"
+              size="lg"
+            >
+              <CreditCard className="w-5 h-5 mr-2" />
+              {isProcessing ? t('booking.processing') : `${t('booking.payNow')} €${totalAmount}`}
+            </Button>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {t('booking.paymentNotice')}
+            </p>
           </div>
-          
-          <div>
-            <Label htmlFor="expiryDate" className="block text-neutral-dark/80 mb-1">Expiry Date</Label>
-            <Input
-              id="expiryDate"
-              type="text"
-              placeholder="MM/YY"
-              value={expiryDate}
-              onChange={handleExpiryDateChange}
-              className={formErrors.expiryDate ? "border-error" : ""}
-            />
-            {formErrors.expiryDate && (
-              <p className="text-error text-sm mt-1">Please enter a valid expiry date</p>
-            )}
-          </div>
-          
-          <div>
-            <Label htmlFor="cvc" className="block text-neutral-dark/80 mb-1">CVC</Label>
-            <Input
-              id="cvc"
-              type="text"
-              placeholder="123"
-              value={cvc}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                if (value.length <= 4) setCvc(value);
-              }}
-              className={formErrors.cvc ? "border-error" : ""}
-            />
-            {formErrors.cvc && (
-              <p className="text-error text-sm mt-1">Please enter a valid CVC</p>
-            )}
-          </div>
-        </div>
-      )}
-      
-      {paymentMethod === "paypal" && (
-        <div className="mb-6 p-4 bg-neutral-light/50 rounded text-center">
-          <p>You will be redirected to PayPal to complete your payment after clicking "Complete Booking".</p>
-        </div>
-      )}
-      
-      <div className="mb-6">
-        <div className="flex items-start">
-          <Checkbox 
-            id="terms" 
-            checked={agreeToTerms}
-            onCheckedChange={(checked) => setAgreeToTerms(checked === true)}
-            className={`mt-1 mr-3 ${formErrors.agreeToTerms ? 'border-error' : ''}`}
-          />
-          <Label htmlFor="terms" className="text-neutral-dark/80">
-            I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
-          </Label>
-        </div>
-        {formErrors.agreeToTerms && (
-          <p className="text-error text-sm mt-1">You must agree to the terms and conditions</p>
-        )}
-      </div>
-      
-      <div className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={onPrevious}
-          disabled={isLoading}
+        </CardContent>
+      </Card>
+
+      {/* Navigation */}
+      <div className="flex justify-start pt-6">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          disabled={isProcessing}
+          className="flex items-center space-x-2"
         >
-          Previous
-        </Button>
-        <Button 
-          onClick={handleSubmit}
-          disabled={isLoading}
-        >
-          {isLoading ? "Processing..." : "Complete Booking"}
+          <ChevronLeft className="w-4 h-4" />
+          <span>{t('booking.back')}</span>
         </Button>
       </div>
     </div>

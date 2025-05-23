@@ -1,90 +1,209 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Calendar } from "lucide-react";
-import { Tour } from "@shared/schema";
-import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
-import { AddToCalendar } from "@/lib/calendar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { CheckCircle, Calendar, Users, Euro, Mail, Phone, Home } from "lucide-react";
+import { Link } from "wouter";
+import type { Tour } from "@shared/schema";
 
-interface BookingConfirmationProps {
-  bookingData: any;
-  tour?: Tour;
-  onClose: () => void;
+interface BookingData {
+  date: string;
+  time: string;
+  availabilityId: number;
+  numberOfParticipants: number;
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  specialRequests: string;
 }
 
-export default function BookingConfirmation({
-  bookingData,
-  tour,
-  onClose
-}: BookingConfirmationProps) {
-  const handleAddToCalendar = () => {
-    if (tour) {
-      AddToCalendar({
-        title: `Lisboa Tours: ${tour.name}`,
-        description: tour.description,
-        location: bookingData.meetingPoint || "Lisboa, Portugal",
-        startDate: bookingData.date,
-        startTime: bookingData.time,
-        duration: parseInt(tour.duration.split(' ')[0]), // E.g., "3 hours" -> 3
-      });
-    }
-  };
+interface BookingConfirmationProps {
+  tour: Tour;
+  bookingData: BookingData;
+  bookingReference: string;
+  totalAmount: number;
+}
+
+export function BookingConfirmation({ tour, bookingData, bookingReference, totalAmount }: BookingConfirmationProps) {
+  const { t } = useTranslation();
 
   return (
-    <div className="text-center py-6">
-      <div className="w-20 h-20 bg-success/20 text-success rounded-full flex items-center justify-center mx-auto mb-6">
-        <CheckCircle className="h-10 w-10" />
-      </div>
-      
-      <h4 className="text-2xl font-display font-bold mb-3">Booking Confirmed!</h4>
-      <p className="text-neutral-dark/80 mb-6">
-        Your tour has been successfully booked. A confirmation email has been sent to your email address.
-      </p>
-      
-      <div className="bg-neutral-light p-4 rounded-md text-left mb-6">
-        <h5 className="font-semibold mb-2">Booking Details</h5>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-dark/70">Tour:</div>
-          <div>{tour?.name}</div>
-          
-          <div className="text-neutral-dark/70">Date:</div>
-          <div>{bookingData.date ? formatDate(bookingData.date) : "Not specified"}</div>
-          
-          <div className="text-neutral-dark/70">Time:</div>
-          <div>{bookingData.time ? formatTime(bookingData.time) : "Not specified"}</div>
-          
-          <div className="text-neutral-dark/70">Participants:</div>
-          <div>{bookingData.numberOfParticipants} people</div>
-          
-          <div className="text-neutral-dark/70">Total Amount:</div>
-          <div>{formatCurrency(bookingData.totalAmount)}</div>
-          
-          <div className="text-neutral-dark/70">Booking Reference:</div>
-          <div>{bookingData.bookingReference}</div>
+    <div className="space-y-6">
+      {/* Success Header */}
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <CheckCircle className="w-16 h-16 text-green-500" />
+        </div>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+          {t('booking.confirmationTitle')}
+        </h2>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          {t('booking.confirmationSubtitle')}
+        </p>
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 inline-block">
+          <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+            {t('booking.referenceNumber')}: <span className="font-bold text-green-800 dark:text-green-200">{bookingReference}</span>
+          </p>
         </div>
       </div>
-      
-      <div className="mb-6 text-left">
-        <h5 className="font-semibold mb-2">Meeting Point</h5>
-        <p className="text-neutral-dark/80 mb-2">
-          {bookingData.meetingPoint || "We'll meet at the entrance of the tour's main location, 15 minutes before the tour starts."}
-        </p>
-        <p className="text-neutral-dark/80">
-          Please bring comfortable walking shoes, water, and sun protection.
-        </p>
+
+      {/* Booking Details */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            {t('booking.bookingDetails')}
+          </h3>
+          
+          <div className="flex space-x-4 mb-6">
+            <img
+              src={tour.imageUrl}
+              alt={tour.name}
+              className="w-24 h-24 object-cover rounded-lg"
+            />
+            <div className="flex-1">
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white">
+                {tour.name}
+              </h4>
+              <p className="text-gray-500 dark:text-gray-400 mb-2">
+                {tour.duration} • {tour.difficulty}
+              </p>
+              {tour.badge && (
+                <Badge variant="secondary">
+                  {tour.badge}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.dateTime')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {new Date(bookingData.date).toLocaleDateString()} • {bookingData.time}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Users className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.participants')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {bookingData.numberOfParticipants} {bookingData.numberOfParticipants === 1 ? t('booking.person') : t('booking.people')}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Euro className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.totalPaid')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">€{totalAmount}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.email')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{bookingData.customerEmail}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.phone')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{bookingData.customerPhone}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Home className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.customer')}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {bookingData.customerFirstName} {bookingData.customerLastName}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {bookingData.specialRequests && (
+            <>
+              <Separator className="my-6" />
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t('booking.specialRequests')}</p>
+                <p className="font-medium text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  {bookingData.specialRequests}
+                </p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* What's Next */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            {t('booking.whatsNext')}
+          </h3>
+          
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-600 dark:text-gray-400">
+                {t('booking.nextStep1')}
+              </p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-600 dark:text-gray-400">
+                {t('booking.nextStep2')}
+              </p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-600 dark:text-gray-400">
+                {t('booking.nextStep3')}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        <Link href="/" className="flex-1">
+          <Button variant="outline" className="w-full">
+            <Home className="w-4 h-4 mr-2" />
+            {t('booking.backToHome')}
+          </Button>
+        </Link>
+        <Link href={`/tour/${tour.id}`} className="flex-1">
+          <Button className="w-full">
+            {t('booking.viewTour')}
+          </Button>
+        </Link>
       </div>
-      
-      <div className="flex justify-center gap-4">
-        <Button 
-          variant="outline" 
-          onClick={onClose}
-        >
-          Close
-        </Button>
-        <Button 
-          onClick={handleAddToCalendar}
-          className="flex items-center"
-        >
-          <Calendar className="mr-2 h-4 w-4" /> Add to Calendar
-        </Button>
+
+      {/* Support Note */}
+      <div className="text-center text-sm text-gray-500 dark:text-gray-400 border-t pt-6">
+        <p>
+          {t('booking.supportNote')} <br />
+          {t('booking.contactInfo')}
+        </p>
       </div>
     </div>
   );
