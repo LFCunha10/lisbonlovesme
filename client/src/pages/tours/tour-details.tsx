@@ -15,10 +15,14 @@ export default function TourDetailsPage() {
   const { t } = useTranslation();
   const tourId = parseInt(id as string);
 
-  const { data: tour, isLoading: tourLoading } = useQuery<Tour>({
+  console.log('Tour ID from params:', id, 'Parsed:', tourId);
+
+  const { data: tour, isLoading: tourLoading, error } = useQuery<Tour>({
     queryKey: [`/api/tours/${tourId}`],
-    enabled: !!tourId
+    enabled: !!tourId && !isNaN(tourId)
   });
+
+  console.log('Tour data:', tour, 'Loading:', tourLoading, 'Error:', error);
 
   const { data: testimonials, isLoading: testimonialsLoading } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials'],
