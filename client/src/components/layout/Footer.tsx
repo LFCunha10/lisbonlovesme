@@ -34,7 +34,7 @@ export default function Footer() {
               <FooterLink href="/">{t('nav.home')}</FooterLink>
               <FooterLink href="/#tours">{t('nav.tours')}</FooterLink>
               <FooterLink href="/#about">{t('nav.about')}</FooterLink>
-              <FooterLink href="/#testimonials">{t('testimonials.title')}</FooterLink>
+              <FooterLink href="/#reviews">{t('reviews.title')}</FooterLink>
               <FooterLink href="/#contact">{t('nav.contact')}</FooterLink>
               <FooterLink href="/#book-now">{t('nav.booking')}</FooterLink>
             </ul>
