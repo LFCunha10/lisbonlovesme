@@ -121,8 +121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/closed-days", async (req: Request, res: Response) => {
     try {
-      // Check if user is admin
-      if (!(req.session && req.session.isAdmin)) {
+      // Check if user is admin (using header or session)
+      const isAdmin = (req.headers['x-admin-auth'] === 'admin-authenticated') || 
+                     (req.session && req.session.isAdmin);
+                     
+      if (!isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -141,8 +144,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.delete("/api/closed-days/:date", async (req: Request, res: Response) => {
     try {
-      // Check if user is admin
-      if (!(req.session && req.session.isAdmin)) {
+      // Check if user is admin (using header or session)
+      const isAdmin = (req.headers['x-admin-auth'] === 'admin-authenticated') || 
+                     (req.session && req.session.isAdmin);
+                     
+      if (!isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -163,8 +169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin settings API endpoints
   app.get("/api/admin/settings", async (req: Request, res: Response) => {
     try {
-      // Check if user is admin
-      if (!(req.session && req.session.isAdmin)) {
+      // Check if user is admin (using header or session)
+      const isAdmin = (req.headers['x-admin-auth'] === 'admin-authenticated') || 
+                     (req.session && req.session.isAdmin);
+                     
+      if (!isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -178,8 +187,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put("/api/admin/settings", async (req: Request, res: Response) => {
     try {
-      // Check if user is admin
-      if (!(req.session && req.session.isAdmin)) {
+      // Check if user is admin (using header or session)
+      const isAdmin = (req.headers['x-admin-auth'] === 'admin-authenticated') || 
+                     (req.session && req.session.isAdmin);
+                     
+      if (!isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
