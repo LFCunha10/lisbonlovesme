@@ -100,8 +100,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/availabilities", async (req: Request, res: Response) => {
     try {
       const tourId = req.query.tourId ? parseInt(req.query.tourId as string) : undefined;
+      
+      // Get all availabilities
       const availabilities = await storage.getAvailabilities(tourId);
-      res.json(availabilities);
+      
+      // Get all closed days
+      const closedDays = await storage.getClosedDays();
+      
+      // Filter out availabilities on closed days
+      const filteredAvailabilities = availabilities.filter(availability => {
+        // Check if this date is in the closed days list
+        return !closedDays.some(closedDay => closedDay.date === availability.date);
+      });
+      
+      res.json(filteredAvailabilities);
     } catch (error) {
       console.error("Error fetching availabilities:", error);
       res.status(500).json({ message: "Failed to fetch availabilities" });
