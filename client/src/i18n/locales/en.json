@@ -1,0 +1,111 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Home",
+      "tours": "Tours",
+      "about": "About Us",
+      "contact": "Contact",
+      "booking": "Book a Tour"
+    },
+    "home": {
+      "welcome": "Welcome to Lisbonlovesme",
+      "subtitle": "Discover Lisbon with our guided tours",
+      "explore": "Explore Tours",
+      "featuredTours": "Featured Tours",
+      "testimonials": "What Our Clients Say",
+      "viewAll": "View All Tours"
+    },
+    "tours": {
+      "title": "Our Tours",
+      "subtitle": "Discover the best experiences in Lisbon",
+      "duration": "Duration",
+      "groupSize": "Group Size",
+      "difficulty": "Difficulty",
+      "price": "Price",
+      "viewDetails": "View Details",
+      "bookNow": "Book Now",
+      "availabilities": "Availabilities",
+      "noAvailability": "No availabilities found for this tour",
+      "people": "people",
+      "perPerson": "per person",
+      "easy": "Easy",
+      "moderate": "Moderate",
+      "challenging": "Challenging",
+      "hours": "hours",
+      "meetingPoint": "Meeting Point"
+    },
+    "booking": {
+      "title": "Book Your Tour",
+      "personal": "Personal Information",
+      "payment": "Payment Information",
+      "confirmation": "Booking Confirmation",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "participants": "Number of Participants",
+      "date": "Date",
+      "time": "Time",
+      "specialRequests": "Special Requests",
+      "paymentMethod": "Payment Method",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvv": "CVV",
+      "bookingDetails": "Booking Details",
+      "totalAmount": "Total Amount",
+      "completeBooking": "Complete Booking",
+      "confirmBooking": "Confirm Booking",
+      "bookingSuccess": "Booking Successful!",
+      "bookingReference": "Booking Reference",
+      "bookingConfirmationEmail": "We've sent a confirmation email to your email address.",
+      "returnHome": "Return to Homepage"
+    },
+    "testimonials": {
+      "title": "Testimonials",
+      "leaveTestimonial": "Leave a Testimonial",
+      "yourName": "Your Name",
+      "yourCountry": "Your Country",
+      "yourExperience": "Your Experience",
+      "rating": "Rating",
+      "submit": "Submit Testimonial",
+      "thankYou": "Thank you for your feedback!"
+    },
+    "admin": {
+      "dashboard": "Admin Dashboard",
+      "tours": "Manage Tours",
+      "bookings": "Bookings",
+      "testimonials": "Testimonials",
+      "logout": "Logout",
+      "login": "Admin Login",
+      "username": "Username",
+      "password": "Password",
+      "loginButton": "Login",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "updatePassword": "Update Password"
+    },
+    "footer": {
+      "rights": "All Rights Reserved",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contactUs": "Contact Us"
+    },
+    "common": {
+      "loading": "Loading...",
+      "error": "An error occurred",
+      "retry": "Retry",
+      "notFound": "Page Not Found",
+      "backToHome": "Back to Homepage",
+      "language": "Language",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "delete": "Delete",
+      "create": "Create",
+      "search": "Search",
+      "noResults": "No results found"
+    }
+  }
+}

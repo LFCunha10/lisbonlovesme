@@ -1,0 +1,111 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Início",
+      "tours": "Passeios",
+      "about": "Sobre Nós",
+      "contact": "Contacto",
+      "booking": "Reservar Passeio"
+    },
+    "home": {
+      "welcome": "Bem-vindo à Lisbonlovesme",
+      "subtitle": "Descubra Lisboa com os nossos passeios guiados",
+      "explore": "Explorar Passeios",
+      "featuredTours": "Passeios em Destaque",
+      "testimonials": "O Que Dizem Nossos Clientes",
+      "viewAll": "Ver Todos os Passeios"
+    },
+    "tours": {
+      "title": "Nossos Passeios",
+      "subtitle": "Descubra as melhores experiências em Lisboa",
+      "duration": "Duração",
+      "groupSize": "Tamanho do Grupo",
+      "difficulty": "Dificuldade",
+      "price": "Preço",
+      "viewDetails": "Ver Detalhes",
+      "bookNow": "Reservar Agora",
+      "availabilities": "Disponibilidades",
+      "noAvailability": "Nenhuma disponibilidade encontrada para este passeio",
+      "people": "pessoas",
+      "perPerson": "por pessoa",
+      "easy": "Fácil",
+      "moderate": "Moderado",
+      "challenging": "Desafiante",
+      "hours": "horas",
+      "meetingPoint": "Ponto de Encontro"
+    },
+    "booking": {
+      "title": "Reserve seu Passeio",
+      "personal": "Informação Pessoal",
+      "payment": "Informação de Pagamento",
+      "confirmation": "Confirmação de Reserva",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "Email",
+      "phone": "Telefone",
+      "participants": "Número de Participantes",
+      "date": "Data",
+      "time": "Hora",
+      "specialRequests": "Pedidos Especiais",
+      "paymentMethod": "Método de Pagamento",
+      "cardNumber": "Número do Cartão",
+      "expiryDate": "Data de Validade",
+      "cvv": "CVV",
+      "bookingDetails": "Detalhes da Reserva",
+      "totalAmount": "Valor Total",
+      "completeBooking": "Concluir Reserva",
+      "confirmBooking": "Confirmar Reserva",
+      "bookingSuccess": "Reserva Bem-sucedida!",
+      "bookingReference": "Referência da Reserva",
+      "bookingConfirmationEmail": "Enviámos um email de confirmação para o seu endereço de email.",
+      "returnHome": "Voltar à Página Inicial"
+    },
+    "testimonials": {
+      "title": "Testemunhos",
+      "leaveTestimonial": "Deixe um Testemunho",
+      "yourName": "Seu Nome",
+      "yourCountry": "Seu País",
+      "yourExperience": "Sua Experiência",
+      "rating": "Avaliação",
+      "submit": "Enviar Testemunho",
+      "thankYou": "Obrigado pelo seu feedback!"
+    },
+    "admin": {
+      "dashboard": "Painel de Administração",
+      "tours": "Gerir Passeios",
+      "bookings": "Reservas",
+      "testimonials": "Testemunhos",
+      "logout": "Terminar Sessão",
+      "login": "Login de Administrador",
+      "username": "Nome de Utilizador",
+      "password": "Palavra-passe",
+      "loginButton": "Entrar",
+      "changePassword": "Alterar Palavra-passe",
+      "currentPassword": "Palavra-passe Atual",
+      "newPassword": "Nova Palavra-passe",
+      "confirmPassword": "Confirmar Palavra-passe",
+      "updatePassword": "Atualizar Palavra-passe"
+    },
+    "footer": {
+      "rights": "Todos os Direitos Reservados",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "contactUs": "Contacte-nos"
+    },
+    "common": {
+      "loading": "A carregar...",
+      "error": "Ocorreu um erro",
+      "retry": "Tentar novamente",
+      "notFound": "Página Não Encontrada",
+      "backToHome": "Voltar à Página Inicial",
+      "language": "Idioma",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "update": "Atualizar",
+      "delete": "Eliminar",
+      "create": "Criar",
+      "search": "Pesquisar",
+      "noResults": "Nenhum resultado encontrado"
+    }
+  }
+}

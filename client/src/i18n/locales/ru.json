@@ -1,0 +1,111 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Главная",
+      "tours": "Туры",
+      "about": "О нас",
+      "contact": "Контакты",
+      "booking": "Бронирование тура"
+    },
+    "home": {
+      "welcome": "Добро пожаловать в Lisbonlovesme",
+      "subtitle": "Откройте для себя Лиссабон с нашими экскурсиями",
+      "explore": "Исследовать туры",
+      "featuredTours": "Популярные туры",
+      "testimonials": "Отзывы наших клиентов",
+      "viewAll": "Просмотреть все туры"
+    },
+    "tours": {
+      "title": "Наши туры",
+      "subtitle": "Откройте для себя лучшие впечатления в Лиссабоне",
+      "duration": "Продолжительность",
+      "groupSize": "Размер группы",
+      "difficulty": "Сложность",
+      "price": "Цена",
+      "viewDetails": "Подробнее",
+      "bookNow": "Забронировать",
+      "availabilities": "Доступные даты",
+      "noAvailability": "Для этого тура нет доступных дат",
+      "people": "человек",
+      "perPerson": "на человека",
+      "easy": "Легкий",
+      "moderate": "Средний",
+      "challenging": "Сложный",
+      "hours": "часов",
+      "meetingPoint": "Место встречи"
+    },
+    "booking": {
+      "title": "Забронировать тур",
+      "personal": "Личная информация",
+      "payment": "Информация об оплате",
+      "confirmation": "Подтверждение бронирования",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "email": "Электронная почта",
+      "phone": "Телефон",
+      "participants": "Количество участников",
+      "date": "Дата",
+      "time": "Время",
+      "specialRequests": "Особые пожелания",
+      "paymentMethod": "Способ оплаты",
+      "cardNumber": "Номер карты",
+      "expiryDate": "Срок действия",
+      "cvv": "CVV",
+      "bookingDetails": "Детали бронирования",
+      "totalAmount": "Общая сумма",
+      "completeBooking": "Завершить бронирование",
+      "confirmBooking": "Подтвердить бронирование",
+      "bookingSuccess": "Бронирование успешно!",
+      "bookingReference": "Номер бронирования",
+      "bookingConfirmationEmail": "Мы отправили подтверждение на ваш адрес электронной почты.",
+      "returnHome": "Вернуться на главную"
+    },
+    "testimonials": {
+      "title": "Отзывы",
+      "leaveTestimonial": "Оставить отзыв",
+      "yourName": "Ваше имя",
+      "yourCountry": "Ваша страна",
+      "yourExperience": "Ваш опыт",
+      "rating": "Оценка",
+      "submit": "Отправить отзыв",
+      "thankYou": "Спасибо за ваш отзыв!"
+    },
+    "admin": {
+      "dashboard": "Панель администратора",
+      "tours": "Управление турами",
+      "bookings": "Бронирования",
+      "testimonials": "Отзывы",
+      "logout": "Выйти",
+      "login": "Вход для администратора",
+      "username": "Имя пользователя",
+      "password": "Пароль",
+      "loginButton": "Войти",
+      "changePassword": "Изменить пароль",
+      "currentPassword": "Текущий пароль",
+      "newPassword": "Новый пароль",
+      "confirmPassword": "Подтвердить пароль",
+      "updatePassword": "Обновить пароль"
+    },
+    "footer": {
+      "rights": "Все права защищены",
+      "privacyPolicy": "Политика конфиденциальности",
+      "termsOfService": "Условия использования",
+      "contactUs": "Связаться с нами"
+    },
+    "common": {
+      "loading": "Загрузка...",
+      "error": "Произошла ошибка",
+      "retry": "Повторить",
+      "notFound": "Страница не найдена",
+      "backToHome": "Вернуться на главную",
+      "language": "Язык",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "update": "Обновить",
+      "delete": "Удалить",
+      "create": "Создать",
+      "search": "Поиск",
+      "noResults": "Результаты не найдены"
+    }
+  }
+}
