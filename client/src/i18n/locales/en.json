@@ -23,7 +23,7 @@
       "subtitle": "Discover Lisbon with our guided tours",
       "explore": "Explore Tours",
       "featuredTours": "Featured Tours",
-      "testimonials": "What Our Clients Say",
+      "reviews": "What Our Clients Say",
       "viewAll": "View All Tours"
     },
     "tours": {
@@ -71,21 +71,21 @@
       "bookingConfirmationEmail": "We've sent a confirmation email to your email address.",
       "returnHome": "Return to Homepage"
     },
-    "testimonials": {
-      "title": "Testimonials",
-      "leaveTestimonial": "Leave a Testimonial",
+    "reviews": {
+      "title": "Reviews",
+      "leaveReview": "Leave a Review",
       "yourName": "Your Name",
       "yourCountry": "Your Country",
       "yourExperience": "Your Experience",
       "rating": "Rating",
-      "submit": "Submit Testimonial",
+      "submit": "Submit Review",
       "thankYou": "Thank you for your feedback!"
     },
     "admin": {
       "dashboard": "Admin Dashboard",
       "tours": "Manage Tours",
       "bookings": "Bookings",
-      "testimonials": "Testimonials",
+      "reviews": "Reviews",
       "logout": "Logout",
       "login": "Admin Login",
       "username": "Username",
@@ -142,16 +142,16 @@
       "valueForMoney": "Value for Money",
       "valueForMoneyDesc": "Competitive pricing with no hidden costs and special discounts for groups."
     },
-    "testimonials": {
-      "title": "Testimonials",
+    "customerReviews": {
+      "title": "Reviews",
       "guestsTitle": "What Our Guests Say",
       "subtitle": "Read what travelers from around the world have to say about their experiences with Lisboa Tours.",
-      "leaveTestimonial": "Leave a Testimonial",
+      "leaveReview": "Leave a Review",
       "yourName": "Your Name",
       "yourCountry": "Your Country",
       "yourExperience": "Your Experience",
       "rating": "Rating",
-      "submit": "Submit Testimonial",
+      "submit": "Submit Review",
       "thankYou": "Thank you for your feedback!"
     },
     "photoGallery": {

@@ -23,7 +23,7 @@
       "subtitle": "Descubra Lisboa com os nossos passeios guiados",
       "explore": "Explorar Passeios",
       "featuredTours": "Passeios em Destaque",
-      "testimonials": "O Que Dizem Nossos Clientes",
+      "reviews": "O Que Dizem Nossos Clientes",
       "viewAll": "Ver Todos os Passeios"
     },
     "tours": {
@@ -71,21 +71,21 @@
       "bookingConfirmationEmail": "Enviámos um email de confirmação para o seu endereço de email.",
       "returnHome": "Voltar à Página Inicial"
     },
-    "testimonials": {
-      "title": "Testemunhos",
-      "leaveTestimonial": "Deixe um Testemunho",
+    "reviews": {
+      "title": "Avaliações",
+      "leaveReview": "Deixe uma Avaliação",
       "yourName": "Seu Nome",
       "yourCountry": "Seu País",
       "yourExperience": "Sua Experiência",
       "rating": "Avaliação",
-      "submit": "Enviar Testemunho",
+      "submit": "Enviar Avaliação",
       "thankYou": "Obrigado pelo seu feedback!"
     },
     "admin": {
       "dashboard": "Painel de Administração",
       "tours": "Gerir Passeios",
       "bookings": "Reservas",
-      "testimonials": "Testemunhos",
+      "reviews": "Avaliações",
       "logout": "Terminar Sessão",
       "login": "Login de Administrador",
       "username": "Nome de Utilizador",
