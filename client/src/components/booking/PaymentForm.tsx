@@ -69,8 +69,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         numberOfParticipants: bookingData.numberOfParticipants,
         specialRequests: bookingData.specialRequests || null,
         paymentStatus: 'completed',
-        totalAmount,
-        currency: 'EUR'
+        totalAmount
       });
     }, 2000);
   };

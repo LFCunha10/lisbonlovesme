@@ -218,8 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Booking API endpoints with auto close day feature
   app.post("/api/bookings", async (req: Request, res: Response) => {
     try {
+      console.log("Creating booking with data:", req.body);
+      
       // Create the booking
       const booking = await storage.createBooking(req.body);
+      console.log("Booking created successfully:", booking);
       
       // Check if auto-close is enabled and close the day if it is
       const isAutoCloseEnabled = await storage.getAutoCloseDaySetting();
