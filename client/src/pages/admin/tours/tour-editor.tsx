@@ -61,6 +61,7 @@ const colorOptions = [
 // Tour form schema
 const tourSchema = z.object({
   name: z.string().min(2, { message: "Tour name must be at least 2 characters" }),
+  shortDescription: z.string().max(150, { message: "Short description must be less than 150 characters" }).optional(),
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   imageUrl: z.string().optional(),
   duration: z.string().min(2, { message: "Duration is required (e.g., '2 hours')" }),
@@ -90,6 +91,7 @@ export default function TourEditorPage() {
     resolver: zodResolver(tourSchema),
     defaultValues: {
       name: "",
+      shortDescription: "",
       description: "",
       imageUrl: "",
       duration: "",
@@ -308,6 +310,27 @@ export default function TourEditorPage() {
                           <FormControl>
                             <Input placeholder={t("admin.tours.tourNamePlaceholder")} {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="shortDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Description</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Brief description for tour cards (max 150 characters)" 
+                              {...field} 
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            This short description will appear on tour cards. {field.value?.length || 0}/150 characters.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
