@@ -272,7 +272,7 @@ export default function TourDetailsPage() {
                       {t('tours.groupSize')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {t('tours.maxPeople', { count: tour.maxGroupSize })}
+                      {tour.maxGroupSize} {t('tours.people')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
