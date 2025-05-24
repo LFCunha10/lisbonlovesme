@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Bold,
   Italic,
@@ -9,8 +9,6 @@ import {
   AlignRight,
   Heading2,
   Heading3,
-  Undo,
-  Redo,
   Link as LinkIcon,
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -21,7 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
@@ -37,80 +34,57 @@ export function RichTextEditor({
   placeholder = 'Start typing...',
   className,
 }: RichTextEditorProps) {
-  const [editorHtml, setEditorHtml] = useState(value || '');
-  const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
-  const [linkText, setLinkText] = useState('');
+  const editorRef = useRef<HTMLDivElement>(null);
   const [linkUrl, setLinkUrl] = useState('');
-  const [textAlignment, setTextAlignment] = useState<'left' | 'center' | 'right'>('left');
+  const [linkText, setLinkText] = useState('');
+  const [showLinkPopover, setShowLinkPopover] = useState(false);
   
-  const editorRef = React.useRef<HTMLDivElement>(null);
-  
-  // Update parent component when editor content changes
-  const handleEditorChange = useCallback(() => {
-    if (editorRef.current) {
-      const html = editorRef.current.innerHTML;
-      setEditorHtml(html);
-      onChange(html);
-    }
-  }, [onChange]);
-  
-  // Initialize editor with initial value
-  React.useEffect(() => {
+  // Initialize editor with value
+  useEffect(() => {
     if (editorRef.current && value && editorRef.current.innerHTML !== value) {
       editorRef.current.innerHTML = value;
-      setEditorHtml(value);
     }
   }, [value]);
-  
-  // Format text with the selected style
-  const formatText = useCallback((command: string, value?: string) => {
+
+  // Handle content changes
+  const handleContentChange = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.innerHTML;
+      onChange(content);
+    }
+  };
+
+  // Format text
+  const formatDoc = (command: string, value: string = '') => {
+    if (!editorRef.current) return;
+    
+    // Focus the editor before applying command
+    editorRef.current.focus();
+    
+    // Execute the command
     document.execCommand(command, false, value);
-    handleEditorChange();
-    editorRef.current?.focus();
-  }, [handleEditorChange]);
-  
-  // Apply text alignment
-  const applyTextAlignment = useCallback((alignment: 'left' | 'center' | 'right') => {
-    setTextAlignment(alignment);
     
-    // First ensure we have focus
-    editorRef.current?.focus();
-    
-    // Then apply the alignment
-    switch (alignment) {
-      case 'left':
-        document.execCommand('justifyLeft', false);
-        break;
-      case 'center':
-        document.execCommand('justifyCenter', false);
-        break;
-      case 'right':
-        document.execCommand('justifyRight', false);
-        break;
-    }
-    
-    // Update content after applying alignment
-    handleEditorChange();
-  }, [handleEditorChange]);
-  
-  // Insert link
-  const insertLink = useCallback(() => {
-    if (linkText && linkUrl) {
-      formatText('insertHTML', `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${linkText}</a>`);
-      setIsLinkPopoverOpen(false);
-      setLinkText('');
+    // Update content
+    handleContentChange();
+  };
+
+  // Handle link insertion
+  const insertLink = () => {
+    if (linkUrl && linkText) {
+      formatDoc('insertHTML', `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${linkText}</a>`);
       setLinkUrl('');
+      setLinkText('');
+      setShowLinkPopover(false);
     }
-  }, [formatText, linkText, linkUrl]);
-  
+  };
+
   return (
-    <div className={cn("border rounded-md", className)}>
-      <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-gray-50 dark:bg-gray-800">
-        {/* Text formatting */}
+    <div className={cn("border rounded-md overflow-hidden", className)}>
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted">
+        {/* Text styling */}
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('bold')}
+          onPressedChange={() => formatDoc('bold')}
           aria-label="Bold"
         >
           <Bold className="h-4 w-4" />
@@ -118,20 +92,18 @@ export function RichTextEditor({
         
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('italic')}
+          onPressedChange={() => formatDoc('italic')}
           aria-label="Italic"
         >
           <Italic className="h-4 w-4" />
         </Toggle>
-        
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        <div className="h-6 w-px bg-gray-300 mx-1" />
         
         {/* Headings */}
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('formatBlock', '<h2>')}
+          onPressedChange={() => formatDoc('formatBlock', '<h2>')}
           aria-label="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
@@ -139,20 +111,18 @@ export function RichTextEditor({
         
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('formatBlock', '<h3>')}
+          onPressedChange={() => formatDoc('formatBlock', '<h3>')}
           aria-label="Heading 3"
         >
           <Heading3 className="h-4 w-4" />
         </Toggle>
         
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
+        <div className="h-6 w-px bg-gray-300 mx-1" />
         
         {/* Lists */}
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('insertUnorderedList')}
+          onPressedChange={() => formatDoc('insertUnorderedList')}
           aria-label="Bullet List"
         >
           <List className="h-4 w-4" />
@@ -160,49 +130,53 @@ export function RichTextEditor({
         
         <Toggle
           size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('insertOrderedList')}
+          onPressedChange={() => formatDoc('insertOrderedList')}
           aria-label="Numbered List"
         >
           <ListOrdered className="h-4 w-4" />
         </Toggle>
         
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
+        <div className="h-6 w-px bg-gray-300 mx-1" />
         
-        {/* Alignment */}
-        <Tabs 
-          value={textAlignment} 
-          onValueChange={(value) => applyTextAlignment(value as 'left' | 'center' | 'right')}
-          className="h-8"
+        {/* Text alignment */}
+        <Toggle
+          size="sm"
+          onPressedChange={() => formatDoc('justifyLeft')}
+          aria-label="Align Left"
         >
-          <TabsList className="h-8 bg-transparent">
-            <TabsTrigger value="left" className="h-7 px-1 data-[state=active]:bg-muted">
-              <AlignLeft className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="center" className="h-7 px-1 data-[state=active]:bg-muted">
-              <AlignCenter className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="right" className="h-7 px-1 data-[state=active]:bg-muted">
-              <AlignRight className="h-4 w-4" />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <AlignLeft className="h-4 w-4" />
+        </Toggle>
         
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
+        <Toggle
+          size="sm"
+          onPressedChange={() => formatDoc('justifyCenter')}
+          aria-label="Align Center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Toggle>
         
-        {/* Insert link */}
-        <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
+        <Toggle
+          size="sm"
+          onPressedChange={() => formatDoc('justifyRight')}
+          aria-label="Align Right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Toggle>
+        
+        <div className="h-6 w-px bg-gray-300 mx-1" />
+        
+        {/* Link */}
+        <Popover open={showLinkPopover} onOpenChange={setShowLinkPopover}>
           <PopoverTrigger asChild>
             <Toggle
               size="sm"
-              pressed={isLinkPopoverOpen}
               aria-label="Insert Link"
             >
               <LinkIcon className="h-4 w-4" />
             </Toggle>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-3">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <div>
                 <label className="text-sm font-medium mb-1 block">
                   Link Text
@@ -223,11 +197,11 @@ export function RichTextEditor({
                   placeholder="https://example.com"
                 />
               </div>
-              <div className="flex justify-end gap-2 mt-2">
+              <div className="flex justify-end gap-2 mt-1">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsLinkPopoverOpen(false)}
+                  onClick={() => setShowLinkPopover(false)}
                 >
                   Cancel
                 </Button>
@@ -236,47 +210,22 @@ export function RichTextEditor({
                   onClick={insertLink}
                   disabled={!linkText || !linkUrl}
                 >
-                  Insert
+                  Insert Link
                 </Button>
               </div>
             </div>
           </PopoverContent>
         </Popover>
-        
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-        
-        {/* Undo/Redo */}
-        <Toggle
-          size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('undo')}
-          aria-label="Undo"
-        >
-          <Undo className="h-4 w-4" />
-        </Toggle>
-        
-        <Toggle
-          size="sm"
-          pressed={false}
-          onPressedChange={() => formatText('redo')}
-          aria-label="Redo"
-        >
-          <Redo className="h-4 w-4" />
-        </Toggle>
       </div>
       
       <div
         ref={editorRef}
-        className="min-h-[200px] p-3 outline-none"
         contentEditable
-        onInput={handleEditorChange}
-        dangerouslySetInnerHTML={{ __html: editorHtml || '' }}
+        className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
+        onInput={handleContentChange}
+        onBlur={handleContentChange}
+        dangerouslySetInnerHTML={{ __html: value }}
         data-placeholder={placeholder}
-        style={{
-          minHeight: '200px',
-          direction: 'ltr', // Ensure left-to-right text direction
-          textAlign: textAlignment, // Apply text alignment via CSS as well
-        }}
       />
     </div>
   );
