@@ -61,6 +61,7 @@ import { PlusIcon, PencilIcon, TrashIcon, InfoIcon, AlertTriangleIcon } from "lu
 
 const tourSchema = z.object({
   name: z.string().min(3, { message: "Tour name must be at least 3 characters long" }),
+  shortDescription: z.string().max(150, { message: "Short description must be less than 150 characters" }).optional(),
   description: z.string().min(10, { message: "Description must be at least 10 characters long" }),
   imageUrl: z.string().url({ message: "Please enter a valid URL for the image" }),
   duration: z.string().min(2, { message: "Please enter a valid duration" }),
@@ -324,10 +325,31 @@ export default function AdminTours() {
                     />
                     <FormField
                       control={tourForm.control}
+                      name="shortDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="A brief description that will appear on tour cards (max 150 characters)" 
+                              rows={2} 
+                              {...field} 
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <div className="text-xs text-gray-500 mt-1">
+                            {field.value?.length || 0}/150 characters
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={tourForm.control}
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel>Full Description</FormLabel>
                           <FormControl>
                             <Textarea placeholder="Explore the historic Belém district..." rows={4} {...field} />
                           </FormControl>
@@ -552,10 +574,31 @@ export default function AdminTours() {
                             />
                             <FormField
                               control={tourForm.control}
+                              name="shortDescription"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Short Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea 
+                                      placeholder="A brief description that will appear on tour cards (max 150 characters)" 
+                                      rows={2} 
+                                      {...field} 
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {field.value?.length || 0}/150 characters
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={tourForm.control}
                               name="description"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Description</FormLabel>
+                                  <FormLabel>Full Description</FormLabel>
                                   <FormControl>
                                     <Textarea placeholder="Explore the historic Belém district..." rows={4} {...field} />
                                   </FormControl>

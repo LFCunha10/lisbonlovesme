@@ -49,9 +49,11 @@ export default function TourCard({ tour }: TourCardProps) {
         </div>
         
         <p className="text-neutral-dark/80 mb-4">
-          {tour.description.length > 100 
-            ? `${tour.description.substring(0, 100)}...` 
-            : tour.description}
+          {tour.shortDescription 
+            ? tour.shortDescription 
+            : (tour.description.length > 100 
+                ? `${tour.description.substring(0, 100)}...` 
+                : tour.description)}
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">

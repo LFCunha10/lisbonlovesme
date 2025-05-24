@@ -20,6 +20,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  shortDescription: text("short_description").default(""),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
   duration: text("duration").notNull(),
