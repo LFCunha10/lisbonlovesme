@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { SimpleEditor } from "@/components/admin/SimpleEditor";
 
 import {
   Form,
@@ -235,10 +235,9 @@ export default function CreateTourPage() {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <RichTextEditor
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder="Write a detailed description of the tour..."
+                            <textarea
+                              className="w-full min-h-[250px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
