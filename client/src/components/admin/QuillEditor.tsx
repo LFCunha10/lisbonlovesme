@@ -37,7 +37,9 @@ interface QuillEditorProps {
 }
 
 export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
-  const [editorValue, setEditorValue] = useState(value || "");
+  // Track whether we've updated from props yet
+  const initializedRef = useRef(false);
+  const [internalValue, setInternalValue] = useState(value || "");
   const quillRef = useRef<ReactQuill>(null);
   const { toast } = useToast();
 
@@ -101,19 +103,19 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
     };
   };
 
-  // Set the initial value when the component mounts
+  // Set the initial value from props, but only once to prevent loops
   useEffect(() => {
-    if (value !== undefined) {
-      setEditorValue(value);
+    if (!initializedRef.current && value !== undefined) {
+      setInternalValue(value);
+      initializedRef.current = true;
     }
   }, [value]);
 
-  // Handle changes and propagate to parent
+  // Handle changes from the editor
   const handleChange = (content: string) => {
-    if (content !== editorValue) {
-      setEditorValue(content);
-      onChange(content);
-    }
+    setInternalValue(content);
+    // Always pass changes up to parent
+    onChange(content);
   };
 
   // Quill editor modules/formats with image handling
@@ -151,7 +153,7 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
       <ReactQuill
         ref={quillRef}
         theme="snow"
-        value={editorValue}
+        value={internalValue}
         onChange={handleChange}
         modules={modules}
         formats={formats}
