@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Users, MapPin, Star, Calendar, ArrowLeft, Euro } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Tour, Testimonial } from "@shared/schema";
+import { marked } from 'marked';
 
 export default function TourDetailsPage() {
   const { id } = useParams();
@@ -145,7 +146,7 @@ export default function TourDetailsPage() {
                 </h2>
                 <div 
                   className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: tour.description }}
+                  dangerouslySetInnerHTML={{ __html: marked.parse(tour.description) }}
                 />
               </CardContent>
             </Card>
