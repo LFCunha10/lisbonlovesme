@@ -1,53 +1,21 @@
-import React from "react";
-import "react-quill/dist/quill.snow.css";
-import { useToast } from "@/hooks/use-toast";
+import React, { useEffect, useState, useRef } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { useToast } from '@/hooks/use-toast';
 
-// Add custom styles for the editor
-const editorStyles = `
-  .tour-editor {
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-  }
-  .tour-editor .editor-container {
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    overflow: hidden;
-  }
-  .tour-editor .toolbar {
-    background-color: #f9fafb;
-    border-bottom: 1px solid #d1d5db;
-    padding: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .tour-editor .toolbar button {
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-  }
-  .tour-editor .toolbar button:hover {
-    background: #f3f4f6;
-  }
-  .tour-editor .content-area {
-    min-height: 200px;
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 12px;
-    background: white;
-  }
-  .tour-editor .content-area:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  }
-`;
-
-// Inject styles once
-if (typeof document !== "undefined") {
-  const style = document.createElement("style");
-  style.innerHTML = editorStyles;
+// Add custom styles to the document for taller editor
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .quill-editor .ql-container {
+      min-height: 300px;
+    }
+    .quill-editor .ql-editor {
+      min-height: 300px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+  `;
   document.head.appendChild(style);
 }
 
@@ -58,39 +26,20 @@ interface QuillEditorProps {
 }
 
 export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
+  const [editorValue, setEditorValue] = useState(value || '');
+  const quillRef = useRef<ReactQuill>(null);
   const { toast } = useToast();
-  const contentRef = React.useRef<HTMLDivElement>(null);
   
-  React.useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.innerHTML = value || '';
-    }
-  }, []);
-
-  // Handle input changes
-  const handleInput = () => {
-    if (contentRef.current) {
-      onChange(contentRef.current.innerHTML);
-    }
-  };
-
-  // Handle formatting
-  const formatText = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    handleInput();
-    contentRef.current?.focus();
-  };
-  
-  // Handle image upload
-  const handleImageUpload = () => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
+  // Image handler to upload images
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
     input.click();
-
+    
     input.onchange = async () => {
       if (!input.files?.length) return;
-
+      
       const file = input.files[0];
       // File size validation (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
@@ -101,34 +50,37 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         });
         return;
       }
-
+      
       // Create form data for upload
       const formData = new FormData();
-      formData.append("image", file);
-
+      formData.append('image', file);
+      
       try {
         // Upload the image to server
-        const response = await fetch("/api/upload-image", {
-          method: "POST",
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
           body: formData,
         });
-
+        
         if (!response.ok) {
-          throw new Error("Failed to upload image");
+          throw new Error('Failed to upload image');
         }
-
+        
         const data = await response.json();
         
-        // Insert the image using execCommand
-        document.execCommand('insertImage', false, data.imageUrl);
-        handleInput();
-
+        // Insert the image into the editor
+        const editor = quillRef.current?.getEditor();
+        if (editor) {
+          const range = editor.getSelection(true);
+          editor.insertEmbed(range.index, 'image', data.imageUrl);
+        }
+        
         toast({
           title: "Success",
           description: "Image uploaded successfully",
         });
       } catch (error) {
-        console.error("Image upload error:", error);
+        console.error('Image upload error:', error);
         toast({
           title: "Error",
           description: "Failed to upload image. Please try again.",
@@ -137,33 +89,56 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
       }
     };
   };
-
+  
+  // Set the initial value when the component mounts
+  useEffect(() => {
+    if (value !== undefined) {
+      setEditorValue(value);
+    }
+  }, [value]);
+  
+  // Handle changes and propagate to parent
+  const handleChange = (content: string) => {
+    setEditorValue(content);
+    onChange(content);
+  };
+  
+  // Quill editor modules/formats with image handling
+  const modules = {
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
+  };
+  
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'align',
+    'link', 'image'
+  ];
+  
   return (
-    <div className={`tour-editor ${className || ""}`}>
-      <div className="editor-container">
-        <div className="toolbar">
-          <button type="button" onClick={() => formatText('formatBlock', '<h1>')}>H1</button>
-          <button type="button" onClick={() => formatText('formatBlock', '<h2>')}>H2</button>
-          <button type="button" onClick={() => formatText('formatBlock', '<h3>')}>H3</button>
-          <button type="button" onClick={() => formatText('formatBlock', '<p>')}>Normal</button>
-          <button type="button" onClick={() => formatText('bold')}>Bold</button>
-          <button type="button" onClick={() => formatText('italic')}>Italic</button>
-          <button type="button" onClick={() => formatText('underline')}>Underline</button>
-          <button type="button" onClick={() => formatText('insertUnorderedList')}>List</button>
-          <button type="button" onClick={() => formatText('insertOrderedList')}>Numbered</button>
-          <button type="button" onClick={() => formatText('justifyLeft')}>Left</button>
-          <button type="button" onClick={() => formatText('justifyCenter')}>Center</button>
-          <button type="button" onClick={() => formatText('justifyRight')}>Right</button>
-          <button type="button" onClick={handleImageUpload}>Image</button>
-        </div>
-        <div
-          ref={contentRef}
-          className="content-area"
-          contentEditable
-          onInput={handleInput}
-          dangerouslySetInnerHTML={{ __html: value || '' }}
-        />
-      </div>
+    <div className={`quill-editor ${className || ''}`}>
+      <ReactQuill
+        ref={quillRef}
+        theme="snow"
+        value={editorValue}
+        onChange={handleChange}
+        modules={modules}
+        formats={formats}
+        style={{ height: '350px' }}
+      />
     </div>
   );
 }
