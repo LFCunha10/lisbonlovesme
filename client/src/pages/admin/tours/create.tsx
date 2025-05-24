@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { default as RichTextEditor } from "@/components/admin/RichTextEditor";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 import {
   Form,

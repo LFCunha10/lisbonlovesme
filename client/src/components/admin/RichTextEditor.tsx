@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Bold,
   Italic,
@@ -31,7 +31,7 @@ interface RichTextEditorProps {
   className?: string;
 }
 
-export default function RichTextEditor({
+export function RichTextEditor({
   value,
   onChange,
   placeholder = 'Start typing...',
