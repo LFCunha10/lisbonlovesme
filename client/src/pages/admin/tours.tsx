@@ -8,6 +8,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { marked } from 'marked';
 
 import {
   Card,
@@ -741,7 +742,10 @@ export default function AdminTours() {
                       <div className="space-y-4">
                         <div>
                           <h3 className="font-medium">Description</h3>
-                          <p className="text-sm text-gray-600 mt-1">{selectedTour.description}</p>
+                          <div 
+                            className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: marked.parse(selectedTour.description) }}
+                          />
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
