@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import Stripe from "stripe";
 import { sendBookingConfirmationEmail } from "./email";
 import { exportDatabase } from "./utils/export-database";
+import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
 import fs from "fs";
 
@@ -341,6 +342,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: error.message || "Failed to create booking" });
+    }
+  });
+
+  // Image Upload Endpoint
+  app.post("/api/upload-image", upload.single('image'), handleUploadErrors, (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file uploaded" });
+      }
+      
+      // Generate the URL for the uploaded file
+      const imageUrl = getUploadedFileUrl(req.file.filename);
+      
+      res.status(200).json({
+        message: "Image uploaded successfully",
+        imageUrl: imageUrl
+      });
+    } catch (error: any) {
+      console.error("Image upload error:", error);
+      res.status(500).json({ message: error.message || "Image upload failed" });
     }
   });
 
