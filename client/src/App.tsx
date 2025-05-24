@@ -82,7 +82,7 @@ function Router() {
       </Route>
       <Route path="/admin/tours/create">
         {() => {
-          const CreateTourPage = React.lazy(() => import("@/pages/admin/create-tour"));
+          const CreateTourPage = React.lazy(() => import("@/pages/admin/tours/create"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>
