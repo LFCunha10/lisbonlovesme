@@ -140,6 +140,16 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/dev/layout-tester">
+        {() => {
+          const LayoutTesterPage = React.lazy(() => import("@/pages/dev/layout-tester"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <LayoutTesterPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
