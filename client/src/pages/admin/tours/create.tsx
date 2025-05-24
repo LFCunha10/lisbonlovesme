@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { QuillEditor } from "@/components/admin/QuillEditor";
 
 
 import {
@@ -235,9 +236,10 @@ export default function CreateTourPage() {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <textarea
-                              className="w-full min-h-[250px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                              {...field}
+                            <QuillEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              className="mb-6"
                             />
                           </FormControl>
                           <FormMessage />
