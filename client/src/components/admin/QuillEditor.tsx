@@ -54,14 +54,7 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         formats={formats}
         className="min-h-[200px]"
       />
-      <style>
-        {`
-          .ql-editor.ql-blank {
-            padding-top: 164px !important;
-            padding-bottom: 164px !important;
-          }
-        `}
-      </style>
+      {/* Custom styles for Quill */}
     </div>
   );
 }
