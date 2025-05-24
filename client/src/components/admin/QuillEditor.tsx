@@ -1,12 +1,16 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
 
-// Add custom styles to the document for taller editor
+// Add custom styles to the document for editor
 if (typeof document !== "undefined") {
   const style = document.createElement("style");
   style.innerHTML = `
+    .quill-editor {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+    }
     .quill-editor .ql-container {
       min-height: 200px;
       border-bottom-left-radius: 0.375rem;
@@ -22,10 +26,6 @@ if (typeof document !== "undefined") {
       max-height: 200px;
       overflow-y: auto;
     }
-    .quill-editor {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-    }
   `;
   document.head.appendChild(style);
 }
@@ -37,9 +37,6 @@ interface QuillEditorProps {
 }
 
 export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
-  // Track whether we've updated from props yet
-  const initializedRef = useRef(false);
-  const [internalValue, setInternalValue] = useState(value || "");
   const quillRef = useRef<ReactQuill>(null);
   const { toast } = useToast();
 
@@ -86,6 +83,11 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         if (editor) {
           const range = editor.getSelection(true);
           editor.insertEmbed(range.index, "image", data.imageUrl);
+          // Important: notify parent component of the change with the updated content
+          const updatedContent = quillRef.current?.getEditor().root.innerHTML;
+          if (updatedContent) {
+            onChange(updatedContent);
+          }
         }
 
         toast({
@@ -101,21 +103,6 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         });
       }
     };
-  };
-
-  // Set the initial value from props, but only once to prevent loops
-  useEffect(() => {
-    if (!initializedRef.current && value !== undefined) {
-      setInternalValue(value);
-      initializedRef.current = true;
-    }
-  }, [value]);
-
-  // Handle changes from the editor
-  const handleChange = (content: string) => {
-    setInternalValue(content);
-    // Always pass changes up to parent
-    onChange(content);
   };
 
   // Quill editor modules/formats with image handling
@@ -153,11 +140,12 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
       <ReactQuill
         ref={quillRef}
         theme="snow"
-        value={internalValue}
-        onChange={handleChange}
+        defaultValue={value}
+        onChange={onChange}
         modules={modules}
         formats={formats}
         style={{ height: "250px" }}
+        preserveWhitespace
       />
     </div>
   );
