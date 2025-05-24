@@ -7,7 +7,8 @@ import {
   MessageSquare,
   Lock,
   LogOut,
-  Database
+  Database,
+  CreditCard
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 
@@ -30,6 +31,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     { href: "/admin", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
     { href: "/admin/tours", icon: <Map className="w-5 h-5" />, label: "Tours" },
     { href: "/admin/bookings", icon: <CalendarDays className="w-5 h-5" />, label: "Bookings" },
+    { href: "/admin/payments", icon: <CreditCard className="w-5 h-5" />, label: "Payments" },
     { href: "/admin/reviews", icon: <MessageSquare className="w-5 h-5" />, label: "Reviews" },
     { href: "/admin/password", icon: <Lock className="w-5 h-5" />, label: "Password" },
     { href: "/admin/database-export", icon: <Database className="w-5 h-5" />, label: "Database Export" }

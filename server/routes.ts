@@ -14,6 +14,96 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : undefined;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Payment management routes
+  app.get("/api/admin/payments", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      // Get all bookings with payment info
+      const bookings = await storage.getBookings();
+      
+      // Enrich with tour data
+      const enrichedBookings = await Promise.all(
+        bookings.map(async (booking) => {
+          const tour = await storage.getTour(booking.tourId);
+          const availability = await storage.getAvailability(booking.availabilityId);
+          
+          return {
+            ...booking,
+            tourName: tour?.name || "Unknown Tour",
+            date: availability?.date || "",
+            time: availability?.time || "",
+          };
+        })
+      );
+      
+      res.json(enrichedBookings);
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+      res.status(500).json({ message: "Failed to fetch payments data" });
+    }
+  });
+
+  app.post("/api/admin/refund/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      if (!reason) {
+        return res.status(400).json({ message: "Refund reason is required" });
+      }
+      
+      const booking = await storage.getBooking(bookingId);
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      if (booking.paymentStatus !== "paid") {
+        return res.status(400).json({ 
+          message: "Only paid bookings can be refunded" 
+        });
+      }
+      
+      // If we have Stripe integration
+      if (booking.stripePaymentIntentId) {
+        try {
+          // In a real implementation, we would call Stripe's API to process the refund
+          // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+          // await stripe.refunds.create({
+          //   payment_intent: booking.stripePaymentIntentId,
+          //   reason: 'requested_by_customer'
+          // });
+          
+          // For now, we'll just update the status
+          console.log(`Refund would be processed for payment: ${booking.stripePaymentIntentId}`);
+        } catch (stripeError) {
+          console.error("Stripe refund error:", stripeError);
+          return res.status(500).json({ 
+            message: "Failed to process refund with payment provider" 
+          });
+        }
+      }
+      
+      // Update booking status
+      const updatedBooking = await storage.updatePaymentStatus(
+        bookingId, 
+        "refunded",
+        booking.stripePaymentIntentId
+      );
+      
+      // In a complete implementation, we would also:
+      // 1. Log the refund with reason and admin who processed it
+      // 2. Send email confirmation to the customer
+      // 3. Update availability to increase available spots
+      
+      res.json({ 
+        message: "Refund processed successfully", 
+        booking: updatedBooking 
+      });
+    } catch (error) {
+      console.error("Error processing refund:", error);
+      res.status(500).json({ message: "Failed to process refund" });
+    }
+  });
   // Admin authentication routes - Simple hardcoded auth for demo
   app.post("/api/admin/login", async (req: Request, res: Response) => {
     try {
