@@ -1,32 +1,53 @@
-import React, { useRef } from "react";
-import ReactQuill from "react-quill";
+import React from "react";
 import "react-quill/dist/quill.snow.css";
 import { useToast } from "@/hooks/use-toast";
 
-// Add custom styles to the document for editor
+// Add custom styles for the editor
+const editorStyles = `
+  .tour-editor {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+  }
+  .tour-editor .editor-container {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  .tour-editor .toolbar {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #d1d5db;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tour-editor .toolbar button {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .tour-editor .toolbar button:hover {
+    background: #f3f4f6;
+  }
+  .tour-editor .content-area {
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 12px;
+    background: white;
+  }
+  .tour-editor .content-area:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+`;
+
+// Inject styles once
 if (typeof document !== "undefined") {
   const style = document.createElement("style");
-  style.innerHTML = `
-    .quill-editor {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-    }
-    .quill-editor .ql-container {
-      min-height: 200px;
-      border-bottom-left-radius: 0.375rem;
-      border-bottom-right-radius: 0.375rem;
-    }
-    .quill-editor .ql-toolbar {
-      border-top-left-radius: 0.375rem;
-      border-top-right-radius: 0.375rem;
-      background-color: #f9fafb;
-    }
-    .quill-editor .ql-editor {
-      min-height: 200px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-  `;
+  style.innerHTML = editorStyles;
   document.head.appendChild(style);
 }
 
@@ -37,11 +58,31 @@ interface QuillEditorProps {
 }
 
 export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
-  const quillRef = useRef<ReactQuill>(null);
   const { toast } = useToast();
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  
+  React.useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.innerHTML = value || '';
+    }
+  }, []);
 
-  // Image handler to upload images
-  const imageHandler = () => {
+  // Handle input changes
+  const handleInput = () => {
+    if (contentRef.current) {
+      onChange(contentRef.current.innerHTML);
+    }
+  };
+
+  // Handle formatting
+  const formatText = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    handleInput();
+    contentRef.current?.focus();
+  };
+  
+  // Handle image upload
+  const handleImageUpload = () => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
@@ -77,18 +118,10 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         }
 
         const data = await response.json();
-
-        // Insert the image into the editor
-        const editor = quillRef.current?.getEditor();
-        if (editor) {
-          const range = editor.getSelection(true);
-          editor.insertEmbed(range.index, "image", data.imageUrl);
-          // Important: notify parent component of the change with the updated content
-          const updatedContent = quillRef.current?.getEditor().root.innerHTML;
-          if (updatedContent) {
-            onChange(updatedContent);
-          }
-        }
+        
+        // Insert the image using execCommand
+        document.execCommand('insertImage', false, data.imageUrl);
+        handleInput();
 
         toast({
           title: "Success",
@@ -105,48 +138,32 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
     };
   };
 
-  // Quill editor modules/formats with image handling
-  const modules = {
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ align: [] }],
-        ["link", "image"],
-        ["clean"],
-      ],
-      handlers: {
-        image: imageHandler,
-      },
-    },
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "align",
-    "link",
-    "image",
-  ];
-
   return (
-    <div className={`quill-editor ${className || ""}`}>
-      <ReactQuill
-        ref={quillRef}
-        theme="snow"
-        defaultValue={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        style={{ height: "250px" }}
-        preserveWhitespace
-      />
+    <div className={`tour-editor ${className || ""}`}>
+      <div className="editor-container">
+        <div className="toolbar">
+          <button type="button" onClick={() => formatText('formatBlock', '<h1>')}>H1</button>
+          <button type="button" onClick={() => formatText('formatBlock', '<h2>')}>H2</button>
+          <button type="button" onClick={() => formatText('formatBlock', '<h3>')}>H3</button>
+          <button type="button" onClick={() => formatText('formatBlock', '<p>')}>Normal</button>
+          <button type="button" onClick={() => formatText('bold')}>Bold</button>
+          <button type="button" onClick={() => formatText('italic')}>Italic</button>
+          <button type="button" onClick={() => formatText('underline')}>Underline</button>
+          <button type="button" onClick={() => formatText('insertUnorderedList')}>List</button>
+          <button type="button" onClick={() => formatText('insertOrderedList')}>Numbered</button>
+          <button type="button" onClick={() => formatText('justifyLeft')}>Left</button>
+          <button type="button" onClick={() => formatText('justifyCenter')}>Center</button>
+          <button type="button" onClick={() => formatText('justifyRight')}>Right</button>
+          <button type="button" onClick={handleImageUpload}>Image</button>
+        </div>
+        <div
+          ref={contentRef}
+          className="content-area"
+          contentEditable
+          onInput={handleInput}
+          dangerouslySetInnerHTML={{ __html: value || '' }}
+        />
+      </div>
     </div>
   );
 }
