@@ -26,6 +26,7 @@ interface QuillEditorProps {
 }
 
 export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
+  // Using a safer initialization to prevent undefined errors
   const [editorValue, setEditorValue] = useState(value || '');
   const quillRef = useRef<ReactQuill>(null);
   const { toast } = useToast();
@@ -68,10 +69,10 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         
         const data = await response.json();
         
-        // Insert the image into the editor
+        // Insert the image into the editor - with safety checks
         const editor = quillRef.current?.getEditor();
         if (editor) {
-          const range = editor.getSelection(true);
+          const range = editor.getSelection() || { index: 0, length: 0 };
           editor.insertEmbed(range.index, 'image', data.imageUrl);
         }
         
@@ -90,17 +91,21 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
     };
   };
   
-  // Set the initial value when the component mounts
+  // Update state when the value prop changes
   useEffect(() => {
-    if (value !== undefined) {
+    // Only update if value is defined and different from current state
+    if (value !== undefined && value !== editorValue) {
       setEditorValue(value);
     }
-  }, [value]);
+  }, [value, editorValue]);
   
   // Handle changes and propagate to parent
   const handleChange = (content: string) => {
-    setEditorValue(content);
-    onChange(content);
+    // Check if content is valid before updating
+    if (content !== undefined) {
+      setEditorValue(content);
+      onChange(content);
+    }
   };
   
   // Quill editor modules/formats with image handling
@@ -133,7 +138,7 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
       <ReactQuill
         ref={quillRef}
         theme="snow"
-        value={editorValue}
+        value={editorValue || ''}
         onChange={handleChange}
         modules={modules}
         formats={formats}
