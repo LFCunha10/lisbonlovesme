@@ -138,19 +138,6 @@ export default function TourDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Description */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  {t('tours.aboutTour')}
-                </h2>
-                <div 
-                  className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: marked.parse(tour.description) }}
-                />
-              </CardContent>
-            </Card>
-
             {/* Tour Details */}
             <Card>
               <CardContent className="p-6">
@@ -174,7 +161,7 @@ export default function TourDetailsPage() {
                         {t('tours.groupSize')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {t('tours.maxPeople', { count: tour.maxGroupSize })}
+                        {tour.maxGroupSize} {t('tours.people')}
                       </p>
                     </div>
                   </div>
@@ -199,6 +186,19 @@ export default function TourDetailsPage() {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+            
+            {/* Description */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  {t('tours.aboutTour')}
+                </h2>
+                <div 
+                  className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: marked.parse(tour.description) }}
+                />
               </CardContent>
             </Card>
 
