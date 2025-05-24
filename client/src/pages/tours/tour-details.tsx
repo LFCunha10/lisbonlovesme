@@ -143,9 +143,10 @@ export default function TourDetailsPage() {
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                   {t('tours.aboutTour')}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {tour.description}
-                </p>
+                <div 
+                  className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: tour.description }}
+                />
               </CardContent>
             </Card>
 
