@@ -249,8 +249,8 @@ export default function EditTourPage() {
             </CardDescription>
           </CardHeader>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mx-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mx-auto px-6">
               <TabsTrigger value="details">Tour Details</TabsTrigger>
               <TabsTrigger value="media">Media & Appearance</TabsTrigger>
             </TabsList>
