@@ -23,7 +23,8 @@ if (typeof document !== "undefined") {
       overflow-y: auto;
     }
     .quill-editor {
-      margin-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
     }
   `;
   document.head.appendChild(style);
