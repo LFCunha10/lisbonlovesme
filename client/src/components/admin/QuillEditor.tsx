@@ -23,8 +23,8 @@ if (typeof document !== "undefined") {
       overflow-y: auto;
     }
     .quill-editor {
-      margin-bottom: 2.5rem;
-      padding-bottom: 1rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
     }
   `;
   document.head.appendChild(style);
@@ -110,8 +110,10 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
 
   // Handle changes and propagate to parent
   const handleChange = (content: string) => {
-    setEditorValue(content);
-    onChange(content);
+    if (content !== editorValue) {
+      setEditorValue(content);
+      onChange(content);
+    }
   };
 
   // Quill editor modules/formats with image handling
