@@ -9,6 +9,13 @@ if (typeof document !== 'undefined') {
   style.innerHTML = `
     .quill-editor .ql-container {
       min-height: 300px;
+      border-bottom-left-radius: 0.375rem;
+      border-bottom-right-radius: 0.375rem;
+    }
+    .quill-editor .ql-toolbar {
+      border-top-left-radius: 0.375rem;
+      border-top-right-radius: 0.375rem;
+      background-color: #f9fafb;
     }
     .quill-editor .ql-editor {
       min-height: 300px;
