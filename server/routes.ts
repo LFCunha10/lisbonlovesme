@@ -102,6 +102,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch tours" });
     }
   });
+  
+  // Create a new tour
+  app.post("/api/tours", async (req: Request, res: Response) => {
+    try {
+      // Convert price from decimal format (45.00) to cents (4500) if needed
+      const tourData = {
+        ...req.body,
+        price: typeof req.body.price === 'string' 
+          ? Math.round(parseFloat(req.body.price) * 100) 
+          : req.body.price
+      };
+      
+      const newTour = await storage.createTour(tourData);
+      res.status(201).json(newTour);
+    } catch (error: any) {
+      console.error("Error creating tour:", error);
+      res.status(500).json({ message: error.message || "Failed to create tour" });
+    }
+  });
+  
+  // Update an existing tour
+  app.put("/api/tours/:id", async (req: Request, res: Response) => {
+    try {
+      const tourId = parseInt(req.params.id);
+      if (isNaN(tourId)) {
+        return res.status(400).json({ message: "Invalid tour ID" });
+      }
+      
+      // Convert price from decimal format (45.00) to cents (4500) if needed
+      const tourData = {
+        ...req.body,
+        price: typeof req.body.price === 'string' 
+          ? Math.round(parseFloat(req.body.price) * 100) 
+          : req.body.price
+      };
+      
+      const updatedTour = await storage.updateTour(tourId, tourData);
+      if (!updatedTour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+      
+      res.json(updatedTour);
+    } catch (error: any) {
+      console.error("Error updating tour:", error);
+      res.status(500).json({ message: error.message || "Failed to update tour" });
+    }
+  });
+  
+  // Delete a tour
+  app.delete("/api/tours/:id", async (req: Request, res: Response) => {
+    try {
+      const tourId = parseInt(req.params.id);
+      if (isNaN(tourId)) {
+        return res.status(400).json({ message: "Invalid tour ID" });
+      }
+      
+      const success = await storage.deleteTour(tourId);
+      if (!success) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting tour:", error);
+      res.status(500).json({ message: error.message || "Failed to delete tour" });
+    }
+  });
 
   // Testimonials API endpoints
   app.get("/api/testimonials", async (req: Request, res: Response) => {

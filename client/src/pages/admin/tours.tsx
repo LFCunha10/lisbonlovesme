@@ -289,12 +289,15 @@ export default function AdminTours() {
             <p className="text-gray-500">Create, edit, and manage tours</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
+            <Button onClick={() => navigate("/admin/tours/create")}>
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Add New Tour
+            </Button>
+            
+            {/* Keep the dialog for backward compatibility but hidden */}
             <Dialog open={isCreateTourOpen} onOpenChange={setIsCreateTourOpen}>
               <DialogTrigger asChild>
-                <Button>
-                  <PlusIcon className="mr-2 h-4 w-4" />
-                  Add New Tour
-                </Button>
+                <span className="hidden">Old Tour Form</span>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>

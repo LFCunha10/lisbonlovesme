@@ -9,6 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Serve static files from public directory
+app.use('/uploads', express.static('public/uploads'));
+
 // Set up session management
 const MemoryStoreSession = MemoryStore(session);
 app.use(session({
