@@ -82,11 +82,23 @@ function Router() {
       </Route>
       <Route path="/admin/tours/create">
         {() => {
-          const CreateTourPage = React.lazy(() => import("@/pages/admin/tours/create"));
+          const TourEditorPage = React.lazy(() => import("@/pages/admin/tours/tour-editor"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>
-                <CreateTourPage />
+                <TourEditorPage />
+              </AdminProtectedRoute>
+            </React.Suspense>
+          );
+        }}
+      </Route>
+      <Route path="/admin/tours/edit/:id">
+        {() => {
+          const TourEditorPage = React.lazy(() => import("@/pages/admin/tours/tour-editor"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AdminProtectedRoute>
+                <TourEditorPage />
               </AdminProtectedRoute>
             </React.Suspense>
           );

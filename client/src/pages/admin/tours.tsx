@@ -520,14 +520,14 @@ export default function AdminTours() {
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/admin/tours/edit/${selectedTour.id}`)}>
+                      <PencilIcon className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    
+                    {/* Keep dialog hidden for backward compatibility */}
                     <Dialog open={isEditTourOpen} onOpenChange={setIsEditTourOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                          <PencilIcon className="h-4 w-4 mr-2" />
-                          Edit
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto hidden">
                         <DialogHeader>
                           <DialogTitle>Edit Tour</DialogTitle>
                           <DialogDescription>
