@@ -73,18 +73,25 @@ export function RichTextEditor({
   const applyTextAlignment = useCallback((alignment: 'left' | 'center' | 'right') => {
     setTextAlignment(alignment);
     
+    // First ensure we have focus
+    editorRef.current?.focus();
+    
+    // Then apply the alignment
     switch (alignment) {
       case 'left':
-        formatText('justifyLeft');
+        document.execCommand('justifyLeft', false);
         break;
       case 'center':
-        formatText('justifyCenter');
+        document.execCommand('justifyCenter', false);
         break;
       case 'right':
-        formatText('justifyRight');
+        document.execCommand('justifyRight', false);
         break;
     }
-  }, [formatText]);
+    
+    // Update content after applying alignment
+    handleEditorChange();
+  }, [handleEditorChange]);
   
   // Insert link
   const insertLink = useCallback(() => {
@@ -267,6 +274,8 @@ export function RichTextEditor({
         data-placeholder={placeholder}
         style={{
           minHeight: '200px',
+          direction: 'ltr', // Ensure left-to-right text direction
+          textAlign: textAlignment, // Apply text alignment via CSS as well
         }}
       />
     </div>
