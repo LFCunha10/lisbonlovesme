@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -56,7 +57,7 @@ export default function CreateTourPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   // Form definition with validation
   const form = useForm<z.infer<typeof createTourSchema>>({
@@ -318,7 +319,8 @@ export default function CreateTourPage() {
                           <Badge className="h-5 w-5" />
                           <Input
                             placeholder="Popular"
-                            {...field}
+                            value={field.value || ""}
+                            onChange={field.onChange}
                           />
                         </div>
                       </FormControl>
@@ -336,7 +338,7 @@ export default function CreateTourPage() {
                       <FormLabel>Badge Color</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value || ""}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -368,11 +370,9 @@ export default function CreateTourPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-2 border rounded-md">
                       <FormControl>
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4"
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
+                        <Switch
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
                       <FormLabel className="m-0">
