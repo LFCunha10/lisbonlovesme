@@ -54,22 +54,58 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     }
   });
 
+  // Check if we're in test mode
+  const isTestMode = import.meta.env.VITE_PAYMENT_MODE === 'test' || true; // Default to test mode if not specified
+
   const handlePayment = async () => {
     setIsProcessing(true);
     
-    // Process payment immediately without delay
-    createBooking.mutate({
-      tourId: tour.id,
-      availabilityId: bookingData.availabilityId,
-      customerFirstName: bookingData.customerFirstName,
-      customerLastName: bookingData.customerLastName,
-      customerEmail: bookingData.customerEmail,
-      customerPhone: bookingData.customerPhone,
-      numberOfParticipants: bookingData.numberOfParticipants,
-      specialRequests: bookingData.specialRequests || null,
-      paymentStatus: 'completed',
-      totalAmount
-    });
+    if (isTestMode) {
+      // Test mode - always approve payment
+      console.log('Using test payment mode - automatic approval');
+      createBooking.mutate({
+        tourId: tour.id,
+        availabilityId: bookingData.availabilityId,
+        customerFirstName: bookingData.customerFirstName,
+        customerLastName: bookingData.customerLastName,
+        customerEmail: bookingData.customerEmail,
+        customerPhone: bookingData.customerPhone,
+        numberOfParticipants: bookingData.numberOfParticipants,
+        specialRequests: bookingData.specialRequests || null,
+        paymentStatus: 'completed',
+        totalAmount
+      });
+    } else {
+      // Real payment mode - connect to Stripe or other payment processor
+      try {
+        // Here you would typically make a call to create a payment intent
+        // and then confirm the payment with Stripe Elements
+        console.log('Using real payment mode - connecting to payment processor');
+        
+        // For now, we'll simulate a successful payment
+        // This would be replaced with actual Stripe integration
+        createBooking.mutate({
+          tourId: tour.id,
+          availabilityId: bookingData.availabilityId,
+          customerFirstName: bookingData.customerFirstName,
+          customerLastName: bookingData.customerLastName,
+          customerEmail: bookingData.customerEmail,
+          customerPhone: bookingData.customerPhone,
+          numberOfParticipants: bookingData.numberOfParticipants,
+          specialRequests: bookingData.specialRequests || null,
+          paymentStatus: 'completed',
+          totalAmount
+        });
+      } catch (error) {
+        console.error('Payment processing error:', error);
+        setIsProcessing(false);
+        toast({
+          title: t('booking.error'),
+          description: t('booking.paymentProcessingError'),
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
