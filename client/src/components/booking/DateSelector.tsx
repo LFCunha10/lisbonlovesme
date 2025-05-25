@@ -68,7 +68,7 @@ export default function DateSelector({
     setAvailableTimeSlots(slots);
   }, [date, availabilities]);
   
-  // Separate effect to handle time selection updates
+  // Separate effect to handle time selection updates - only runs when availableTimeSlots change
   useEffect(() => {
     if (availableTimeSlots.length === 0) {
       if (time !== "" || availabilityId !== 0) {
@@ -84,7 +84,7 @@ export default function DateSelector({
       setTime("");
       setAvailabilityId(0);
     }
-  }, [availableTimeSlots, time, availabilityId]);
+  }, [availableTimeSlots]); // Only depend on availableTimeSlots to prevent infinite loop
 
   const handleDateSelect = (newDate: Date | undefined) => {
     setDate(newDate);
