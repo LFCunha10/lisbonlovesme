@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { BookingModal } from "@/components/booking/BookingModal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export default function ToursPage() {
   const { tours, isLoading, error } = useTours();
+   const { t } = useTranslation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,10 +32,10 @@ export default function ToursPage() {
           </Button>
           
           <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
-            All Lisbon Tours
+            {t('tour.allTours')}
           </h1>
           <p className="text-lg text-neutral-dark/80">
-            Explore our complete collection of tours and find your perfect Lisbon experience.
+            {t('tour.allToursDescription')}
           </p>
         </div>
 

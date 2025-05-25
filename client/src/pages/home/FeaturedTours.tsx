@@ -35,7 +35,7 @@ export default function FeaturedTours() {
             </div>
           )}
           
-          {!isLoading && !error && tours.map((tour) => (
+          {!isLoading && !error && tours.slice(0,3).map((tour) => (
             <TourCard key={tour.id} tour={tour} />
           ))}
         </div>

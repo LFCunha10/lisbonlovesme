@@ -26,10 +26,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addClosedDay(date: string, reason?: string): Promise<ClosedDay> {
-    const [closedDay] = await db.insert(closedDays).values({
-      date,
-      reason: reason || 'Manually closed'
-    }).returning();
+    const [closedDay] = await db
+      .insert(closedDays)
+      .values({
+        date,
+        reason: reason || 'Manually closed',
+      })
+      .onConflictDoNothing()
+      .returning();
+
     return closedDay;
   }
 
@@ -53,28 +58,25 @@ export class DatabaseStorage implements IStorage {
     return settings;
   }
 
-  async updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting> {
-    const existingSettings = await this.getAdminSettings();
-    
-    if (existingSettings) {
-      const [updated] = await db.update(adminSettings)
-        .set({
-          ...settings,
-          lastUpdated: new Date()
-        })
-        .where(eq(adminSettings.id, existingSettings.id))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db.insert(adminSettings)
-        .values({
-          ...settings,
-          lastUpdated: new Date()
-        })
-        .returning();
-      return created;
-    }
-  }
+  async updateAdminSettings(data: Partial<AdminSetting>): Promise<AdminSetting> {
+  const [updated] = await db
+    .insert(adminSettings)
+    .values({
+      id: 1,
+      autoCloseDay: data.autoCloseDay ?? false,
+      lastUpdated: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: [adminSettings.id],
+      set: {
+        autoCloseDay: data.autoCloseDay ?? false,
+        lastUpdated: new Date(),
+      },
+    })
+    .returning();
+
+  return updated;
+}
 
   async getAutoCloseDaySetting(): Promise<boolean> {
     const settings = await this.getAdminSettings();
@@ -216,40 +218,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-    console.log("Starting booking creation with data:", booking);
-    
-    // Generate a unique booking reference
-    const bookingReference = `LT-${nanoid(7).toUpperCase()}`;
-    
-    try {
-      const [newBooking] = await db
-        .insert(bookings)
-        .values({
-          ...booking,
-          bookingReference,
-        })
-        .returning();
-      
-      console.log("Booking inserted successfully:", newBooking);
-      
-      // Update the spots left in the availability (simplified to prevent hanging)
-      try {
-        const availability = await this.getAvailability(booking.availabilityId);
-        if (availability && availability.spotsLeft > 0) {
-          const spotsLeft = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
-          await this.updateAvailability(availability.id, { spotsLeft });
-          console.log("Availability updated successfully");
-        }
-      } catch (availabilityError) {
-        console.warn("Failed to update availability but booking created:", availabilityError);
-      }
-      
-      return newBooking;
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      throw error;
-    }
+  console.log("Starting booking creation with data:", booking);
+
+  const bookingReference = `LT-${nanoid(7).toUpperCase()}`;
+
+  try {
+    const [newBooking] = await db
+      .insert(bookings)
+      .values({ ...booking, bookingReference })
+      .returning();
+
+    console.log("Booking inserted successfully:", newBooking);
+    return newBooking;
+
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    throw error;
   }
+}
 
   async updateBooking(
     id: number,

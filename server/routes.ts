@@ -318,73 +318,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Booking route - fixed for better reliability
   app.post("/api/bookings", async (req: Request, res: Response) => {
-    console.log("Starting booking creation with data:", req.body);
-    
-    try {
-      // Create the booking
-      const booking = await storage.createBooking(req.body);
-      console.log("Booking inserted successfully:", booking);
-      
-      // Update availability
-      try {
-        const availability = await storage.getAvailability(booking.availabilityId);
-        if (availability) {
-          // Update availability to reduce spots
-          const spotsRemaining = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
-          await storage.updateAvailability(availability.id, { 
-            spotsLeft: spotsRemaining 
-          });
-          console.log("Availability updated successfully");
-          
-          // Auto-close day if needed
-          const autoCloseSetting = await storage.getAutoCloseDaySetting();
-          if (autoCloseSetting) {
-            await storage.addClosedDay(availability.date, "Auto-closed due to booking");
-            console.log(`Day ${availability.date} auto-closed due to booking`);
-          }
-        }
-      } catch (availabilityError) {
-        console.error("Error updating availability:", availabilityError);
-      }
-      
-      // Send confirmation email
-      try {
-        const tour = await storage.getTour(booking.tourId);
-        const availability = await storage.getAvailability(booking.availabilityId);
-        
-        if (tour && availability) {
-          await sendBookingConfirmationEmail({
-            to: booking.customerEmail,
-            name: `${booking.customerFirstName} ${booking.customerLastName}`,
-            bookingReference: booking.bookingReference,
-            tourName: tour.name,
-            date: availability.date,
-            time: availability.time,
-            participants: booking.numberOfParticipants,
-            totalAmount: (booking.totalAmount / 100).toFixed(2),
-            meetingPoint: booking.meetingPoint || "To be announced",
-            duration: parseInt(tour.duration)
-          });
-          console.log("Confirmation email sent successfully");
-        }
-      } catch (emailError) {
-        console.error("Failed to send confirmation email:", emailError);
-      }
-      
-      // Send immediate response with booking data
-      return res.status(201).json({
-        success: true,
-        ...booking
-      });
-      
-    } catch (error: any) {
-      console.error("Error creating booking:", error);
-      return res.status(500).json({ 
-        success: false,
-        message: error.message || "Failed to create booking" 
-      });
+  console.log("Starting booking creation with data:", req.body);
+
+  try {
+    // 1. Insert booking
+    const booking = await storage.createBooking(req.body);
+
+    // 2. Fetch availability
+    const availability = await storage.getAvailability(booking.availabilityId);
+    if (!availability) {
+      return res.status(404).json({ success: false, message: "Availability not found" });
     }
-  });
+
+    // 3. Update spots left
+    const spotsRemaining = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
+    await storage.updateAvailability(availability.id, { spotsLeft: spotsRemaining });
+    console.log("Availability updated successfully!!!");
+
+    // 4. Auto-close day if needed
+   
+    const autoCloseSetting = await storage.getAutoCloseDaySetting();
+    console.log("Auto-close setting: ", autoCloseSetting);
+    if (autoCloseSetting) {
+      await storage.addClosedDay(availability.date, "Auto-closed due to booking");
+      console.log(`Day ${availability.date} auto-closed due to booking`);
+    }
+    if (spotsRemaining <= 0) {
+      await storage.addClosedDay(availability.date, "Closed due to lack of spots");
+      console.log(`Day ${availability.date} Closed due to lack of spots`);
+    }
+ 
+   
+
+    // 5. Send confirmation email
+    try {
+      const tour = await storage.getTour(booking.tourId);
+      if (tour) {
+        await sendBookingConfirmationEmail({
+          to: booking.customerEmail,
+          name: `${booking.customerFirstName} ${booking.customerLastName}`,
+          bookingReference: booking.bookingReference,
+          tourName: tour.name,
+          date: availability.date,
+          time: availability.time,
+          participants: booking.numberOfParticipants,
+          totalAmount: (booking.totalAmount / 100).toFixed(2),
+          meetingPoint: booking.meetingPoint || "To be announced",
+          duration: parseInt(tour.duration)
+        });
+        console.log("Confirmation email sent successfully");
+      }
+    } catch (emailError) {
+      console.error("Failed to send confirmation email:", emailError);
+      // Non-blocking failure
+    }
+
+    // 6. Respond to client
+    return res.status(201).json({
+      success: true,
+      ...booking
+    });
+
+  } catch (error: any) {
+    console.error("Error creating booking:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to create booking"
+    });
+  }
+});
 
   // Image Upload Endpoint
   app.post("/api/upload-image", upload.single('image'), handleUploadErrors, (req: Request, res: Response) => {

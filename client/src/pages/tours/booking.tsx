@@ -57,6 +57,16 @@ export default function Booking() {
     }
   }, [tour, isTourLoading, setLocation]);
 
+  useEffect(() => {
+  if (storedStep === '4') {
+    localStorage.removeItem('currentBookingStep');
+    localStorage.removeItem('currentBookingReference');
+    setCurrentStep(1);
+    setBookingReference("");
+    setBookingData({});
+  }
+}, []);
+
   if (isTourLoading || !tour) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -130,6 +140,7 @@ export default function Booking() {
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {t('booking.title')}
+                Test
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 {tour.name}

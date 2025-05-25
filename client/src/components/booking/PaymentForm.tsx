@@ -102,8 +102,10 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
       };
       
       console.log('Using test payment mode - automatic approval');
+      console.log('Second log');
       
       try {
+        console.log('Creating booking with payload:', bookingPayload);
         // Create booking using the more reliable fetch API
         const response = await fetch('/api/bookings', {
           method: 'POST',

@@ -35,14 +35,6 @@ export default function HeroSection() {
             >
               <a href="#tours">{t('home.explore')}</a>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-white hover:bg-white/90 text-primary font-semibold border-none"
-              onClick={() => openBookingModal()}
-            >
-              {t('nav.booking')}
-            </Button>
           </div>
         </div>
       </div>
