@@ -28,6 +28,97 @@ async function exportDatabase() {
     outputStream.write(`\n`);
     outputStream.write(`BEGIN;\n\n`);
     
+    // Add schema creation statements
+    outputStream.write(`-- Schema creation statements\n\n`);
+    
+    outputStream.write(`-- Users table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS users CASCADE;\n`);
+    outputStream.write(`CREATE TABLE users (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  username TEXT NOT NULL UNIQUE,\n`);
+    outputStream.write(`  password TEXT NOT NULL,\n`);
+    outputStream.write(`  is_admin BOOLEAN DEFAULT FALSE\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Tours table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS tours CASCADE;\n`);
+    outputStream.write(`CREATE TABLE tours (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  name TEXT NOT NULL,\n`);
+    outputStream.write(`  short_description TEXT DEFAULT '',\n`);
+    outputStream.write(`  description TEXT NOT NULL,\n`);
+    outputStream.write(`  image_url TEXT NOT NULL,\n`);
+    outputStream.write(`  duration TEXT NOT NULL,\n`);
+    outputStream.write(`  max_group_size INTEGER NOT NULL,\n`);
+    outputStream.write(`  difficulty TEXT NOT NULL,\n`);
+    outputStream.write(`  price INTEGER NOT NULL,\n`);
+    outputStream.write(`  badge TEXT,\n`);
+    outputStream.write(`  badge_color TEXT,\n`);
+    outputStream.write(`  is_active BOOLEAN DEFAULT TRUE\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Availabilities table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS availabilities CASCADE;\n`);
+    outputStream.write(`CREATE TABLE availabilities (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE,\n`);
+    outputStream.write(`  date TEXT NOT NULL,\n`);
+    outputStream.write(`  time TEXT NOT NULL,\n`);
+    outputStream.write(`  max_spots INTEGER NOT NULL,\n`);
+    outputStream.write(`  spots_left INTEGER NOT NULL\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Bookings table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS bookings CASCADE;\n`);
+    outputStream.write(`CREATE TABLE bookings (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE,\n`);
+    outputStream.write(`  availability_id INTEGER NOT NULL REFERENCES availabilities(id) ON DELETE CASCADE,\n`);
+    outputStream.write(`  customer_first_name TEXT NOT NULL,\n`);
+    outputStream.write(`  customer_last_name TEXT NOT NULL,\n`);
+    outputStream.write(`  customer_email TEXT NOT NULL,\n`);
+    outputStream.write(`  customer_phone TEXT NOT NULL,\n`);
+    outputStream.write(`  number_of_participants INTEGER NOT NULL,\n`);
+    outputStream.write(`  special_requests TEXT,\n`);
+    outputStream.write(`  booking_reference TEXT NOT NULL UNIQUE,\n`);
+    outputStream.write(`  total_amount INTEGER NOT NULL,\n`);
+    outputStream.write(`  payment_status TEXT DEFAULT 'pending',\n`);
+    outputStream.write(`  stripe_payment_intent_id TEXT,\n`);
+    outputStream.write(`  created_at TIMESTAMP DEFAULT NOW(),\n`);
+    outputStream.write(`  additional_info JSONB,\n`);
+    outputStream.write(`  meeting_point TEXT,\n`);
+    outputStream.write(`  reminders_sent BOOLEAN DEFAULT FALSE\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Testimonials table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS testimonials CASCADE;\n`);
+    outputStream.write(`CREATE TABLE testimonials (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  customer_name TEXT NOT NULL,\n`);
+    outputStream.write(`  customer_country TEXT NOT NULL,\n`);
+    outputStream.write(`  rating INTEGER NOT NULL,\n`);
+    outputStream.write(`  text TEXT NOT NULL,\n`);
+    outputStream.write(`  is_approved BOOLEAN DEFAULT FALSE,\n`);
+    outputStream.write(`  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Closed Days table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS closed_days CASCADE;\n`);
+    outputStream.write(`CREATE TABLE closed_days (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  date TEXT NOT NULL UNIQUE,\n`);
+    outputStream.write(`  reason TEXT,\n`);
+    outputStream.write(`  created_at TIMESTAMP DEFAULT NOW()\n`);
+    outputStream.write(`);\n\n`);
+    
+    outputStream.write(`-- Admin Settings table schema\n`);
+    outputStream.write(`DROP TABLE IF EXISTS admin_settings CASCADE;\n`);
+    outputStream.write(`CREATE TABLE admin_settings (\n`);
+    outputStream.write(`  id SERIAL PRIMARY KEY,\n`);
+    outputStream.write(`  auto_close_day BOOLEAN DEFAULT FALSE,\n`);
+    outputStream.write(`  last_updated TIMESTAMP DEFAULT NOW()\n`);
+    outputStream.write(`);\n\n`);
+    
     // Get all data from each table
     const tables = [
       { name: 'tours', schema: schema.tours },
@@ -39,18 +130,21 @@ async function exportDatabase() {
       { name: 'users', schema: schema.users }
     ];
     
-    // Process each table
+
+    
+    // Process each table for data export
+    outputStream.write(`-- Data export for all tables\n\n`);
     for (const table of tables) {
-      console.log(`Exporting table: ${table.name}...`);
+      console.log(`Exporting data for table: ${table.name}...`);
       
       try {
         // Get all records from table
         const records = await db.select().from(table.schema);
         
+        // Write table header
+        outputStream.write(`-- Table data: ${table.name}\n`);
+        
         if (records.length > 0) {
-          // Write table header
-          outputStream.write(`-- Table: ${table.name}\n`);
-          
           // Generate INSERT statements for each record
           for (const record of records) {
             const columns = Object.keys(record).filter(key => record[key] !== null);
@@ -75,14 +169,14 @@ async function exportDatabase() {
             // Write INSERT statement
             outputStream.write(`INSERT INTO ${table.name} (${columns.join(', ')}) VALUES (${values.join(', ')});\n`);
           }
-          
-          outputStream.write(`\n`);
         } else {
-          outputStream.write(`-- No data in table: ${table.name}\n\n`);
+          outputStream.write(`-- No data in table: ${table.name}\n`);
         }
+        
+        outputStream.write(`\n`);
       } catch (error) {
-        console.error(`Error exporting table ${table.name}:`, error);
-        outputStream.write(`-- Error exporting table: ${table.name}\n\n`);
+        console.error(`Error exporting data from table ${table.name}:`, error);
+        outputStream.write(`-- Error exporting data from table: ${table.name}\n\n`);
       }
     }
     
