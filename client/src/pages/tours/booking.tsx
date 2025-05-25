@@ -82,10 +82,7 @@ export default function Booking() {
   const handlePaymentComplete = (reference: string) => {
     console.log("Payment complete! Booking reference:", reference);
     setBookingReference(reference);
-    // Force a small delay to ensure state updates properly
-    setTimeout(() => {
-      setCurrentStep(4);
-    }, 100);
+    setCurrentStep(4);
   };
 
   const handleBack = () => {

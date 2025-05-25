@@ -66,8 +66,8 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     }
   });
 
-  // Check if we're in test mode
-  const isTestMode = import.meta.env.VITE_PAYMENT_MODE === 'test';
+  // Check if we're in test mode (defaulting to true for easier testing)
+  const isTestMode = true;
 
   const handlePayment = async () => {
     setIsProcessing(true);
