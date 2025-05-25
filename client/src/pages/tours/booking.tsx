@@ -40,9 +40,13 @@ export default function Booking() {
   const [, setLocation] = useLocation();
   const tourId = parseInt(id || "0");
   
-  const [currentStep, setCurrentStep] = useState(1);
+  // Initialize with values from localStorage if they exist (for recovery from navigation issues)
+  const storedStep = localStorage.getItem('currentBookingStep');
+  const storedReference = localStorage.getItem('currentBookingReference');
+  
+  const [currentStep, setCurrentStep] = useState(storedStep ? parseInt(storedStep) : 1);
   const [bookingData, setBookingData] = useState<Partial<BookingData>>({});
-  const [bookingReference, setBookingReference] = useState<string>("");
+  const [bookingReference, setBookingReference] = useState<string>(storedReference || "");
 
   const { tour, isLoading: isTourLoading } = useTour(tourId);
   const { availabilities } = useAvailabilities(tourId);
@@ -81,13 +85,23 @@ export default function Booking() {
 
   const handlePaymentComplete = (reference: string) => {
     console.log("Payment complete! Booking reference:", reference);
-    // Set both states at once to ensure they update together
+    
+    // Important: set these states synchronously to ensure consistency
     setBookingReference(reference);
-    // Force render update with a setTimeout of 0
+    setCurrentStep(4);
+    
+    // Also store in localStorage as a backup
+    localStorage.setItem('currentBookingReference', reference);
+    localStorage.setItem('currentBookingStep', '4');
+    
+    // Force rerender to ensure the confirmation page shows
     setTimeout(() => {
-      console.log("Setting current step to 4, reference:", reference);
-      setCurrentStep(4);
-    }, 0);
+      console.log("Checking if confirmation step is active, current step:", currentStep);
+      if (currentStep !== 4) {
+        console.log("Forcing step to confirmation");
+        setCurrentStep(4);
+      }
+    }, 200);
   };
 
   const handleBack = () => {
@@ -196,13 +210,21 @@ export default function Booking() {
                     />
                   )}
                   
-                  {currentStep === 4 && (
+                  {currentStep === 4 && bookingReference && (
                     <BookingConfirmation
                       tour={tour}
                       bookingData={bookingData as BookingData}
                       bookingReference={bookingReference}
                       totalAmount={calculateTotal()}
                     />
+                  )}
+                  
+                  {/* Emergency fallback for confirmation when reference exists but step isn't 4 */}
+                  {currentStep !== 4 && bookingReference && (
+                    <div className="hidden">
+                      {/* This will trigger the effect to move to step 4 */}
+                      {setTimeout(() => setCurrentStep(4), 0)}
+                    </div>
                   )}
                 </CardContent>
               </Card>

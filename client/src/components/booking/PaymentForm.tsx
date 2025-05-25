@@ -37,9 +37,11 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
 
   const createBooking = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Creating booking with data:", data);
       const response = await apiRequest('POST', '/api/bookings', data);
-      const responseData = await response.json();
-      return responseData;
+      const bookingData = await response.json();
+      console.log("Server response:", bookingData);
+      return bookingData;
     },
     onSuccess: (bookingData) => {
       console.log("Booking successful:", bookingData);
@@ -48,16 +50,22 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         description: t('booking.successMessage'),
       });
       
-      // Pass the booking reference to the parent component
       if (bookingData && bookingData.bookingReference) {
+        // Store booking reference in localStorage for retrieval in case of navigation issues
+        localStorage.setItem('lastBookingReference', bookingData.bookingReference);
         console.log("Using booking reference from response:", bookingData.bookingReference);
-        onPaymentComplete(bookingData.bookingReference);
+        
+        // Create a slight delay to ensure the state is properly updated
+        window.setTimeout(() => {
+          onPaymentComplete(bookingData.bookingReference);
+        }, 100);
       } else {
-        // Fallback in case the booking reference is missing
         console.error("Booking created but reference is missing");
-        const fallbackRef = "LT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-        console.log("Using fallback reference:", fallbackRef);
-        onPaymentComplete(fallbackRef);
+        toast({
+          title: t('booking.error'),
+          description: t('booking.referenceError'),
+          variant: "destructive",
+        });
       }
     },
     onError: (error: any) => {
