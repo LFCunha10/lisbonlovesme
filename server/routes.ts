@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
 import { sendBookingConfirmationEmail } from "./email";
-import { exportDatabase } from "./utils/export-database";
+import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
 import fs from "fs";
@@ -543,19 +543,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Set appropriate headers for the response
-      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Type', 'application/sql');
       res.setHeader('Content-Disposition', `attachment; filename="${path.basename(exportPath)}"`);
       
-      // Send the file directly instead of streaming
-      fs.readFile(exportPath, (err, data) => {
+      // Read the export file
+      fs.readFile(exportPath, 'utf8', (err, data) => {
         if (err) {
           console.error("Error reading export file:", err);
           return res.status(500).json({ message: "Error reading export file" });
         }
         
-        // Log success and send file
-        console.log(`Sending file: ${exportPath} (${data.length} bytes)`);
-        res.send(data);
+        // Create a complete SQL export with schema and data
+        const fullSqlExport = `-- Lisbonlovesme Database Export
+-- Date: ${new Date().toISOString()}
+
+-- This SQL file contains all schema and data for the Lisbonlovesme tour booking application.
+-- It can be imported to a fresh PostgreSQL database to recreate the entire application database.
+
+BEGIN;
+
+-- ===================================
+-- SCHEMA CREATION STATEMENTS
+-- ===================================
+
+-- Users table schema
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  is_admin BOOLEAN DEFAULT FALSE
+);
+
+-- Tours table schema
+DROP TABLE IF EXISTS tours CASCADE;
+CREATE TABLE tours (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  short_description TEXT DEFAULT '',
+  description TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  duration TEXT NOT NULL,
+  max_group_size INTEGER NOT NULL,
+  difficulty TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  badge TEXT,
+  badge_color TEXT,
+  is_active BOOLEAN DEFAULT TRUE
+);
+
+-- Availabilities table schema
+DROP TABLE IF EXISTS availabilities CASCADE;
+CREATE TABLE availabilities (
+  id SERIAL PRIMARY KEY,
+  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
+  max_spots INTEGER NOT NULL,
+  spots_left INTEGER NOT NULL
+);
+
+-- Bookings table schema
+DROP TABLE IF EXISTS bookings CASCADE;
+CREATE TABLE bookings (
+  id SERIAL PRIMARY KEY,
+  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  availability_id INTEGER NOT NULL REFERENCES availabilities(id) ON DELETE CASCADE,
+  customer_first_name TEXT NOT NULL,
+  customer_last_name TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  number_of_participants INTEGER NOT NULL,
+  special_requests TEXT,
+  booking_reference TEXT NOT NULL UNIQUE,
+  total_amount INTEGER NOT NULL,
+  payment_status TEXT DEFAULT 'pending',
+  stripe_payment_intent_id TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  additional_info JSONB,
+  meeting_point TEXT,
+  reminders_sent BOOLEAN DEFAULT FALSE
+);
+
+-- Testimonials table schema
+DROP TABLE IF EXISTS testimonials CASCADE;
+CREATE TABLE testimonials (
+  id SERIAL PRIMARY KEY,
+  customer_name TEXT NOT NULL,
+  customer_country TEXT NOT NULL,
+  rating INTEGER NOT NULL,
+  text TEXT NOT NULL,
+  is_approved BOOLEAN DEFAULT FALSE,
+  tour_id INTEGER NOT NULL REFERENCES tours(id) ON DELETE CASCADE
+);
+
+-- Closed Days table schema
+DROP TABLE IF EXISTS closed_days CASCADE;
+CREATE TABLE closed_days (
+  id SERIAL PRIMARY KEY,
+  date TEXT NOT NULL UNIQUE,
+  reason TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Admin Settings table schema
+DROP TABLE IF EXISTS admin_settings CASCADE;
+CREATE TABLE admin_settings (
+  id SERIAL PRIMARY KEY,
+  auto_close_day BOOLEAN DEFAULT FALSE,
+  last_updated TIMESTAMP DEFAULT NOW()
+);
+
+-- ===================================
+-- DATA EXPORT FOR ALL TABLES
+-- ===================================
+
+${data}`;
+        
+        // Log success and send the complete SQL file
+        console.log(`Sending complete database export (${fullSqlExport.length} bytes)`);
+        res.send(fullSqlExport);
       });
     } catch (error: any) {
       console.error("Database export failed:", error);
