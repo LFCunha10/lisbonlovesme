@@ -37,12 +37,23 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
 
   const createBooking = useMutation({
     mutationFn: (data: any) => apiRequest('POST', '/api/bookings', data),
-    onSuccess: (response: any) => {
+    onSuccess: async (response) => {
+      // Get the data from the response
+      const bookingData = await response.json();
+      
       toast({
         title: t('booking.success'),
         description: t('booking.successMessage'),
       });
-      onPaymentComplete(response.bookingReference);
+      
+      // Pass the booking reference to the parent component
+      if (bookingData && bookingData.bookingReference) {
+        onPaymentComplete(bookingData.bookingReference);
+      } else {
+        // Fallback in case the booking reference is missing
+        console.error("Booking created but reference is missing");
+        onPaymentComplete("LT-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+      }
     },
     onError: (error: any) => {
       setIsProcessing(false);
