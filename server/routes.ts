@@ -7,6 +7,7 @@ import { exportDatabase } from "./utils/export-database";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
 import fs from "fs";
+import { isAuthenticated, isAdmin } from "./auth";
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
