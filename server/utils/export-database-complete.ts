@@ -34,6 +34,66 @@ async function exportDatabase() {
       { name: 'users', schema: schema.users }
     ];
     
+    // Maps JavaScript camelCase properties to SQL snake_case columns
+    const propertyToColumnMap = {
+      // Users
+      id: 'id', 
+      username: 'username',
+      password: 'password',
+      isAdmin: 'is_admin',
+      
+      // Tours
+      name: 'name',
+      shortDescription: 'short_description',
+      description: 'description',
+      imageUrl: 'image_url',
+      duration: 'duration',
+      maxGroupSize: 'max_group_size',
+      difficulty: 'difficulty',
+      price: 'price',
+      badge: 'badge',
+      badgeColor: 'badge_color',
+      isActive: 'is_active',
+      
+      // Availabilities
+      tourId: 'tour_id',
+      date: 'date',
+      time: 'time',
+      maxSpots: 'max_spots',
+      spotsLeft: 'spots_left',
+      
+      // Bookings
+      availabilityId: 'availability_id',
+      customerFirstName: 'customer_first_name',
+      customerLastName: 'customer_last_name',
+      customerEmail: 'customer_email',
+      customerPhone: 'customer_phone',
+      numberOfParticipants: 'number_of_participants',
+      specialRequests: 'special_requests',
+      bookingReference: 'booking_reference',
+      totalAmount: 'total_amount',
+      paymentStatus: 'payment_status',
+      stripePaymentIntentId: 'stripe_payment_intent_id',
+      createdAt: 'created_at',
+      additionalInfo: 'additional_info',
+      meetingPoint: 'meeting_point',
+      remindersSent: 'reminders_sent',
+      
+      // Testimonials
+      customerName: 'customer_name',
+      customerCountry: 'customer_country',
+      rating: 'rating',
+      text: 'text',
+      isApproved: 'is_approved',
+      
+      // Closed Days
+      reason: 'reason',
+      
+      // Admin Settings
+      autoCloseDay: 'auto_close_day',
+      lastUpdated: 'last_updated'
+    };
+    
     // Process each table for data export
     for (const table of tables) {
       console.log(`Exporting table: ${table.name}...`);
@@ -48,9 +108,13 @@ async function exportDatabase() {
         if (records.length > 0) {
           // Generate INSERT statements for each record
           for (const record of records) {
-            const columns = Object.keys(record).filter(key => record[key] !== null);
-            const values = columns.map(col => {
-              const value = record[col];
+            const jsProperties = Object.keys(record).filter(key => record[key] !== null);
+            
+            // Convert JavaScript properties to SQL column names
+            const sqlColumns = jsProperties.map(prop => propertyToColumnMap[prop] || prop);
+            
+            const values = jsProperties.map(prop => {
+              const value = record[prop];
               
               // Format values based on their type
               if (value === null) {
@@ -62,13 +126,16 @@ async function exportDatabase() {
                 return `'${value.toISOString()}'`;
               } else if (typeof value === 'boolean') {
                 return value ? 'TRUE' : 'FALSE';
+              } else if (typeof value === 'object') {
+                // Handle JSON objects
+                return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
               } else {
                 return value;
               }
             });
             
             // Write INSERT statement
-            dataExport.push(`INSERT INTO ${table.name} (${columns.join(', ')}) VALUES (${values.join(', ')});`);
+            dataExport.push(`INSERT INTO ${table.name} (${sqlColumns.join(', ')}) VALUES (${values.join(', ')});`);
           }
         } else {
           dataExport.push(`-- No data in table: ${table.name}`);
