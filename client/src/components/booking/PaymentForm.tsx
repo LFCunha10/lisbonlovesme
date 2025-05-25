@@ -42,6 +42,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
       return responseData;
     },
     onSuccess: (bookingData) => {
+      console.log("Booking successful:", bookingData);
       toast({
         title: t('booking.success'),
         description: t('booking.successMessage'),
@@ -49,11 +50,14 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
       
       // Pass the booking reference to the parent component
       if (bookingData && bookingData.bookingReference) {
+        console.log("Using booking reference from response:", bookingData.bookingReference);
         onPaymentComplete(bookingData.bookingReference);
       } else {
         // Fallback in case the booking reference is missing
         console.error("Booking created but reference is missing");
-        onPaymentComplete("LT-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+        const fallbackRef = "LT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        console.log("Using fallback reference:", fallbackRef);
+        onPaymentComplete(fallbackRef);
       }
     },
     onError: (error: any) => {
