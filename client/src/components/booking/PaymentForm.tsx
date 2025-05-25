@@ -36,11 +36,12 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   const [isProcessing, setIsProcessing] = useState(false);
 
   const createBooking = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', '/api/bookings', data),
-    onSuccess: async (response) => {
-      // Get the data from the response
-      const bookingData = await response.json();
-      
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/bookings', data);
+      const responseData = await response.json();
+      return responseData;
+    },
+    onSuccess: (bookingData) => {
       toast({
         title: t('booking.success'),
         description: t('booking.successMessage'),
@@ -66,7 +67,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   });
 
   // Check if we're in test mode
-  const isTestMode = import.meta.env.VITE_PAYMENT_MODE === 'test' || true; // Default to test mode if not specified
+  const isTestMode = import.meta.env.VITE_PAYMENT_MODE === 'test';
 
   const handlePayment = async () => {
     setIsProcessing(true);
