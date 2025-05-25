@@ -38,7 +38,9 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   const createBooking = useMutation({
     mutationFn: async (data: any) => {
       console.log("Creating booking with data:", data);
+      // Send the API request
       const response = await apiRequest('POST', '/api/bookings', data);
+      // Parse the JSON response
       const bookingData = await response.json();
       console.log("Server response:", bookingData);
       return bookingData;
@@ -84,10 +86,9 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   const handlePayment = async () => {
     setIsProcessing(true);
     
-    if (isTestMode) {
-      // Test mode - always approve payment
-      console.log('Using test payment mode - automatic approval');
-      createBooking.mutate({
+    try {
+      // Create the booking data
+      const bookingPayload = {
         tourId: tour.id,
         availabilityId: bookingData.availabilityId,
         customerFirstName: bookingData.customerFirstName,
@@ -98,37 +99,74 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         specialRequests: bookingData.specialRequests || null,
         paymentStatus: 'completed',
         totalAmount
-      });
-    } else {
-      // Real payment mode - connect to Stripe or other payment processor
-      try {
-        // Here you would typically make a call to create a payment intent
-        // and then confirm the payment with Stripe Elements
+      };
+      
+      // In test mode, we directly submit the booking
+      if (isTestMode) {
+        console.log('Using test payment mode - automatic approval');
+        
+        // Make the direct API call instead of using the mutation
+        const response = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingPayload),
+        });
+        
+        const data = await response.json();
+        console.log('Booking created:', data);
+        
+        // Show success message
+        toast({
+          title: t('booking.success'),
+          description: t('booking.successMessage'),
+        });
+        
+        // If we have a booking reference, proceed to confirmation
+        if (data && data.bookingReference) {
+          onPaymentComplete(data.bookingReference);
+        } else {
+          throw new Error('No booking reference returned');
+        }
+      } else {
+        // Real payment mode - would connect to Stripe or other payment processor
         console.log('Using real payment mode - connecting to payment processor');
         
-        // For now, we'll simulate a successful payment
-        // This would be replaced with actual Stripe integration
-        createBooking.mutate({
-          tourId: tour.id,
-          availabilityId: bookingData.availabilityId,
-          customerFirstName: bookingData.customerFirstName,
-          customerLastName: bookingData.customerLastName,
-          customerEmail: bookingData.customerEmail,
-          customerPhone: bookingData.customerPhone,
-          numberOfParticipants: bookingData.numberOfParticipants,
-          specialRequests: bookingData.specialRequests || null,
-          paymentStatus: 'completed',
-          totalAmount
+        // In a real implementation, we'd use Stripe here
+        // For now, do the same as test mode
+        const response = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingPayload),
         });
-      } catch (error) {
-        console.error('Payment processing error:', error);
-        setIsProcessing(false);
+        
+        const data = await response.json();
+        console.log('Booking created:', data);
+        
+        // Show success message
         toast({
-          title: t('booking.error'),
-          description: t('booking.paymentProcessingError'),
-          variant: "destructive",
+          title: t('booking.success'),
+          description: t('booking.successMessage'),
         });
+        
+        // If we have a booking reference, proceed to confirmation
+        if (data && data.bookingReference) {
+          onPaymentComplete(data.bookingReference);
+        } else {
+          throw new Error('No booking reference returned');
+        }
       }
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      setIsProcessing(false);
+      toast({
+        title: t('booking.error'),
+        description: t('booking.paymentProcessingError'),
+        variant: "destructive",
+      });
     }
   };
 

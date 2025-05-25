@@ -219,13 +219,7 @@ export default function Booking() {
                     />
                   )}
                   
-                  {/* Emergency fallback for confirmation when reference exists but step isn't 4 */}
-                  {currentStep !== 4 && bookingReference && (
-                    <div className="hidden">
-                      {/* This will trigger the effect to move to step 4 */}
-                      {setTimeout(() => setCurrentStep(4), 0)}
-                    </div>
-                  )}
+                  {/* No hidden elements needed here */}
                 </CardContent>
               </Card>
             </div>
