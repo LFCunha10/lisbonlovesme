@@ -87,7 +87,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     setIsProcessing(true);
     
     try {
-      // Create the booking data
+      // Create the booking data with consistent structure
       const bookingPayload = {
         tourId: tour.id,
         availabilityId: bookingData.availabilityId,
@@ -101,11 +101,10 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         totalAmount
       };
       
-      // In test mode, we directly submit the booking
-      if (isTestMode) {
-        console.log('Using test payment mode - automatic approval');
-        
-        // Make the direct API call instead of using the mutation
+      console.log('Using test payment mode - automatic approval');
+      
+      try {
+        // Create booking using the more reliable fetch API
         const response = await fetch('/api/bookings', {
           method: 'POST',
           headers: {
@@ -114,8 +113,14 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
           body: JSON.stringify(bookingPayload),
         });
         
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+        
+        // Parse response
         const data = await response.json();
-        console.log('Booking created:', data);
+        console.log('Booking created successfully:', data);
         
         // Show success message
         toast({
@@ -123,48 +128,34 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
           description: t('booking.successMessage'),
         });
         
-        // If we have a booking reference, proceed to confirmation
         if (data && data.bookingReference) {
-          onPaymentComplete(data.bookingReference);
+          // 1. Store in localStorage (in case of page refresh)
+          localStorage.setItem('currentBookingReference', data.bookingReference);
+          localStorage.setItem('currentBookingStep', '4');
+          
+          // 2. Save reference in URL
+          const url = new URL(window.location.href);
+          url.searchParams.set('reference', data.bookingReference);
+          window.history.replaceState({}, '', url.toString());
+          
+          // 3. Call completion handler with a slight delay to ensure state update
+          setTimeout(() => {
+            console.log("Advancing to confirmation step with reference:", data.bookingReference);
+            onPaymentComplete(data.bookingReference);
+          }, 250);
         } else {
-          throw new Error('No booking reference returned');
+          throw new Error('No booking reference returned from server');
         }
-      } else {
-        // Real payment mode - would connect to Stripe or other payment processor
-        console.log('Using real payment mode - connecting to payment processor');
-        
-        // In a real implementation, we'd use Stripe here
-        // For now, do the same as test mode
-        const response = await fetch('/api/bookings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(bookingPayload),
-        });
-        
-        const data = await response.json();
-        console.log('Booking created:', data);
-        
-        // Show success message
-        toast({
-          title: t('booking.success'),
-          description: t('booking.successMessage'),
-        });
-        
-        // If we have a booking reference, proceed to confirmation
-        if (data && data.bookingReference) {
-          onPaymentComplete(data.bookingReference);
-        } else {
-          throw new Error('No booking reference returned');
-        }
+      } catch (apiError: any) {
+        console.error('API error creating booking:', apiError);
+        throw new Error(apiError.message || 'Failed to create booking');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment processing error:', error);
       setIsProcessing(false);
       toast({
         title: t('booking.error'),
-        description: t('booking.paymentProcessingError'),
+        description: error.message || t('booking.paymentProcessingError'),
         variant: "destructive",
       });
     }
