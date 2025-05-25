@@ -57,21 +57,19 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   const handlePayment = async () => {
     setIsProcessing(true);
     
-    // Simulate payment processing for demo
-    setTimeout(() => {
-      createBooking.mutate({
-        tourId: tour.id,
-        availabilityId: bookingData.availabilityId,
-        customerFirstName: bookingData.customerFirstName,
-        customerLastName: bookingData.customerLastName,
-        customerEmail: bookingData.customerEmail,
-        customerPhone: bookingData.customerPhone,
-        numberOfParticipants: bookingData.numberOfParticipants,
-        specialRequests: bookingData.specialRequests || null,
-        paymentStatus: 'completed',
-        totalAmount
-      });
-    }, 2000);
+    // Process payment immediately without delay
+    createBooking.mutate({
+      tourId: tour.id,
+      availabilityId: bookingData.availabilityId,
+      customerFirstName: bookingData.customerFirstName,
+      customerLastName: bookingData.customerLastName,
+      customerEmail: bookingData.customerEmail,
+      customerPhone: bookingData.customerPhone,
+      numberOfParticipants: bookingData.numberOfParticipants,
+      specialRequests: bookingData.specialRequests || null,
+      paymentStatus: 'completed',
+      totalAmount
+    });
   };
 
   return (
