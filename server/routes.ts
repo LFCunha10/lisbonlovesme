@@ -546,19 +546,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Type', 'application/sql');
       res.setHeader('Content-Disposition', `attachment; filename="${path.basename(exportPath)}"`);
       
-      // Read the export file
+      // Read the export file as a full SQL file with schema and data
       fs.readFile(exportPath, 'utf8', (err, data) => {
         if (err) {
           console.error("Error reading export file:", err);
           return res.status(500).json({ message: "Error reading export file" });
         }
         
-        // Create a complete SQL export with schema and data
-        const fullSqlExport = `-- Lisbonlovesme Database Export
--- Date: ${new Date().toISOString()}
-
--- This SQL file contains all schema and data for the Lisbonlovesme tour booking application.
--- It can be imported to a fresh PostgreSQL database to recreate the entire application database.
+        // Just send the complete SQL file that already contains schema and data
+        console.log(`Sending complete database export (${data.length} bytes)`);
+        res.send(data);
+      });
 
 BEGIN;
 
