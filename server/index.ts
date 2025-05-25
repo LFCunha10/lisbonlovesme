@@ -10,22 +10,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve static files from public directory
-app.use('/uploads', express.static('public/uploads'));
+app.use("/uploads", express.static("public/uploads"));
 
 // Set up session management
 const MemoryStoreSession = MemoryStore(session);
-app.use(session({
-  secret: "lisbonlovesme-session-secret",
-  resave: false,
-  saveUninitialized: false,
-  store: new MemoryStoreSession({
-    checkPeriod: 86400000 // 24 hours
+app.use(
+  session({
+    secret: "lisbonlovesme-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000, // 24 hours
+    }),
+    cookie: {
+      secure: false, // set to true if using https
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
   }),
-  cookie: { 
-    secure: false, // set to true if using https
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -66,7 +68,7 @@ app.use((req, res, next) => {
     log("Database migration error: " + error);
     // Continue with server startup even if migration fails
   }
-  
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -89,12 +91,15 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5001;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const port = 5000;
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      log(`serving on port ${port}`);
+    },
+  );
 })();
