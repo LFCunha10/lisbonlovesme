@@ -107,8 +107,7 @@ export default function AdminTours() {
   // Fetch availabilities for selected tour
   const { data: availabilities, isLoading: isLoadingAvailabilities } = useQuery({
     queryKey: ['/api/availabilities', selectedTourId],
-    queryFn: () => apiRequest("GET", `/api/availabilities?tourId=${selectedTourId}`),
-    select: (data) => data as any[],
+    queryFn: () => fetch(`/api/availabilities/${selectedTourId}`).then(res => res.json()),
     enabled: !!selectedTourId && selectedTab === "availabilities",
   });
 
@@ -976,14 +975,14 @@ export default function AdminTours() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {availabilities?.length === 0 && (
+                              {Array.isArray(availabilities) && availabilities.length === 0 && (
                                 <TableRow>
                                   <TableCell colSpan={4} className="text-center py-6 text-gray-500">
                                     No availabilities found. Add some to make this tour bookable.
                                   </TableCell>
                                 </TableRow>
                               )}
-                              {availabilities?.map((availability: any) => (
+                              {Array.isArray(availabilities) && availabilities.map((availability: any) => (
                                 <TableRow key={availability.id}>
                                   <TableCell>{availability.date}</TableCell>
                                   <TableCell>{availability.time}</TableCell>
