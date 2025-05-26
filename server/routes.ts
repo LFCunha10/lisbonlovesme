@@ -257,6 +257,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Availability management routes
+  app.post("/api/availabilities", async (req: Request, res: Response) => {
+    try {
+      const availability = await storage.createAvailability(req.body);
+      res.status(201).json(availability);
+    } catch (error: any) {
+      console.error("Error creating availability:", error);
+      res.status(500).json({ message: error.message || "Failed to create availability" });
+    }
+  });
+
+  app.put("/api/availabilities/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const availability = await storage.updateAvailability(id, req.body);
+      
+      if (!availability) {
+        return res.status(404).json({ message: "Availability not found" });
+      }
+      
+      res.json(availability);
+    } catch (error: any) {
+      console.error("Error updating availability:", error);
+      res.status(500).json({ message: error.message || "Failed to update availability" });
+    }
+  });
+
+  app.delete("/api/availabilities/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteAvailability(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Availability not found" });
+      }
+      
+      res.json({ message: "Availability deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting availability:", error);
+      res.status(500).json({ message: error.message || "Failed to delete availability" });
+    }
+  });
+
   // Closed days routes
   app.get("/api/closed-days", async (req: Request, res: Response) => {
     try {
