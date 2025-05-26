@@ -117,6 +117,8 @@ export default function ManageAvailability() {
       };
       
       const response = await apiRequest("POST", "/api/availabilities", availabilityData);
+      const data = await response.json();
+      console.log("Availability created:", data);
       
       if (!response.ok) {
         const errorData = await response.json();
