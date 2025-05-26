@@ -103,15 +103,23 @@ export default function AdminTours() {
     select: (data) => data as any[],
   });
 
+  const selectedTour = selectedTourId ? tours?.find((tour: any) => tour.id === selectedTourId) : null;
   // Fetch availabilities for selected tour
   const { data: availabilities, isLoading: isLoadingAvailabilities } = useQuery({
-    queryKey: ['/api/availabilities', selectedTourId],
+    queryKey: ['/api/availabilities'],
     select: (data) => data as any[],
-    enabled: !!selectedTourId && selectedTab === "availabilities",
+    //enabled: !!selectedTourId && selectedTab === "availabilities",
   });
 
+  console.log('Availability: ', availabilities);
+
   // Selected tour data
-  const selectedTour = selectedTourId ? tours?.find((tour: any) => tour.id === selectedTourId) : null;
+  
+  console.log('Selected Tour:', selectedTour);
+  console.log('Tour ID:', selectedTour?.id);
+  console.log('Tour Name:', selectedTour?.name);
+
+  
 
   // Form for creating/editing tours
   const tourForm = useForm<TourFormValues>({

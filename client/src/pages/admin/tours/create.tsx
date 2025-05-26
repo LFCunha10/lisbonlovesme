@@ -206,7 +206,7 @@ export default function CreateTourPage() {
           </CardHeader>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mx-6">
+            <TabsList className="grid w-full grid-cols-2 mr-6 ml-0">
               <TabsTrigger value="details">Tour Details</TabsTrigger>
               <TabsTrigger value="media">Media & Appearance</TabsTrigger>
             </TabsList>

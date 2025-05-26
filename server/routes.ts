@@ -237,6 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Availability management routes
   app.get("/api/availabilities", async (req: Request, res: Response) => {
     try {
       const tourId = req.query.tourId ? parseInt(req.query.tourId as string) : undefined;
@@ -256,8 +257,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message || "Failed to retrieve availabilities" });
     }
   });
+
+  app.get("/api/availabilities/:tourId", async (req: Request, res: Response) => {
+    try {
+      const tourId = parseInt(req.params.tourId);
+      const availabilities = await storage.getAvailabilities(tourId);
+      
+      // Filter out availabilities for closed days
+      const filteredAvailabilities = [];
+      for (const availability of availabilities) {
+        const isClosed = await storage.isDateClosed(availability.date);
+        if (!isClosed) {
+          filteredAvailabilities.push(availability);
+        }
+      }
+      
+      res.json(filteredAvailabilities);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to retrieve availabilities" });
+    }
+  });
   
-  // Availability management routes
   app.post("/api/availabilities", async (req: Request, res: Response) => {
     try {
       const availability = await storage.createAvailability(req.body);

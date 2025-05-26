@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ImageIcon, Loader2, Link, ListOrdered, List, AlignLeft, Bold, Italic, Underline } from 'lucide-react';
+import { ImageIcon, Loader2, Link, ListOrdered, List, AlignLeft, Bold, Italic, Underline, AlignCenter, AlignRight } from 'lucide-react';
 
 interface QuillEditorProps {
   value: string;
@@ -141,6 +141,18 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
         formattedText = `## ${selectedText}`;
         cursorOffset = 3;
         break;
+      case 'align-left':
+        formattedText = `<div style="text-align: left;">${selectedText}</div>`;
+        cursorOffset = 0;
+        break;
+      case 'align-center':
+        formattedText = `<div style="text-align: center;">${selectedText}</div>`;
+        cursorOffset = 0;
+        break;
+      case 'align-right':
+        formattedText = `<div style="text-align: right;">${selectedText}</div>`;
+        cursorOffset = 0;
+        break;
       default:
         formattedText = selectedText;
     }
@@ -216,6 +228,37 @@ export function QuillEditor({ value, onChange, className }: QuillEditorProps) {
           >
             <ListOrdered className="h-4 w-4" />
           </Button>
+
+          <span className="mx-1 h-4 border-l border-gray-300"></span>
+
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => insertFormat('align-left')}
+            title="Align Left"
+          >
+            <AlignLeft className="h-4 w-4" />
+          </Button>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => insertFormat('align-center')}
+            title="Align Center"
+          >
+            <AlignCenter className="h-4 w-4" />
+          </Button>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => insertFormat('align-right')}
+            title="Align Right"
+          >
+            <AlignRight className="h-4 w-4" />
+          </Button>
+
           <span className="mx-1 h-4 border-l border-gray-300"></span>
           <Button 
             type="button" 

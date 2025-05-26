@@ -292,7 +292,7 @@ export default function TourEditorPage() {
           </CardHeader>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mx-6">
+            <TabsList className="grid w-full grid-cols-2 mx-6 ml-0">
               <TabsTrigger value="details">{t("admin.tours.tourDetails")}</TabsTrigger>
               <TabsTrigger value="media">{t("admin.tours.mediaAppearance")}</TabsTrigger>
             </TabsList>
