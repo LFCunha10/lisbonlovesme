@@ -67,6 +67,8 @@ export default function DateSelector({
     
     setAvailableTimeSlots(slots);
   }, [date, availabilities]);
+
+  
   
   // Separate effect to handle time selection updates - only runs when availableTimeSlots change
   useEffect(() => {

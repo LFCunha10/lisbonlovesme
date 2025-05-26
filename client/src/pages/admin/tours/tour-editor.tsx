@@ -408,9 +408,9 @@ export default function TourEditorPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="easy">{t("admin.tours.difficultyEasy")}</SelectItem>
-                                <SelectItem value="medium">{t("admin.tours.difficultyMedium")}</SelectItem>
-                                <SelectItem value="hard">{t("admin.tours.difficultyHard")}</SelectItem>
+                                <SelectItem value="Easy">{t("admin.tours.difficultyEasy")}</SelectItem>
+                                <SelectItem value="Medium">{t("admin.tours.difficultyMedium")}</SelectItem>
+                                <SelectItem value="Hard">{t("admin.tours.difficultyHard")}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

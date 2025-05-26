@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useBookingModal } from "@/hooks/use-bookings";
+import { Link } from "wouter";
 
 export default function CallToAction() {
-  const { openBookingModal } = useBookingModal();
 
   return (
     <section id="book-now" className="py-20 bg-primary text-white">
@@ -16,9 +15,11 @@ export default function CallToAction() {
             size="lg"
             variant="outline" 
             className="bg-white text-primary hover:bg-white/90 hover:text-primary border-white text-lg font-semibold px-8"
-            onClick={() => openBookingModal()}
           >
-            Book Your Tour Now
+            <Link href="/tours">
+               Book Your Tour Now
+            </Link>
+           
           </Button>
         </div>
       </div>

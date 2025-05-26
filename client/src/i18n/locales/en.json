@@ -48,7 +48,9 @@
       "aboutTour": "About This Tour",
       "tourDetails": "Tour Details",
       "maxPeople": "Max People",
-      "freeBooking": "Free booking & cancellation"
+      "freeBooking": "Free booking & cancellation",
+      "medium": "Moderate",
+      "hard": "Hard"
     },
     "reviews": {
       "title": "Reviews",

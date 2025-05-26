@@ -14,6 +14,7 @@ import ParticipantForm from "@/components/booking/ParticipantForm";
 import PaymentForm from "@/components/booking/PaymentForm";
 import BookingConfirmation from "@/components/booking/BookingConfirmation";
 import { Link } from "wouter";
+import { json } from "stream/consumers";
 
 interface BookingData {
   date: string;
@@ -208,6 +209,7 @@ export default function Booking() {
                       onSelect={handleParticipantsSelect}
                       onBack={handleBack}
                       maxParticipants={tour.maxGroupSize}
+                      availableSpots={bookingData.availabilityId ? availabilities?.find(a => a.id === bookingData.availabilityId)?.spotsLeft || 0 : 0}
                     />
                   )}
                   
@@ -280,7 +282,6 @@ export default function Booking() {
                         </span>
                       </div>
                     )}
-                    
                     {bookingData.numberOfParticipants && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">

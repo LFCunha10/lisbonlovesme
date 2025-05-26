@@ -24,6 +24,7 @@ interface ParticipantFormProps {
   }) => void;
   onBack: () => void;
   maxParticipants: number;
+  availableSpots: number;
 }
 
 const participantSchema = z.object({
@@ -36,8 +37,15 @@ const participantSchema = z.object({
 });
 
 type ParticipantFormData = z.infer<typeof participantSchema>;
+type Props = {
+  selection: {
+    date: string;
+    time: string;
+    availabilityId: number;
+  };
+};
 
-export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants }: ParticipantFormProps) {
+export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants, availableSpots }: ParticipantFormProps) {
   const { t } = useTranslation();
   const [participants, setParticipants] = useState(1);
 
@@ -88,7 +96,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
             
             <div className="space-y-4">
               <Label htmlFor="participants">
-                {t('booking.selectParticipants')} (max {maxParticipants})
+                {t('booking.selectParticipants')} (max { availableSpots } {availableSpots === 1 ? t('booking.person') : t('booking.people')})
               </Label>
               <Select 
                 value={participants.toString()} 
@@ -102,7 +110,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                   <SelectValue placeholder={t('booking.selectNumber')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: Math.min(maxParticipants, 10) }, (_, i) => i + 1).map((num) => (
+                  {Array.from({ length: Math.min(maxParticipants, availableSpots) }, (_, i) => i + 1).map((num) => (
                     <SelectItem key={num} value={num.toString()}>
                       {num} {num === 1 ? t('booking.person') : t('booking.people')}
                     </SelectItem>
