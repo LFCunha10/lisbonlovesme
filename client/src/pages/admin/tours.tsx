@@ -3,9 +3,9 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { marked } from 'marked';
@@ -57,6 +57,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar } from "@/components/ui/calendar";
 import { PlusIcon, PencilIcon, TrashIcon, InfoIcon, AlertTriangleIcon } from "lucide-react";
 
 const tourSchema = z.object({
@@ -134,7 +135,7 @@ export default function AdminTours() {
     resolver: zodResolver(availabilitySchema),
     defaultValues: {
       tourId: selectedTourId || 0,
-      date: format(new Date(), 'yyyy-MM-dd'),
+      selectedDates: [],
       time: "09:00",
       maxSpots: 10,
       spotsLeft: 10
@@ -231,15 +232,33 @@ export default function AdminTours() {
 
   const createAvailabilityMutation = useMutation({
     mutationFn: async (data: AvailabilityFormValues) => {
-      return apiRequest("POST", "/api/availabilities", data);
+      // Create availability for each selected date
+      const promises = data.selectedDates.map(date => {
+        const availabilityData = {
+          tourId: data.tourId,
+          date: date.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+          time: data.time,
+          maxSpots: data.maxSpots,
+          spotsLeft: data.spotsLeft
+        };
+        return apiRequest("POST", "/api/availabilities", availabilityData);
+      });
+      
+      return Promise.all(promises);
     },
-    onSuccess: () => {
+    onSuccess: (results) => {
       queryClient.invalidateQueries({ queryKey: ['/api/availabilities', selectedTourId] });
       setIsCreateAvailabilityOpen(false);
-      availabilityForm.reset({ tourId: selectedTourId || 0 });
+      availabilityForm.reset({ 
+        tourId: selectedTourId || 0,
+        selectedDates: [],
+        time: "09:00",
+        maxSpots: 10,
+        spotsLeft: 10
+      });
       toast({
-        title: "Availability Created",
-        description: "The availability has been created successfully.",
+        title: "Availabilities Created",
+        description: `Successfully created ${results.length} availability slot${results.length !== 1 ? 's' : ''}.`,
       });
     },
     onError: (error) => {
@@ -840,7 +859,7 @@ export default function AdminTours() {
                               <DialogHeader>
                                 <DialogTitle>Add Availability</DialogTitle>
                                 <DialogDescription>
-                                  Add a new date and time for this tour.
+                                  Select multiple dates and set the time and capacity for this tour.
                                 </DialogDescription>
                               </DialogHeader>
                               <Form {...availabilityForm}>
