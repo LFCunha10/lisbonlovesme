@@ -77,7 +77,7 @@ type TourFormValues = z.infer<typeof tourSchema>;
 
 const availabilitySchema = z.object({
   tourId: z.coerce.number(),
-  date: z.string().min(10, { message: "Please enter a valid date" }),
+  selectedDates: z.array(z.date()).min(1, { message: "Please select at least one date" }),
   time: z.string().min(5, { message: "Please enter a valid time" }),
   maxSpots: z.coerce.number().min(1, { message: "Max spots must be at least 1" }),
   spotsLeft: z.coerce.number().min(0, { message: "Spots left must be 0 or more" }),
@@ -847,12 +847,29 @@ export default function AdminTours() {
                                 <form onSubmit={availabilityForm.handleSubmit(onCreateAvailabilitySubmit)} className="space-y-4 py-4">
                                   <FormField
                                     control={availabilityForm.control}
-                                    name="date"
+                                    name="selectedDates"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Date</FormLabel>
+                                        <FormLabel>Select Dates</FormLabel>
                                         <FormControl>
-                                          <Input type="date" {...field} />
+                                          <div className="border rounded-md p-3">
+                                            <Calendar
+                                              mode="multiple"
+                                              selected={field.value || []}
+                                              onSelect={field.onChange}
+                                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                              className="rounded-md border-0"
+                                            />
+                                            <div className="mt-2 text-sm text-gray-600">
+                                              {field.value?.length > 0 ? (
+                                                <span>
+                                                  {field.value.length} date{field.value.length !== 1 ? 's' : ''} selected
+                                                </span>
+                                              ) : (
+                                                <span>Click dates to select multiple days</span>
+                                              )}
+                                            </div>
+                                          </div>
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
