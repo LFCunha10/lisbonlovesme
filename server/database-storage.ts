@@ -1,14 +1,15 @@
 import { eq, and, desc, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings,
+  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery,
   type User, type InsertUser,
   type Tour, type InsertTour,
   type Availability, type InsertAvailability,
   type Booking, type InsertBooking,
   type Testimonial, type InsertTestimonial,
   type ClosedDay, type InsertClosedDay,
-  type AdminSetting, type InsertAdminSetting
+  type AdminSetting, type InsertAdminSetting,
+  type Gallery, type InsertGallery
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
@@ -81,6 +82,54 @@ export class DatabaseStorage implements IStorage {
   async getAutoCloseDaySetting(): Promise<boolean> {
     const settings = await this.getAdminSettings();
     return settings?.autoCloseDay || false;
+  }
+
+  // Gallery operations
+  async getGalleryImages(): Promise<Gallery[]> {
+    const images = await db.select().from(gallery).orderBy(gallery.displayOrder, gallery.id);
+    return images;
+  }
+
+  async getGalleryImage(id: number): Promise<Gallery | undefined> {
+    const [image] = await db.select().from(gallery).where(eq(gallery.id, id));
+    return image;
+  }
+
+  async createGalleryImage(image: InsertGallery): Promise<Gallery> {
+    const [newImage] = await db
+      .insert(gallery)
+      .values(image)
+      .returning();
+    return newImage;
+  }
+
+  async updateGalleryImage(id: number, image: Partial<InsertGallery>): Promise<Gallery | undefined> {
+    const [updatedImage] = await db
+      .update(gallery)
+      .set({ ...image, updatedAt: new Date() })
+      .where(eq(gallery.id, id))
+      .returning();
+    return updatedImage;
+  }
+
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    const result = await db.delete(gallery).where(eq(gallery.id, id));
+    return result.rowCount > 0;
+  }
+
+  async reorderGalleryImages(imageIds: number[]): Promise<boolean> {
+    try {
+      for (let i = 0; i < imageIds.length; i++) {
+        await db
+          .update(gallery)
+          .set({ displayOrder: i })
+          .where(eq(gallery.id, imageIds[i]));
+      }
+      return true;
+    } catch (error) {
+      console.error('Error reordering gallery images:', error);
+      return false;
+    }
   }
   // User operations
   async getUser(id: number): Promise<User | undefined> {

@@ -511,6 +511,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery routes
+  app.get("/api/gallery", async (req: Request, res: Response) => {
+    try {
+      const images = await storage.getGalleryImages();
+      res.json(images);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to retrieve gallery images" });
+    }
+  });
+
+  app.post("/api/gallery", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const image = await storage.createGalleryImage(req.body);
+      res.status(201).json(image);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to create gallery image" });
+    }
+  });
+
+  app.put("/api/gallery/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const image = await storage.updateGalleryImage(imageId, req.body);
+      
+      if (!image) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      res.json(image);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to update gallery image" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const success = await storage.deleteGalleryImage(imageId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      res.json({ message: "Gallery image deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to delete gallery image" });
+    }
+  });
+
+  app.post("/api/gallery/reorder", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { imageIds } = req.body;
+      const success = await storage.reorderGalleryImages(imageIds);
+      
+      if (!success) {
+        return res.status(500).json({ message: "Failed to reorder images" });
+      }
+      
+      res.json({ message: "Images reordered successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Failed to reorder gallery images" });
+    }
+  });
+
   // Create an HTTP server
   const httpServer = createServer(app);
 

@@ -58,6 +58,14 @@ export interface IStorage {
   getAdminSettings(): Promise<AdminSetting | undefined>;
   updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting>;
   getAutoCloseDaySetting(): Promise<boolean>;
+
+  // Gallery operations
+  getGalleryImages(): Promise<Gallery[]>;
+  getGalleryImage(id: number): Promise<Gallery | undefined>;
+  createGalleryImage(image: InsertGallery): Promise<Gallery>;
+  updateGalleryImage(id: number, image: Partial<InsertGallery>): Promise<Gallery | undefined>;
+  deleteGalleryImage(id: number): Promise<boolean>;
+  reorderGalleryImages(imageIds: number[]): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
