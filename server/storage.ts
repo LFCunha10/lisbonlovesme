@@ -5,7 +5,8 @@ import {
   bookings, type Booking, type InsertBooking,
   testimonials, type Testimonial, type InsertTestimonial,
   closedDays, type ClosedDay, type InsertClosedDay,
-  adminSettings, type AdminSetting, type InsertAdminSetting
+  adminSettings, type AdminSetting, type InsertAdminSetting,
+  gallery, type Gallery, type InsertGallery
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 
