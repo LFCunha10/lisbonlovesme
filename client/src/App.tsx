@@ -27,6 +27,16 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/review/:bookingReference">
+        {() => {
+          const ReviewPage = React.lazy(() => import("@/pages/review"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <ReviewPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/tours/:tourId" component={TourDetailPage} />
       <Route path="/tour/:id">
         {() => {

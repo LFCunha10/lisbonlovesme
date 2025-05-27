@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
-
+import { Star, CheckCircle, XCircle, Mail, Eye, EyeOff } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,6 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Badge,
+} from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
   Table,
   TableBody,
   TableCell,
@@ -20,9 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -30,38 +30,43 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { CheckIcon, StarIcon, ShieldCheckIcon } from "lucide-react";
 
 export default function AdminReviews() {
-  const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedReview, setSelectedReview] = useState<any>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
-  // Fetch reviews including unapproved ones
-  const { data: reviews, isLoading } = useQuery({
-    queryKey: ['/api/testimonials', { includeUnapproved: true }],
+  // Fetch all testimonials (including unapproved)
+  const { data: allTestimonials, isLoading: testimonialsLoading } = useQuery({
+    queryKey: ['/api/testimonials', { approvedOnly: false }],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api/testimonials?includeUnapproved=true");
-      if (!res.ok) throw new Error("Failed to fetch reviews");
-      return res.json();
-    },
+      const response = await fetch('/api/testimonials?approvedOnly=false');
+      return response.json();
+    }
+  });
+
+  // Fetch all bookings for sending review emails
+  const { data: bookings, isLoading: bookingsLoading } = useQuery({
+    queryKey: ['/api/admin/bookings'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/bookings');
+      return response.json();
+    }
   });
 
   // Approve review mutation
-  const approveMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return apiRequest("PUT", `/api/testimonials/${id}/approve`);
+  const approveReviewMutation = useMutation({
+    mutationFn: async (reviewId: number) => {
+      return apiRequest("PUT", `/api/testimonials/${reviewId}/approve`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/testimonials'] });
       toast({
         title: "Review Approved",
-        description: "The review is now visible to customers.",
+        description: "The review is now visible on your website.",
       });
-      setIsDetailsOpen(false);
     },
     onError: () => {
       toast({
@@ -72,252 +77,213 @@ export default function AdminReviews() {
     }
   });
 
-  // Get approved and pending reviews
-  const approvedReviews = reviews?.filter((t: any) => t.isApproved) || [];
-  const pendingReviews = reviews?.filter((t: any) => !t.isApproved) || [];
-
-  // Get tour name for a review
-  const { data: tours } = useQuery({
-    queryKey: ['/api/tours'],
-    select: (data) => data as any[],
+  // Send review email mutation
+  const sendReviewEmailMutation = useMutation({
+    mutationFn: async (bookingId: number) => {
+      return apiRequest("POST", `/api/send-review-email/${bookingId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Review Email Sent",
+        description: "Customer will receive an email with a link to leave their review.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send review email.",
+        variant: "destructive",
+      });
+    }
   });
-  
-  const getTourName = (tourId: number) => {
-    const tour = tours?.find((t: any) => t.id === tourId);
-    return tour?.name || "Unknown Tour";
-  };
 
-  const handleApprove = (id: number) => {
-    approveMutation.mutate(id);
-  };
+  const pendingReviews = allTestimonials?.filter((review: any) => !review.isApproved) || [];
+  const approvedReviews = allTestimonials?.filter((review: any) => review.isApproved) || [];
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, i) => (
-      <StarIcon
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
         key={i}
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
+        className={`w-4 h-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
       />
     ));
   };
 
-  if (isLoading) {
+  if (testimonialsLoading || bookingsLoading) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <AdminLayout title="Review Management">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading reviews...</p>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
     <AdminLayout title="Review Management">
-      <div>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Review Management</h1>
-            <p className="text-gray-500">Review and approve customer reviews</p>
-          </div>
-          <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-            Back to Dashboard
-          </Button>
+      <div className="space-y-8">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pendingReviews.length}</div>
+              <p className="text-xs text-muted-foreground">Awaiting approval</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Published Reviews</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{approvedReviews.length}</div>
+              <p className="text-xs text-muted-foreground">Visible on website</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+              <Mail className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{bookings?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">Can request reviews</p>
+            </CardContent>
+          </Card>
         </div>
 
-        <Tabs defaultValue="pending" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="pending" className="relative">
-              Pending Approval
-              {pendingReviews.length > 0 && (
-                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center">{pendingReviews.length}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="pending">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pending Reviews</CardTitle>
-                <CardDescription>
-                  Review and approve reviews from customers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {pendingReviews.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ShieldCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No pending reviews</h3>
-                    <p className="mt-1 text-sm text-gray-500">All reviews have been reviewed.</p>
+        {/* Pending Reviews */}
+        {pendingReviews.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending Reviews</CardTitle>
+              <CardDescription>Reviews waiting for your approval</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingReviews.map((review: any) => (
+                  <div key={review.id} className="border rounded-lg p-4 bg-yellow-50">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">{renderStars(review.rating)}</div>
+                          <Badge variant="outline">Pending</Badge>
+                        </div>
+                        <p className="text-gray-700 mb-3">"{review.text}"</p>
+                        <div className="text-sm text-gray-600">
+                          <strong>{review.customerName}</strong> from {review.customerCountry}
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <Button
+                          onClick={() => approveReviewMutation.mutate(review.id)}
+                          disabled={approveReviewMutation.isPending}
+                          size="sm"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Approve
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Tour</TableHead>
-                        <TableHead>Rating</TableHead>
-                        <TableHead>Comment</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingReviews.map((review: any) => (
-                        <TableRow key={review.id}>
-                          <TableCell className="font-medium">
-                            {review.customerName}
-                            <br />
-                            <span className="text-xs text-gray-500">{review.customerCountry}</span>
-                          </TableCell>
-                          <TableCell>{getTourName(review.tourId)}</TableCell>
-                          <TableCell>
-                            <div className="flex">
-                              {renderStars(review.rating)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate">{review.text}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedReview(review);
-                                  setIsDetailsOpen(true);
-                                }}
-                              >
-                                View
-                              </Button>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => handleApprove(review.id)}
-                                disabled={approveMutation.isPending}
-                              >
-                                <CheckIcon className="mr-1 h-4 w-4" />
-                                Approve
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="approved">
-            <Card>
-              <CardHeader>
-                <CardTitle>Approved Reviews</CardTitle>
-                <CardDescription>
-                  Reviews that are visible to customers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {approvedReviews.length === 0 ? (
-                  <div className="text-center py-8">
-                    <span className="text-gray-500">No approved reviews yet</span>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Tour</TableHead>
-                        <TableHead>Rating</TableHead>
-                        <TableHead>Comment</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {approvedReviews.map((review: any) => (
-                        <TableRow key={review.id}>
-                          <TableCell className="font-medium">
-                            {review.customerName}
-                            <br />
-                            <span className="text-xs text-gray-500">{review.customerCountry}</span>
-                          </TableCell>
-                          <TableCell>{getTourName(review.tourId)}</TableCell>
-                          <TableCell>
-                            <div className="flex">
-                              {renderStars(review.rating)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate">{review.text}</TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedReview(review);
-                                setIsDetailsOpen(true);
-                              }}
-                            >
-                              View
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Review Detail Dialog */}
-        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Review Details</DialogTitle>
-              <DialogDescription>
-                From {selectedReview?.customerName} ({selectedReview?.customerCountry})
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div>
-                <h3 className="font-medium">Tour</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {selectedReview && getTourName(selectedReview.tourId)}
-                </p>
+        {/* Published Reviews */}
+        {approvedReviews.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Published Reviews</CardTitle>
+              <CardDescription>Reviews currently showing on your website</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {approvedReviews.map((review: any) => (
+                  <div key={review.id} className="border rounded-lg p-4 bg-green-50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex">{renderStars(review.rating)}</div>
+                      <Badge variant="default" className="bg-green-600">Published</Badge>
+                    </div>
+                    <p className="text-gray-700 mb-3">"{review.text}"</p>
+                    <div className="text-sm text-gray-600">
+                      <strong>{review.customerName}</strong> from {review.customerCountry}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <h3 className="font-medium">Rating</h3>
-                <div className="flex mt-1">
-                  {selectedReview && renderStars(selectedReview.rating)}
-                </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Send Review Requests */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Send Review Requests</CardTitle>
+            <CardDescription>Send review request emails to customers who have completed tours</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {bookings && bookings.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Tour</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bookings.slice(0, 10).map((booking: any) => (
+                    <TableRow key={booking.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{booking.customerFirstName} {booking.customerLastName}</div>
+                          <div className="text-sm text-gray-500">{booking.customerEmail}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{booking.tourName || 'Tour'}</TableCell>
+                      <TableCell>{new Date(booking.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={booking.paymentStatus === 'succeeded' ? 'default' : 'secondary'}>
+                          {booking.paymentStatus || 'pending'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendReviewEmailMutation.mutate(booking.id)}
+                          disabled={sendReviewEmailMutation.isPending}
+                        >
+                          <Mail className="w-4 h-4 mr-1" />
+                          Send Review Email
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Mail className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                <p>No bookings found to send review requests.</p>
               </div>
-              <div>
-                <h3 className="font-medium">Review</h3>
-                <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                  {selectedReview?.text}
-                </p>
-              </div>
-              <div>
-                <h3 className="font-medium">Status</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {selectedReview?.isApproved ? (
-                    <Badge variant="default">Approved</Badge>
-                  ) : (
-                    <Badge variant="outline">Pending Approval</Badge>
-                  )}
-                </p>
-              </div>
-            </div>
-            <DialogFooter>
-              {selectedReview && !selectedReview.isApproved && (
-                <Button 
-                  onClick={() => handleApprove(selectedReview.id)}
-                  disabled={approveMutation.isPending}
-                >
-                  <CheckIcon className="mr-2 h-4 w-4" />
-                  {approveMutation.isPending ? "Approving..." : "Approve Review"}
-                </Button>
-              )}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );

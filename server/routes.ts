@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail } from "./email";
+import { sendBookingConfirmationEmail, sendReviewRequestEmail } from "./email";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
@@ -225,6 +225,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Send review request email
+  app.post("/api/send-review-email/:bookingId", async (req: Request, res: Response) => {
+    try {
+      const { bookingId } = req.params;
+      const booking = await storage.getBooking(parseInt(bookingId));
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      const tour = await storage.getTour(booking.tourId);
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+      
+      const baseUrl = req.headers.origin || 'https://your-domain.com';
+      
+      await sendReviewRequestEmail({
+        to: booking.customerEmail,
+        customerName: booking.customerFirstName,
+        bookingReference: booking.bookingReference,
+        tourName: tour.name,
+        baseUrl: baseUrl
+      });
+      
+      res.json({ message: "Review request email sent successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error sending review email: " + error.message });
+    }
+  });
+
   app.get("/api/testimonials", async (req: Request, res: Response) => {
     try {
       const tourId = req.query.tourId ? parseInt(req.query.tourId as string) : undefined;
@@ -234,6 +265,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(testimonials);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to retrieve testimonials" });
+    }
+  });
+
+  // Submit new testimonial/review
+  app.post("/api/testimonials", async (req: Request, res: Response) => {
+    try {
+      const testimonial = await storage.createTestimonial({
+        ...req.body,
+        isApproved: false // New reviews need approval
+      });
+      res.json(testimonial);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating testimonial: " + error.message });
+    }
+  });
+
+  // Approve testimonial
+  app.put("/api/testimonials/:id/approve", async (req: Request, res: Response) => {
+    try {
+      const testimonial = await storage.approveTestimonial(parseInt(req.params.id));
+      if (!testimonial) {
+        return res.status(404).json({ message: "Testimonial not found" });
+      }
+      res.json(testimonial);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error approving testimonial: " + error.message });
+    }
+  });
+
+  // Get admin bookings (for review management)
+  app.get("/api/admin/bookings", async (req: Request, res: Response) => {
+    try {
+      const bookings = await storage.getBookings();
+      res.json(bookings);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching bookings: " + error.message });
     }
   });
   
@@ -380,6 +447,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Booking route - fixed for better reliability
+  // Get booking by reference (for review page)
+  app.get("/api/bookings/reference/:reference", async (req: Request, res: Response) => {
+    try {
+      const { reference } = req.params;
+      const booking = await storage.getBookingByReference(reference);
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      res.json(booking);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching booking: " + error.message });
+    }
+  });
+
   app.post("/api/bookings", async (req: Request, res: Response) => {
   console.log("Starting booking creation with data:", req.body);
 
