@@ -39,7 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlusIcon, TrashIcon, GripVerticalIcon, ImageIcon } from "lucide-react";
 
 const gallerySchema = z.object({
-  imageUrl: z.string().url({ message: "Please enter a valid image URL" }),
+  imageUrl: z.string().min(1, { message: "Please provide an image URL" }),
   title: z.string().optional(),
   description: z.string().optional(),
   isActive: z.boolean().default(true)
