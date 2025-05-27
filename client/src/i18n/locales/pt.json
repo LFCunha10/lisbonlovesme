@@ -9,14 +9,14 @@
     },
     "aboutUs": {
       "title": "Guias Locais com Paixão por Lisboa",
-      "description": "A nossa equipa é composta por guias locais certificados que têm paixão por partilhar a rica história de Lisboa, a cultura vibrante e as jóias escondidas com visitantes de todo o mundo.",
+      "description": "Nossa equipe é composta por guias locais certificados que têm paixão por compartilhar a rica história, vibrante cultura e os segredos escondidos de Lisboa com visitantes de todo o mundo.",
       "feature1Title": "Conhecimento Local",
-      "feature1Description": "Nascidos e criados em Lisboa, os nossos guias conhecem a cidade por dentro e por fora.",
+      "feature1Description": "Com mais de 10 anos vivendo em Lisboa, nosso guia conhece a cidade como ninguém.",
       "feature2Title": "Proficiência em Idiomas",
-      "feature2Description": "Os nossos guias falam fluentemente inglês, espanhol, francês e português.",
+      "feature2Description": "Nossos guias são fluentes em inglês, russo e português.",
       "feature3Title": "Experiências Personalizadas",
-      "feature3Description": "Adaptamos cada tour para corresponder aos interesses e ritmo dos nossos clientes.",
-      "meetOurTeam": "Conheça a Nossa Equipa"
+      "feature3Description": "Adaptamos cada tour aos interesses e ritmo dos nossos clientes.",
+      "meetOurTeam": "Conheça Nossa Equipe"
     },
     "home": {
       "welcome": "Bem-vindo à Lisbonlovesme",
@@ -175,7 +175,7 @@
       "title": "Porquê Escolher Lisboa Tours",
       "subtitle": "Proporcionamos experiências inesquecíveis através de perspectivas locais autênticas e atenção personalizada.",
       "smallGroups": "Grupos Pequenos",
-      "smallGroupsDesc": "Máximo de 12 pessoas por passeio para uma experiência mais íntima e personalizada.",
+      "smallGroupsDesc": "Máximo de 7 pessoas por passeio para uma experiência mais íntima e personalizada.",
       "localExpertise": "Conhecimento Local",
       "localExpertiseDesc": "Todos os nossos guias são lisboetas com profundo conhecimento da história e cultura da cidade.",
       "customTours": "Passeios Personalizáveis",
