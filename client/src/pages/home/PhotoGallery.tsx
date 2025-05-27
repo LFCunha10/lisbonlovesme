@@ -1,46 +1,23 @@
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PhotoGallery() {
   const { t } = useTranslation();
-  const images = [
-    {
-      src: "https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500",
-      alt: "Lisbon tram"
-    },
-    {
-      src: "https://pixabay.com/get/gfeffb151ccbee955a3e8da15ecc36e76d914e514eda1aa79568eedf06848837d030c8ccb9ea1b05d2d7deb1c05b2236be77eb1e890d52b591f6176df0663f860_1280.jpg",
-      alt: "Lisbon rooftops"
-    },
-    {
-      src: "https://pixabay.com/get/g12519647fb3ffe6179b7776c2ca187536c9ff68fd23885ea0fb29d333f7e60b197fce92c497c511e1ba8f3be4e7aab887d861ac58f96229cb8af260711b6a1c8_1280.jpg",
-      alt: "Portuguese tiles"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1536663815808-535e2280d2c2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500",
-      alt: "25 de Abril Bridge at sunset"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500",
-      alt: "Tour group in Lisbon",
-      hideOnMobile: true
-    },
-    {
-      src: "https://pixabay.com/get/ged6bb74988de94c394c4227bb3cb1781d86296440eeaea5b302d849f2456ef321d08a20bdef8c5ffc37bc1a9b71c5eb325ea5e57ae0348876e4b3cdb460086de_1280.jpg",
-      alt: "Pasteis de nata",
-      hideOnMobile: true
-    },
-    {
-      src: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500",
-      alt: "São Jorge Castle at night",
-      hideOnLgDown: true
-    },
-    {
-      src: "https://pixabay.com/get/g31f78e5cd21081de4aed3994f20f65781f3ff8849bd3d57dea50d7cd82f18184b115b054c46f3c055561885add09d17aeca60d75250c1f27a5e7c35f9cf0408f_1280.jpg",
-      alt: "Tourists at Lisbon viewpoint",
-      hideOnLgDown: true
-    }
-  ];
+  
+  // Fetch gallery images from your admin-managed gallery
+  const { data: galleryImages, isLoading } = useQuery({
+    queryKey: ['/api/gallery'],
+    select: (data) => data as any[],
+  });
+
+  // Use your uploaded gallery images, with fallback to ensure good display
+  const images = galleryImages?.filter(img => img.isActive).map((img, index) => ({
+    src: img.imageUrl,
+    alt: img.title || img.description || `Lisbon gallery image ${index + 1}`,
+    hideOnMobile: index >= 4, // Hide images after the 4th on mobile
+    hideOnLgDown: index >= 6  // Hide images after the 6th on tablets
+  })) || [];
 
   return (
     <section className="py-16 bg-white">
