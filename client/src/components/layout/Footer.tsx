@@ -4,8 +4,14 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Send, Facebook, Instagram, Twitter } from "lucide-react";
 import { FaTripadvisor } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Footer() {
+  const { data: tours, isLoading: isLoadingTours } = useQuery({
+    queryKey: ['/api/tours'],
+    select: (data) => data as any[],
+  });
+
   const { t } = useTranslation();
   return (
     <footer className="bg-gray-800 text-white pt-12 pb-6">
@@ -36,19 +42,16 @@ export default function Footer() {
               <FooterLink href="/#about">{t('nav.about')}</FooterLink>
               <FooterLink href="/#reviews">{t('reviews.title')}</FooterLink>
               <FooterLink href="/#contact">{t('nav.contact')}</FooterLink>
-              <FooterLink href="/#book-now">{t('nav.booking')}</FooterLink>
+              <FooterLink href="/tours">{t('nav.booking')}</FooterLink>
             </ul>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('common.ourTours')}</h4>
             <ul className="space-y-2">
-              <FooterLink href="/tours/1">Historic Belém Tour</FooterLink>
-              <FooterLink href="/tours/2">Alfama & Fado Experience</FooterLink>
-              <FooterLink href="/tours/3">Panoramic Lisbon Tour</FooterLink>
-              <FooterLink href="/tours">Food & Wine Tasting</FooterLink>
-              <FooterLink href="/tours">Sintra Day Trip</FooterLink>
-              <FooterLink href="/tours">Custom Private Tours</FooterLink>
+              {tours?.map((tour: any) => (
+                <FooterLink href={`/tours/${tour.id}`}>{tour.name}</FooterLink>
+              ))} 
             </ul>
           </div>
 
