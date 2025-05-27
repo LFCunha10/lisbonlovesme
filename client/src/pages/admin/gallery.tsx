@@ -159,7 +159,8 @@ export default function AdminGallery() {
       }
 
       const result = await response.json();
-      form.setValue('imageUrl', result.imageUrl);
+      console.log('Upload result:', result); // Debug log
+      form.setValue('imageUrl', result.url || result.imageUrl || result.path);
       
       toast({
         title: "Image Uploaded",
