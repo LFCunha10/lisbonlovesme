@@ -8,7 +8,7 @@ async function sendTestReviewEmail() {
   
   const msg = {
     to: 'cluizfilipe@gmail.com',
-    from: 'noreply@lisbonlovesme.com',
+    from: 'lisbonlovesme@gmail.com',
     subject: 'How was your Alfama Historical Walking Tour experience?',
     html: `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
