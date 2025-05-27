@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 
 export default function PhotoGallery() {
   const { t } = useTranslation();
@@ -43,9 +44,11 @@ export default function PhotoGallery() {
         </div>
         
         <div className="text-center mt-8">
-          <a href="#gallery" className="inline-flex items-center justify-center text-primary font-semibold hover:underline">
-            {t('photoGallery.viewGallery')} <ArrowRight className="ml-2 h-4 w-4" />
-          </a>
+          <Link href="/gallery">
+            <div className="inline-flex items-center justify-center text-primary font-semibold hover:underline cursor-pointer">
+              {t('photoGallery.viewGallery')} <ArrowRight className="ml-2 h-4 w-4" />
+            </div>
+          </Link>
         </div>
       </div>
     </section>

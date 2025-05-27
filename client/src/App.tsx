@@ -17,6 +17,16 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/tours" component={ToursPage} />
+      <Route path="/gallery">
+        {() => {
+          const GalleryPage = React.lazy(() => import("@/pages/gallery"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <GalleryPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/tours/:tourId" component={TourDetailPage} />
       <Route path="/tour/:id">
         {() => {
