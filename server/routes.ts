@@ -521,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/gallery", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.post("/api/gallery", async (req: Request, res: Response) => {
     try {
       const image = await storage.createGalleryImage(req.body);
       res.status(201).json(image);
@@ -530,7 +530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/gallery/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.put("/api/gallery/:id", async (req: Request, res: Response) => {
     try {
       const imageId = parseInt(req.params.id);
       const image = await storage.updateGalleryImage(imageId, req.body);
@@ -545,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/gallery/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.delete("/api/gallery/:id", async (req: Request, res: Response) => {
     try {
       const imageId = parseInt(req.params.id);
       const success = await storage.deleteGalleryImage(imageId);
@@ -560,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/gallery/reorder", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.post("/api/gallery/reorder", async (req: Request, res: Response) => {
     try {
       const { imageIds } = req.body;
       const success = await storage.reorderGalleryImages(imageIds);
