@@ -47,7 +47,7 @@ export default function FeaturedTours() {
             asChild
           >
             <Link href="/tours">
-              View All Tours <ArrowRight className="ml-2 h-4 w-4" />
+              {t('home.viewAll')} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

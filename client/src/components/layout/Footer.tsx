@@ -1,8 +1,8 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Send, Facebook, Instagram, Twitter } from "lucide-react";
-import { FaTripadvisor } from "react-icons/fa";
+import { MapPin, Send, Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { FaInstagram, FaMailBulk, FaMailchimp, FaTiktok, FaTripadvisor, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 
@@ -23,14 +23,14 @@ export default function Footer() {
               <span>Lisbonlovesme</span>
             </div>
             <p className="text-white/70 mb-4">
-              Authentic guided tours through the heart of Lisbon, showcasing the city's rich history, 
-              vibrant culture, and hidden gems.
+              {t('footer.message')}
             </p>
             <div className="flex space-x-3">
-              <SocialLink href="https://facebook.com" icon={<Facebook size={18} />} />
-              <SocialLink href="https://instagram.com" icon={<Instagram size={18} />} />
-              <SocialLink href="https://twitter.com" icon={<Twitter size={18} />} />
-              <SocialLink href="https://tripadvisor.com" icon={<FaTripadvisor size={18} />} />
+              <SocialLink href="https://www.instagram.com/lisbonlovesme/" icon={<FaInstagram size={18} />} />
+              <SocialLink href="https://www.tiktok.com/@lisbonlovesme" icon={<FaTiktok size={18} />} />
+              <SocialLink href="https://wa.me/+351938607585" icon={<FaWhatsapp size={18} />} />
+              <SocialLink href="https://www.youtube.com/@Lisbonlovesme" icon={<FaYoutube size={18} />} />
+              <SocialLink href="https://mailto:lisbonlovesme@gmail.com" icon={<Mail size={18} />} />
             </div>
           </div>
 

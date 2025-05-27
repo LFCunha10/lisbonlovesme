@@ -23,17 +23,17 @@ export default function WhyChooseUs() {
           />
           
           <FeatureCard
-            icon={<MapPin className="text-2xl" />}
+            icon={<MapPin size = {28} className="text-2xl" />}
             title={t("whyChooseUs.localExpertise")}
             description={t("whyChooseUs.localExpertiseDesc")}
-            color="secondary"
+            color="primary"
           />
           
           <FeatureCard
             icon={<Settings className="text-2xl" />}
             title={t("whyChooseUs.customTours")}
             description={t("whyChooseUs.customToursDesc")}
-            color="accent"
+            color="primary"
           />
           
           <FeatureCard

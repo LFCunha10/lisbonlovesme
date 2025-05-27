@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter } from "lucide-react";
-import { FaTripadvisor } from "react-icons/fa";
+import { FaInstagram, FaTripadvisor } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa";
 
 export default function ContactInformation() {
   const { toast } = useToast();
@@ -69,43 +70,26 @@ export default function ContactInformation() {
               {t('contact.subtitle')}
             </p>
             
-            <div className="mb-8">
-              <ContactInfo 
-                icon={<MapPin />}
-                title={t('contact.address')}
-                content={<span>Rua Augusta 42, 1100-053<br />Lisbon, Portugal</span>}
-              />
-              
+            <div className="mb-8"> 
               <ContactInfo 
                 icon={<Phone />}
                 title={t('contact.phone')}
-                content={<span>+351 21 123 4567</span>}
+                content={<span>+351 938 607 585</span>}
               />
               
               <ContactInfo 
                 icon={<Mail />}
                 title={t('contact.email')}
-                content={<span>info@lisboatours.com</span>}
-              />
-              
-              <ContactInfo 
-                icon={<Clock />}
-                title={t('contact.hours')}
-                content={
-                  <span>
-                    {t('contact.weekdays')}<br />
-                    {t('contact.saturday')}<br />
-                    {t('contact.sunday')}
-                  </span>
-                }
+                content={<span>lisbonlovesme@gmail.com</span>}
               />
             </div>
             
             <div className="flex space-x-4">
-              <SocialButton icon={<Facebook size={18} />} />
-              <SocialButton icon={<Instagram size={18} />} />
-              <SocialButton icon={<Twitter size={18} />} />
-              <SocialButton icon={<FaTripadvisor size={18} />} />
+              <SocialButton href="https://www.instagram.com/lisbonlovesme/" icon={<FaInstagram size={18} />} />
+              <SocialButton href="https://www.tiktok.com/@lisbonlovesme" icon={<FaTiktok size={18} />} />
+              <SocialButton href="https://wa.me/+351938607585" icon={<FaWhatsapp size={18} />} />
+              <SocialButton href="https://www.youtube.com/@Lisbonlovesme" icon={<FaYoutube size={18} />} />
+              <SocialButton href="https://mailto:lisbonlovesme@gmail.com" icon={<Mail size={18} />} />
             </div>
           </div>
           
@@ -199,13 +183,20 @@ function ContactInfo({ icon, title, content }: ContactInfoProps) {
   );
 }
 
-function SocialButton({ icon }: { icon: React.ReactNode }) {
+interface SocialButtonsProps {
+   href: string;
+   icon: React.ReactNode;
+}
+
+function SocialButton({ href, icon }: SocialButtonsProps) {
   return (
     <a 
-      href="#" 
+      href={href}
+      target="_blank" 
       className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all"
     >
       {icon}
     </a>
   );
 }
+
