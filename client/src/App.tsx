@@ -128,6 +128,18 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/admin/gallery">
+        {() => {
+          const AdminGalleryPage = React.lazy(() => import("@/pages/admin/gallery"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AdminProtectedRoute>
+                <AdminGalleryPage />
+              </AdminProtectedRoute>
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/admin/reviews">
         {() => {
           const AdminReviewsPage = React.lazy(() => import("@/pages/admin/reviews"));
