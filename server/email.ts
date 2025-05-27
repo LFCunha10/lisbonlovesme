@@ -40,7 +40,7 @@ export async function sendReviewRequestEmail(options: {
 
   const msg = {
     to: options.to,
-    from: 'noreply@lisbonlovesme.com',
+    from: 'lisbonlovesme@gmail.com',
     subject: `How was your ${options.tourName} experience?`,
     html: `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
