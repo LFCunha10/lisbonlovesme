@@ -303,6 +303,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error fetching bookings: " + error.message });
     }
   });
+
+  // Test endpoint to send review email
+  app.post("/api/test-review-email", async (req: Request, res: Response) => {
+    try {
+      const { email, customerName } = req.body;
+      const baseUrl = req.headers.origin || req.headers.host || 'https://your-domain.replit.app';
+      
+      await sendReviewRequestEmail({
+        to: email,
+        customerName: customerName || 'Valued Customer',
+        bookingReference: 'TEST-' + Date.now(),
+        tourName: 'Alfama Historical Walking Tour',
+        baseUrl: baseUrl
+      });
+      
+      res.json({ 
+        message: "Test review email sent successfully!",
+        sentTo: email
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error sending test email: " + error.message });
+    }
+  });
   
   // Availability management routes
   app.get("/api/availabilities", async (req: Request, res: Response) => {
