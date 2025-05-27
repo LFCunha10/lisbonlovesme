@@ -51,14 +51,21 @@ async function sendTestReviewEmail() {
   };
 
   try {
-    await sgMail.send(msg);
+    const result = await sgMail.send(msg);
     console.log('✅ Test review email sent successfully to cluizfilipe@gmail.com!');
+    console.log('📧 SendGrid Response:', result[0].statusCode);
+    console.log('📧 Message ID:', result[0].headers['x-message-id']);
     console.log('📧 Email includes:');
     console.log('   - Personalized greeting for Carlos');
     console.log('   - Beautiful Lisbonlovesme branding');
     console.log('   - Review link for Alfama Historical Walking Tour');
     console.log('   - Professional email design');
     console.log('📱 Carlos can now click the link to leave his review!');
+    console.log('');
+    console.log('🔍 If email not received, check:');
+    console.log('   - Spam/Junk folder');
+    console.log('   - Gmail promotions tab');
+    console.log('   - Email filters');
   } catch (error) {
     console.error('❌ Error sending email:', error.response?.body || error.message);
   }
