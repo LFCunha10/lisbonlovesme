@@ -221,6 +221,28 @@
       "formSubject": "Assunto",
       "formMessage": "A Sua Mensagem",
       "formSubmit": "Enviar Mensagem"
+    },
+    "tour": {
+      "notFound": "Tour não encontrado",
+      "backToHome": "Voltar para a página inicial",
+      "backToTours": "Voltar para os tours",
+      "details": "Detalhes do Tour",
+      "duration": "Duração",
+      "maxGroupSize": "Tamanho do Grupo",
+      "difficulty": "Dificuldade",
+      "price": "Preço",
+      "perPerson": "por pessoa",
+      "people": "pessoas",
+      "reviews": "Avaliações",
+      "bookNow": "Reservar Agora",
+      "viewDetails": "Ver Detalhes",
+      "freeBooking": "Cancelamento gratuito até 24 horas antes do tour",
+      "aboutTour": "Sobre este Tour",
+      "tourDetails": "Detalhes do Tour",
+      "review": "avaliação",
+      "maxPeople": "Até {{count}} pessoas",
+      "allTours": "Todos os Tours",
+      "allToursDescription": "Explore todos os nossos tours disponíveis e encontre a experiência perfeita para a sua visita a Lisboa."
     }
   }
 }

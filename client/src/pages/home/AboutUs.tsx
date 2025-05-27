@@ -40,25 +40,37 @@ export default function AboutUs() {
           
           <div className="grid grid-cols-2 gap-4">
             <img 
-              src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
+              src="https://media.cntraveler.com/photos/58f98475aae67d6f485215e3/master/w_2240%2Cc_limit/lisbon-tram-GettyImages-564582647.jpg" 
               alt="Tour guide explaining Lisbon history" 
               className="rounded-lg shadow-md w-full h-auto object-cover mb-4"
             />
             
             <img 
-              src="https://images.unsplash.com/photo-1516726817505-f5ed825624d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+              src="https://www.travelandleisure.com/thmb/CHmlVbTeMhxCKPnUbmrvbO0nqK0=/750x0/filters:no_upscale():max_bytes(150000):strip_icc()/lisbon-portugal-LISBONTG0521-c933a0fb669647619fa580f6c602c4c8.jpg" 
               alt="Tour guide with map of Lisbon" 
               className="rounded-lg shadow-md w-full h-auto object-cover"
             />
             
             <img 
-              src="https://images.unsplash.com/photo-1577985043696-8bd54d9f093f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+              src="https://media.cntraveler.com/photos/58f9834f57db6e4495ce9763/master/w_2240%2Cc_limit/pasteis-de-nata-lisbon-GettyImages-481208082.jpg" 
               alt="Tour group at São Jorge Castle" 
               className="rounded-lg shadow-md w-full h-auto object-cover"
             />
             
             <img 
-              src="https://images.unsplash.com/photo-1533551037358-c8f7182cdb79?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
+              src="https://media.cntraveler.com/photos/58f983d557db6e4495ce9767/master/w_2240%2Cc_limit/alfama-lisbon-GettyImages-691043889.jpg" 
+              alt="Guide showcasing Portuguese tiles" 
+              className="rounded-lg shadow-md w-full h-auto object-cover mt-4"
+            />
+
+             <img 
+              src="https://media.cntraveler.com/photos/58f984542867946a9cbe1f11/master/w_2240%2Cc_limit/praca-do-comercio-lisbon-GettyImages-648812458.jpg" 
+              alt="Guide showcasing Portuguese tiles" 
+              className="rounded-lg shadow-md w-full h-auto object-cover mt-4"
+            />
+
+             <img 
+              src="https://media.cntraveler.com/photos/55d4fa19c47ae13868aea611/master/w_2240%2Cc_limit/azulejos-lisbon-cr-francisco-leong-afp-getty-tout.jpg" 
               alt="Guide showcasing Portuguese tiles" 
               className="rounded-lg shadow-md w-full h-auto object-cover mt-4"
             />
