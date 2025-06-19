@@ -34,7 +34,7 @@ export default function TourDetailsPage() {
 
   if (tourLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
         <div className="container mx-auto px-4 py-8">
           <Skeleton className="h-8 w-32 mb-6" />
           <Skeleton className="h-96 w-full mb-8 rounded-lg" />
@@ -55,7 +55,7 @@ export default function TourDetailsPage() {
 
   if (!tour) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center pt-20">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             {t('common.tourNotFound')}
@@ -77,7 +77,7 @@ export default function TourDetailsPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
       {/* Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Link href="/">
