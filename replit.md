@@ -124,6 +124,8 @@ Changelog:
 - June 19, 2025. Added /admin/tours/edit/id and /admin/tours/create pages with full multilingual support
 - June 19, 2025. Implemented translation API service with common tour terminology translations
 - June 19, 2025. Added bulk translation feature to translate entire tour content at once
+- June 19, 2025. Enhanced translation system with comprehensive word dictionaries for more complete Portuguese and Russian translations
+- June 19, 2025. Fixed translation logic to properly handle all words in sentences, not just partial translations
 ```
 
 ## User Preferences

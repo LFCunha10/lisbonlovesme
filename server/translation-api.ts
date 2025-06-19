@@ -197,6 +197,7 @@ export class TranslationService {
         'this': 'este',
         'is': 'é',
         'a': 'um',
+        'an': 'um',
         'the': 'o',
         'and': 'e',
         'or': 'ou',
@@ -206,7 +207,36 @@ export class TranslationService {
         'in': 'em',
         'of': 'de',
         'through': 'através de',
-        'around': 'ao redor de'
+        'around': 'ao redor de',
+        'get': 'conheça',
+        'know': 'conhecer',
+        'portuguese': 'português',
+        'capital': 'capital',
+        'please': 'por favor',
+        'follow': 'siga',
+        'visit': 'visite',
+        'see': 'veja',
+        'learn': 'aprenda',
+        'about': 'sobre',
+        'culture': 'cultura',
+        'history': 'história',
+        'food': 'comida',
+        'wine': 'vinho',
+        'traditional': 'tradicional',
+        'modern': 'moderno',
+        'old': 'antigo',
+        'new': 'novo',
+        'best': 'melhor',
+        'good': 'bom',
+        'great': 'ótimo',
+        'wonderful': 'maravilhoso',
+        'perfect': 'perfeito',
+        'small': 'pequeno',
+        'big': 'grande',
+        'local': 'local',
+        'authentic': 'autêntico',
+        'unique': 'único',
+        'special': 'especial'
       };
       
       let translated = text.toLowerCase();
@@ -214,10 +244,16 @@ export class TranslationService {
       const sortedEntries = Object.entries(ptTranslations).sort((a, b) => b[0].length - a[0].length);
       
       for (const [en, pt] of sortedEntries) {
-        translated = translated.replace(new RegExp(`\\b${en}\\b`, 'gi'), pt);
+        if (pt) { // Skip empty translations
+          translated = translated.replace(new RegExp(`\\b${en}\\b`, 'gi'), pt);
+        } else {
+          // Remove words that don't translate (like articles)
+          translated = translated.replace(new RegExp(`\\b${en}\\b\\s*`, 'gi'), '');
+        }
       }
       
-      // Capitalize first letter
+      // Clean up extra spaces and capitalize first letter
+      translated = translated.replace(/\s+/g, ' ').trim();
       return translated.charAt(0).toUpperCase() + translated.slice(1);
     }
     
@@ -242,24 +278,54 @@ export class TranslationService {
         'hard': 'сложный',
         'difficult': 'сложный',
         'lisbon': 'Лиссабон',
-        'drive': 'поездка на машине',
+        'drive': 'поездка',
         'driving': 'вождение',
-        'highlights': 'основные моменты',
+        'highlights': 'достопримечательности',
         'city': 'город',
         'test': 'тест',
         'this': 'это',
-        'is': 'является',
-        'a': 'один',
+        'is': 'это',
+        'a': '',
+        'an': '',
         'the': '',
         'and': 'и',
         'or': 'или',
         'with': 'с',
         'from': 'из',
-        'to': 'к',
+        'to': 'в',
         'in': 'в',
-        'of': 'из',
+        'of': '',
         'through': 'через',
-        'around': 'вокруг'
+        'around': 'вокруг',
+        'get': 'познакомьтесь',
+        'know': 'узнать',
+        'portuguese': 'португальский',
+        'capital': 'столица',
+        'please': 'пожалуйста',
+        'follow': 'следуйте',
+        'visit': 'посетите',
+        'see': 'увидите',
+        'learn': 'изучите',
+        'about': 'о',
+        'culture': 'культура',
+        'history': 'история',
+        'food': 'еда',
+        'wine': 'вино',
+        'traditional': 'традиционный',
+        'modern': 'современный',
+        'old': 'старый',
+        'new': 'новый',
+        'best': 'лучший',
+        'good': 'хороший',
+        'great': 'отличный',
+        'wonderful': 'замечательный',
+        'perfect': 'идеальный',
+        'small': 'маленький',
+        'big': 'большой',
+        'local': 'местный',
+        'authentic': 'аутентичный',
+        'unique': 'уникальный',
+        'special': 'особенный'
       };
       
       let translated = text.toLowerCase();
