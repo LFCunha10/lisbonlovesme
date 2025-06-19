@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail } from "./emailService.js";
+import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification } from "./emailService.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
@@ -558,6 +558,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get booking requests (admin only)
+  app.get("/api/admin/requests", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const bookings = await storage.getBookings();
+      const requests = bookings.filter(booking => booking.paymentStatus === "requested");
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching booking requests:", error);
+      res.status(500).json({ message: "Failed to fetch booking requests" });
+    }
+  });
+
+  // Update booking request status (admin only)
+  app.put("/api/admin/requests/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { paymentStatus, confirmedDate, confirmedTime, confirmedMeetingPoint, adminNotes } = req.body;
+      
+      const updatedBooking = await storage.updateBooking(bookingId, {
+        paymentStatus,
+        confirmedDate,
+        confirmedTime,
+        confirmedMeetingPoint,
+        adminNotes
+      });
+      
+      if (!updatedBooking) {
+        return res.status(404).json({ message: "Booking request not found" });
+      }
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error("Error updating booking request:", error);
+      res.status(500).json({ message: "Failed to update booking request" });
+    }
+  });
+
+  // Send confirmation email for booking request (admin only)
+  app.post("/api/admin/requests/:id/confirm", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const booking = await storage.getBooking(bookingId);
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking request not found" });
+      }
+      
+      const tour = await storage.getTour(booking.tourId);
+      if (!tour) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+      
+      // Use confirmed details if available, otherwise use original request details
+      const confirmationDate = booking.confirmedDate || booking.additionalInfo?.date || 'TBD';
+      const confirmationTime = booking.confirmedTime || booking.additionalInfo?.time || 'TBD';
+      const meetingPoint = booking.confirmedMeetingPoint || booking.meetingPoint || 'TBD';
+      
+      await sendBookingConfirmationEmail({
+        to: booking.customerEmail,
+        name: `${booking.customerFirstName} ${booking.customerLastName}`,
+        bookingReference: booking.bookingReference,
+        tourName: tour.name,
+        date: confirmationDate,
+        time: confirmationTime,
+        participants: booking.numberOfParticipants,
+        totalAmount: `€${(booking.totalAmount / 100).toFixed(2)}`,
+        meetingPoint: meetingPoint,
+        duration: tour.duration
+      });
+      
+      // Update booking status to confirmed
+      await storage.updateBooking(bookingId, { paymentStatus: "confirmed" });
+      
+      res.json({ message: "Confirmation email sent successfully" });
+    } catch (error) {
+      console.error("Error sending confirmation email:", error);
+      res.status(500).json({ message: "Failed to send confirmation email" });
+    }
+  });
+
   app.post("/api/bookings", async (req: Request, res: Response) => {
   console.log("Starting booking creation with data:", req.body);
 
@@ -591,10 +671,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
  
    
 
-    // 5. Send confirmation email
+    // 5. Send notification emails
     try {
       const tour = await storage.getTour(booking.tourId);
       if (tour) {
+        // Send customer request confirmation
         await sendRequestConfirmationEmail({
           to: booking.customerEmail,
           name: `${booking.customerFirstName} ${booking.customerLastName}`,
@@ -607,10 +688,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           meetingPoint: booking.meetingPoint || "To be announced",
           duration: tour.duration
         });
-        console.log("Confirmation email sent successfully");
+        
+        // Send admin notification
+        await sendBookingRequestNotification({
+          customerName: `${booking.customerFirstName} ${booking.customerLastName}`,
+          customerEmail: booking.customerEmail,
+          customerPhone: booking.customerPhone,
+          tourName: tour.name,
+          date: availability.date,
+          time: availability.time,
+          participants: booking.numberOfParticipants,
+          specialRequests: booking.specialRequests,
+          bookingReference: booking.bookingReference
+        });
+        
+        console.log("Emails sent successfully");
       }
     } catch (emailError) {
-      console.error("Failed to send confirmation email:", emailError);
+      console.error("Failed to send emails:", emailError);
       // Non-blocking failure
     }
 

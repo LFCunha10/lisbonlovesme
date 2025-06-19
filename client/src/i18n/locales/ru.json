@@ -113,6 +113,31 @@
         "uploading": "Загрузка...",
         "createTourDescription": "Заполните форму ниже, чтобы создать новый тур.",
         "editTourDescription": "Обновите информацию о туре."
+      },
+      "requests": {
+        "title": "Запросы на бронирование",
+        "subtitle": "Управление запросами клиентов на бронирование",
+        "pending": "В ожидании",
+        "confirmed": "Подтверждено",
+        "cancelled": "Отменено",
+        "viewDetails": "Просмотр деталей",
+        "confirmBooking": "Подтвердить бронирование",
+        "cancelBooking": "Отменить бронирование",
+        "customerInfo": "Информация о клиенте",
+        "tourDetails": "Детали тура",
+        "requestedDateTime": "Запрошенные дата и время",
+        "confirmedDateTime": "Подтвержденные дата и время",
+        "specialRequests": "Особые пожелания",
+        "adminNotes": "Заметки администратора",
+        "confirmationDetails": "Детали подтверждения",
+        "confirmedDate": "Подтвержденная дата",
+        "confirmedTime": "Подтвержденное время",
+        "confirmedMeetingPoint": "Место встречи",
+        "totalAmount": "Общая сумма",
+        "sendConfirmation": "Отправить подтверждение по email",
+        "confirmationSent": "Email с подтверждением успешно отправлен",
+        "noRequests": "Запросы на бронирование не найдены",
+        "loading": "Загрузка запросов..."
       }
     },
     "footer": {

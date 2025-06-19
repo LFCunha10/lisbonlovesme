@@ -36,6 +36,13 @@ export default function AdminIndexPage() {
             linkText="Manage Tours"
           />
           <DashboardCard 
+            title="Booking Requests" 
+            description="Manage customer booking requests"
+            icon={<MessageSquareIcon className="w-8 h-8" />}
+            linkTo="/admin/requests"
+            linkText="View Requests"
+          />
+          <DashboardCard 
             title="Booking Calendar" 
             description="View and manage all bookings"
             icon={<CalendarIcon className="w-8 h-8" />}
