@@ -18,10 +18,10 @@ export default function HeroSection() {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl text-white">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-4">
             {t('home.welcome')}
           </h1>
-          <p className="text-xl md:text-2xl mb-8">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8">
             {t('home.subtitle')}
           </p>
           <div className="flex flex-wrap gap-4">

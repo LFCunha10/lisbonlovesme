@@ -50,24 +50,24 @@ export default function TourCard({ tour }: TourCardProps) {
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Clock className="mr-1 h-4 w-4" /> {tour.duration} {t('tours.hours')}
+          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.duration}
           </span>
-          <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Users className="mr-1 h-4 w-4" /> {t('tours.groupSize')}: {tour.maxGroupSize} {t('tours.people')}
+          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+            <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.maxGroupSize}
           </span>
-          <span className="bg-neutral-light px-3 py-1 rounded-full text-sm flex items-center">
-            <Activity className="mr-1 h-4 w-4" /> {t(`tours.${tour.difficulty.toLowerCase()}`)}
+          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+            <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {t(`tours.${tour.difficulty.toLowerCase()}`)}
           </span>
         </div>
         
-        <div className="flex justify-between items-center">
-          <div className="text-xl font-semibold text-neutral-dark">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+          <div className="text-lg sm:text-xl font-semibold text-neutral-dark">
             {formatCurrency(tour.price)}
-            <span className="text-sm font-normal text-neutral-dark/70">/{t('tours.perPerson')}</span>
+            <span className="text-xs sm:text-sm font-normal text-neutral-dark/70 block sm:inline">/{t('tours.perPerson')}</span>
           </div>
-          <Link href={`/tour/${tour.id}`}>
-            <Button size="sm">
+          <Link href={`/tour/${tour.id}`} className="w-full sm:w-auto">
+            <Button size="sm" className="w-full sm:w-auto">
               {t('tours.viewDetails')}
             </Button>
           </Link>

@@ -96,25 +96,25 @@ export default function TourDetailsPage() {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40" />
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="container mx-auto">
-            <div className="flex items-center space-x-4 mb-4">
-              <h1 className="text-4xl font-bold text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-0">
                 {tour.name}
               </h1>
               {tour.badge && (
-                <Badge className="bg-primary text-primary-foreground">
+                <Badge className="bg-primary text-primary-foreground w-fit">
                   {tour.badge}
                 </Badge>
               )}
             </div>
             {tourTestimonials.length > 0 && (
-              <div className="flex items-center space-x-2 text-white">
+              <div className="flex flex-wrap items-center gap-2 text-white">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
                         i < Math.round(averageRating)
                           ? 'fill-yellow-400 text-yellow-400'
                           : 'text-gray-300'
@@ -122,10 +122,10 @@ export default function TourDetailsPage() {
                     />
                   ))}
                 </div>
-                <span className="text-lg font-medium">
+                <span className="text-base sm:text-lg font-medium">
                   {averageRating.toFixed(1)}
                 </span>
-                <span className="text-gray-200">
+                <span className="text-gray-200 text-sm sm:text-base">
                   ({tourTestimonials.length} {tourTestimonials.length === 1 ? t('tours.review') : t('tours.reviews')})
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function TourDetailsPage() {
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
                   {t('tours.tourDetails')}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="flex items-center space-x-3">
                     <Clock className="w-6 h-6 text-primary" />
                     <div>
