@@ -353,6 +353,63 @@
       "formSubject": "Assunto",
       "formMessage": "Sua Mensagem",
       "formSubmit": "Enviar Mensagem"
+    },
+    "email": {
+      "bookingConfirmation": {
+        "subject": "Confirmação de Reserva - Lisbonlovesme",
+        "header": "Confirmação de Reserva",
+        "greeting": "Olá",
+        "confirmationMessage": "A sua reserva foi confirmada e estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+        "tourDetails": "Detalhes do Tour",
+        "bookingReference": "Referência da Reserva",
+        "tour": "Tour",
+        "date": "Data",
+        "time": "Hora",
+        "participants": "Participantes",
+        "totalAmount": "Valor Total",
+        "meetingPoint": "Ponto de Encontro",
+        "importantInfo": "Informações Importantes",
+        "arriveEarly": "Por favor chegue 15 minutos antes do início do tour",
+        "bringItems": "Traga sapatos confortáveis, água e proteção solar",
+        "guideSign": "O seu guia turístico estará com uma placa \"Lisbonlovesme\"",
+        "questions": "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com",
+        "lookingForward": "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+        "bestRegards": "Melhores cumprimentos",
+        "teamName": "Equipa Lisbonlovesme"
+      },
+      "reviewRequest": {
+        "subject": "Partilhe a Sua Experiência - Lisbonlovesme",
+        "header": "Partilhe a Sua Experiência",
+        "greeting": "Olá",
+        "thankYou": "Obrigado por se juntar a nós no tour! Esperamos que tenha tido uma experiência incrível a explorar Lisboa connosco.",
+        "experienceMatters": "A sua experiência é importante para nós e ajuda outros viajantes a descobrir a magia de Lisboa.",
+        "shareThoughts": "Poderia dedicar alguns minutos para partilhar os seus pensamentos?",
+        "writeReview": "Escrever uma Avaliação",
+        "orVisit": "Ou visite",
+        "appreciateTime": "Agradecemos muito o seu tempo e feedback!",
+        "bestRegards": "Melhores cumprimentos",
+        "teamName": "Equipa Lisbonlovesme"
+      },
+      "requestConfirmation": {
+        "subject": "Pedido de Reserva Recebido - Lisbonlovesme",
+        "header": "Pedido de Reserva Recebido",
+        "greeting": "Olá",
+        "thankYou": "Obrigado por escolher a Lisbonlovesme!",
+        "requestReceived": "Obrigado pelo seu interesse no nosso tour! Recebemos o seu pedido de reserva e iremos analisá-lo em breve.",
+        "reviewSoon": "Iremos analisar o seu pedido e contactá-lo dentro de 24 horas para confirmar disponibilidade e finalizar os detalhes.",
+        "contactYou": "A nossa equipa irá contactá-lo em breve para discutir o seu tour e responder a qualquer questão que possa ter.",
+        "questions": "Se tiver alguma questão urgente, por favor contacte-nos em info@lisbonlovesme.com",
+        "bestRegards": "Melhores cumprimentos",
+        "teamName": "Equipa Lisbonlovesme",
+        "tourDetails": "Detalhes do Tour",
+        "bookingReference": "Referência da Reserva",
+        "tour": "Tour",
+        "date": "Data",
+        "time": "Hora",
+        "participants": "Participantes",
+        "totalAmount": "Valor Total",
+        "meetingPoint": "Ponto de Encontro"
+      }
     }
   }
 }

@@ -354,6 +354,63 @@
       "formSubject": "Subject",
       "formMessage": "Your Message",
       "formSubmit": "Send Message"
+    },
+    "email": {
+      "bookingConfirmation": {
+        "subject": "Booking Confirmation - Lisbonlovesme",
+        "header": "Booking Confirmation",
+        "greeting": "Hello",
+        "confirmationMessage": "Your booking has been confirmed and we're excited to show you the best of Lisbon!",
+        "tourDetails": "Tour Details",
+        "bookingReference": "Booking Reference",
+        "tour": "Tour",
+        "date": "Date",
+        "time": "Time",
+        "participants": "Participants",
+        "totalAmount": "Total Amount",
+        "meetingPoint": "Meeting Point",
+        "importantInfo": "Important Information",
+        "arriveEarly": "Please arrive 15 minutes before the tour starts",
+        "bringItems": "Bring comfortable walking shoes, water, and sun protection",
+        "guideSign": "Your tour guide will be holding a \"Lisbonlovesme\" sign",
+        "questions": "If you have any questions, please contact us at info@lisbonlovesme.com",
+        "lookingForward": "We look forward to showing you the best of Lisbon!",
+        "bestRegards": "Best regards",
+        "teamName": "Lisbonlovesme Team"
+      },
+      "reviewRequest": {
+        "subject": "Share Your Experience - Lisbonlovesme",
+        "header": "Share Your Experience",
+        "greeting": "Hello",
+        "thankYou": "Thank you for joining us on the tour! We hope you had an amazing time exploring Lisbon with us.",
+        "experienceMatters": "Your experience matters to us and helps other travelers discover the magic of Lisbon.",
+        "shareThoughts": "Would you mind taking a few minutes to share your thoughts?",
+        "writeReview": "Write a Review",
+        "orVisit": "Or visit",
+        "appreciateTime": "We truly appreciate your time and feedback!",
+        "bestRegards": "Best regards",
+        "teamName": "Lisbonlovesme Team"
+      },
+      "requestConfirmation": {
+        "subject": "Booking Request Received - Lisbonlovesme",
+        "header": "Booking Request Received",
+        "greeting": "Hello",
+        "thankYou": "Thank you for choosing Lisbonlovesme!",
+        "requestReceived": "Thank you for your interest in our tour! We have received your booking request and will review it soon.",
+        "reviewSoon": "We will review your request and contact you within 24 hours to confirm availability and finalize the details.",
+        "contactYou": "Our team will contact you soon to discuss your tour and answer any questions you may have.",
+        "questions": "If you have any urgent questions, please contact us at info@lisbonlovesme.com",
+        "bestRegards": "Best regards",
+        "teamName": "Lisbonlovesme Team",
+        "tourDetails": "Tour Details",
+        "bookingReference": "Booking Reference",
+        "tour": "Tour",
+        "date": "Date",
+        "time": "Time",
+        "participants": "Participants",
+        "totalAmount": "Total Amount",
+        "meetingPoint": "Meeting Point"
+      }
     }
   }
 }

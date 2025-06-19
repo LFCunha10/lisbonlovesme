@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 import dotenv from 'dotenv';
 import { generateICSFile } from './utils/ics-generator';
 dotenv.config();
@@ -64,185 +66,38 @@ interface EmailTranslations {
   };
 }
 
-const emailTranslations: EmailTranslations = {
-  en: {
-    bookingConfirmation: {
-      subject: "Booking Confirmation - Lisbonlovesme",
-      header: "Booking Confirmation",
-      greeting: "Hello",
-      confirmationMessage: "Your booking has been confirmed and we're excited to show you the best of Lisbon!",
-      tourDetails: "Tour Details",
-      bookingReference: "Booking Reference",
-      tour: "Tour",
-      date: "Date",
-      time: "Time", 
-      participants: "Participants",
-      totalAmount: "Total Amount",
-      meetingPoint: "Meeting Point",
-      importantInfo: "Important Information",
-      arriveEarly: "Please arrive 15 minutes before the tour starts",
-      bringItems: "Bring comfortable walking shoes, water, and sun protection",
-      guideSign: "Your tour guide will be holding a \"Lisbonlovesme\" sign",
-      questions: "If you have any questions, please contact us at info@lisbonlovesme.com",
-      lookingForward: "We look forward to showing you the best of Lisbon!",
-      bestRegards: "Best regards",
-      teamName: "Lisbonlovesme Team"
-    },
-    reviewRequest: {
-      subject: "Share Your Experience - Lisbonlovesme",
-      header: "Share Your Experience",
-      greeting: "Hello",
-      thankYou: "Thank you for joining us on the tour! We hope you had an amazing time exploring Lisbon with us.",
-      experienceMatters: "Your experience matters to us and helps other travelers discover the magic of Lisbon.",
-      shareThoughts: "Would you mind taking a few minutes to share your thoughts?",
-      writeReview: "Write a Review",
-      orVisit: "Or visit",
-      appreciateTime: "We truly appreciate your time and feedback!",
-      bestRegards: "Best regards",
-      teamName: "Lisbonlovesme Team"
-    },
-    requestConfirmation: {
-      subject: "Booking Request Received - Lisbonlovesme",
-      header: "Booking Request Received",
-      greeting: "Hello",
-      thankYou: "Thank you for choosing Lisbonlovesme!",
-      requestReceived: "Thank you for your interest in our tour! We have received your booking request and will review it soon.",
-      reviewSoon: "We will review your request and contact you within 24 hours to confirm availability and finalize the details.",
-      contactYou: "Our team will contact you soon to discuss your tour and answer any questions you may have.",
-      questions: "If you have any urgent questions, please contact us at info@lisbonlovesme.com",
-      bestRegards: "Best regards",
-      teamName: "Lisbonlovesme Team",
-      tourDetails: "Tour Details",
-      bookingReference: "Booking Reference",
-      tour: "Tour",
-      date: "Date",
-      time: "Time",
-      participants: "Participants",
-      totalAmount: "Total Amount",
-      meetingPoint: "Meeting Point"
-    }
-  },
-  pt: {
-    bookingConfirmation: {
-      subject: "Confirmação de Reserva - Lisbonlovesme",
-      header: "Confirmação de Reserva",
-      greeting: "Olá",
-      confirmationMessage: "A sua reserva foi confirmada e estamos ansiosos por lhe mostrar o melhor de Lisboa!",
-      tourDetails: "Detalhes do Tour",
-      bookingReference: "Referência da Reserva",
-      tour: "Tour",
-      date: "Data",
-      time: "Hora",
-      participants: "Participantes",
-      totalAmount: "Valor Total",
-      meetingPoint: "Ponto de Encontro",
-      importantInfo: "Informações Importantes",
-      arriveEarly: "Por favor chegue 15 minutos antes do início do tour",
-      bringItems: "Traga sapatos confortáveis, água e proteção solar",
-      guideSign: "O seu guia turístico estará com uma placa \"Lisbonlovesme\"",
-      questions: "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com",
-      lookingForward: "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
-      bestRegards: "Melhores cumprimentos",
-      teamName: "Equipa Lisbonlovesme"
-    },
-    reviewRequest: {
-      subject: "Partilhe a Sua Experiência - Lisbonlovesme",
-      header: "Partilhe a Sua Experiência",
-      greeting: "Olá",
-      thankYou: "Obrigado por se juntar a nós no tour! Esperamos que tenha tido uma experiência incrível a explorar Lisboa connosco.",
-      experienceMatters: "A sua experiência é importante para nós e ajuda outros viajantes a descobrir a magia de Lisboa.",
-      shareThoughts: "Poderia dedicar alguns minutos para partilhar os seus pensamentos?",
-      writeReview: "Escrever uma Avaliação",
-      orVisit: "Ou visite",
-      appreciateTime: "Agradecemos muito o seu tempo e feedback!",
-      bestRegards: "Melhores cumprimentos",
-      teamName: "Equipa Lisbonlovesme"
-    },
-    requestConfirmation: {
-      subject: "Pedido de Reserva Recebido - Lisbonlovesme",
-      header: "Pedido de Reserva Recebido",
-      greeting: "Olá",
-      thankYou: "Obrigado por escolher a Lisbonlovesme!",
-      requestReceived: "Obrigado pelo seu interesse no nosso tour! Recebemos o seu pedido de reserva e iremos analisá-lo em breve.",
-      reviewSoon: "Iremos analisar o seu pedido e contactá-lo dentro de 24 horas para confirmar disponibilidade e finalizar os detalhes.",
-      contactYou: "A nossa equipa irá contactá-lo em breve para discutir o seu tour e responder a qualquer questão que possa ter.",
-      questions: "Se tiver alguma questão urgente, por favor contacte-nos em info@lisbonlovesme.com",
-      bestRegards: "Melhores cumprimentos",
-      teamName: "Equipa Lisbonlovesme",
-      tourDetails: "Detalhes do Tour",
-      bookingReference: "Referência da Reserva",
-      tour: "Tour",
-      date: "Data",
-      time: "Hora",
-      participants: "Participantes",
-      totalAmount: "Valor Total",
-      meetingPoint: "Ponto de Encontro"
-    }
-  },
-  ru: {
-    bookingConfirmation: {
-      subject: "Подтверждение бронирования - Lisbonlovesme",
-      header: "Подтверждение бронирования",
-      greeting: "Здравствуйте",
-      confirmationMessage: "Ваше бронирование подтверждено, и мы рады показать вам лучшее в Лиссабоне!",
-      tourDetails: "Детали тура",
-      bookingReference: "Номер бронирования",
-      tour: "Тур",
-      date: "Дата",
-      time: "Время",
-      participants: "Участники",
-      totalAmount: "Общая сумма",
-      meetingPoint: "Место встречи",
-      importantInfo: "Важная информация",
-      arriveEarly: "Пожалуйста, прибудьте за 15 минут до начала",
-      bringItems: "Возьмите с собой удобную обувь и воду",
-      guideSign: "Ваш гид будет с табличкой \"Lisbonlovesme\"",
-      questions: "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com",
-      lookingForward: "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
-      bestRegards: "С наилучшими пожеланиями",
-      teamName: "Команда Lisbonlovesme"
-    },
-    reviewRequest: {
-      subject: "Поделитесь своим впечатлением - Lisbonlovesme",
-      header: "Поделитесь своим впечатлением",
-      greeting: "Здравствуйте",
-      thankYou: "Спасибо, что присоединились к нашему туру! Надеемся, у вас был невероятный опыт изучения Лиссабона с нами.",
-      experienceMatters: "Ваш опыт важен для нас и помогает другим путешественникам открыть для себя магию Лиссабона.",
-      shareThoughts: "Не могли бы вы уделить несколько минут, чтобы поделиться своими мыслями?",
-      writeReview: "Написать отзыв",
-      orVisit: "Или посетите",
-      appreciateTime: "Мы очень ценим ваше время и обратную связь!",
-      bestRegards: "С наилучшими пожеланиями",
-      teamName: "Команда Lisbonlovesme"
-    },
-    requestConfirmation: {
-      subject: "Запрос на бронирование получен - Lisbonlovesme",
-      header: "Запрос на бронирование получен",
-      greeting: "Здравствуйте",
-      thankYou: "Спасибо, что выбрали Lisbonlovesme!",
-      requestReceived: "Спасибо за ваш интерес к нашему туру! Мы получили ваш запрос на бронирование и скоро его рассмотрим.",
-      reviewSoon: "Мы рассмотрим ваш запрос и свяжемся с вами в течение 24 часов для подтверждения доступности и уточнения деталей.",
-      contactYou: "Наша команда скоро свяжется с вами, чтобы обсудить ваш тур и ответить на любые вопросы, которые у вас могут быть.",
-      questions: "Если у вас есть срочные вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com",
-      bestRegards: "С наилучшими пожеланиями",
-      teamName: "Команда Lisbonlovesme",
-      tourDetails: "Детали тура",
-      bookingReference: "Номер бронирования",
-      tour: "Тур",
-      date: "Дата",
-      time: "Время",
-      participants: "Участники",
-      totalAmount: "Общая сумма",
-      meetingPoint: "Место встречи"
-    }
+// Cache for loaded translations
+let translationCache: { [key: string]: any } = {};
+
+// Function to load translations from i18n locale files
+function loadTranslations(language: string) {
+  const lang = language?.split('-')[0] || 'en';
+  
+  if (translationCache[lang]) {
+    return translationCache[lang];
   }
-};
+
+  try {
+    const localeFilePath = path.join(process.cwd(), 'client', 'src', 'i18n', 'locales', `${lang}.json`);
+    const localeData = JSON.parse(fs.readFileSync(localeFilePath, 'utf8'));
+    translationCache[lang] = localeData.translation.email;
+    return translationCache[lang];
+  } catch (error) {
+    console.warn(`Failed to load translations for language: ${lang}, falling back to English`);
+    // Fallback to English
+    if (lang !== 'en') {
+      return loadTranslations('en');
+    }
+    // If even English fails, return empty object
+    return {};
+  }
+}
 
 // Helper function to get translations
 function getEmailTranslations(language?: string) {
   const lang = language?.split('-')[0] || 'en';
   console.log(`Getting email translations for language: ${language} -> ${lang}`);
-  return emailTranslations[lang] || emailTranslations.en;
+  return loadTranslations(lang) || loadTranslations('en');
 }
 
 const transporter = nodemailer.createTransport({
