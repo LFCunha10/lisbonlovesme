@@ -51,7 +51,13 @@
       "freeBooking": "Free booking & cancellation",
       "medium": "Moderate",
       "hard": "Hard",
-      "sendYourRequest": "Request this tour"
+      "sendYourRequest": "Request this tour",
+      "fácil": "Easy",
+      "médio": "Medium",
+      "difícil": "Hard",
+      "легкий": "Easy",
+      "средний": "Medium",
+      "сложный": "Hard"
     },
     "reviews": {
       "title": "Reviews",

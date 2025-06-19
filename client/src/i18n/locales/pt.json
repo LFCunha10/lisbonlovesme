@@ -51,7 +51,13 @@
       "freeBooking": "Reserva e cancelamento gratuitos",
       "medium": "Moderado",
       "hard": "Difícil",
-      "sendYourRequest": "Solicitar este passeio"
+      "sendYourRequest": "Solicitar este passeio",
+      "fácil": "Fácil",
+      "médio": "Médio",
+      "difícil": "Difícil",
+      "легкий": "Fácil",
+      "средний": "Médio",
+      "сложный": "Difícil"
     },
     "reviews": {
       "title": "Avaliações",

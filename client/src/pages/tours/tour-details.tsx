@@ -1,6 +1,7 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { getLocalizedText } from "@/lib/tour-utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
