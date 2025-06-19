@@ -409,6 +409,27 @@
         "participants": "Участники",
         "totalAmount": "Общая сумма",
         "meetingPoint": "Место встречи"
+      },
+      "adminNotification": {
+        "subject": "Новый запрос на бронирование - Lisbonlovesme",
+        "header": "Получен новый запрос на бронирование",
+        "greeting": "Здравствуйте, Администратор",
+        "newRequest": "Получен новый запрос на бронирование:",
+        "customerDetails": "Данные клиента",
+        "customerName": "Имя клиента",
+        "customerEmail": "Email",
+        "customerPhone": "Телефон",
+        "tourDetails": "Детали тура",
+        "tour": "Тур",
+        "requestedDate": "Запрошенная дата",
+        "requestedTime": "Запрошенное время",
+        "participants": "Участники",
+        "reference": "Ссылка",
+        "specialRequests": "Особые требования",
+        "reviewRequest": "Пожалуйста, рассмотрите этот запрос в административной панели и свяжитесь с клиентом для обсуждения деталей.",
+        "thankYouChoosing": "Спасибо, что выбрали Lisbonlovesme!",
+        "lookingForward": "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
+        "questionsContact": "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com"
       }
     }
   }

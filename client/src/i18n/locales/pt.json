@@ -409,6 +409,27 @@
         "participants": "Participantes",
         "totalAmount": "Valor Total",
         "meetingPoint": "Ponto de Encontro"
+      },
+      "adminNotification": {
+        "subject": "Novo Pedido de Reserva - Lisbonlovesme",
+        "header": "Novo Pedido de Reserva Recebido",
+        "greeting": "Olá Admin",
+        "newRequest": "Foi recebido um novo pedido de reserva:",
+        "customerDetails": "Dados do Cliente",
+        "customerName": "Nome do Cliente",
+        "customerEmail": "Email",
+        "customerPhone": "Telefone",
+        "tourDetails": "Detalhes do Tour",
+        "tour": "Tour",
+        "requestedDate": "Data Solicitada",
+        "requestedTime": "Hora Solicitada",
+        "participants": "Participantes",
+        "reference": "Referência",
+        "specialRequests": "Pedidos Especiais",
+        "reviewRequest": "Por favor analise este pedido no seu painel de administração e contacte o cliente para discutir os detalhes.",
+        "thankYouChoosing": "Obrigado por escolher a Lisbonlovesme!",
+        "lookingForward": "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+        "questionsContact": "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com"
       }
     }
   }

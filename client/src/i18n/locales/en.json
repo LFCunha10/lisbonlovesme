@@ -410,6 +410,27 @@
         "participants": "Participants",
         "totalAmount": "Total Amount",
         "meetingPoint": "Meeting Point"
+      },
+      "adminNotification": {
+        "subject": "New Booking Request - Lisbonlovesme",
+        "header": "New Booking Request Received",
+        "greeting": "Hello Admin",
+        "newRequest": "A new booking request has been received:",
+        "customerDetails": "Customer Details",
+        "customerName": "Customer Name",
+        "customerEmail": "Email",
+        "customerPhone": "Phone",
+        "tourDetails": "Tour Details",
+        "tour": "Tour",
+        "requestedDate": "Requested Date",
+        "requestedTime": "Requested Time",
+        "participants": "Participants",
+        "reference": "Reference",
+        "specialRequests": "Special Requests",
+        "reviewRequest": "Please review this request in your admin dashboard and contact the customer to discuss details.",
+        "thankYouChoosing": "Thank you for choosing Lisbonlovesme!",
+        "lookingForward": "We look forward to showing you the best of Lisbon!",
+        "questionsContact": "If you have any questions, please contact us at info@lisbonlovesme.com"
       }
     }
   }

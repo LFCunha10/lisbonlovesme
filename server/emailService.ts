@@ -398,45 +398,49 @@ ${t.bookingConfirmation.teamName}
 export async function sendBookingRequestNotification(options: BookingRequestNotificationOptions): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL || 'lisbonlovesme@gmail.com';
   
+  // Get translations for the specified language (default to English for admin)
+  const t = getEmailTranslations(options.language);
+  
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: adminEmail,
-    subject: `New Booking Request - ${options.tourName}`,
+    subject: `${t.adminNotification.subject} - ${options.tourName}`,
     html: `
     <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">New Booking Request</p>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">${t.adminNotification.subject}</p>
       </div>
       
       <div style="padding: 40px 30px; background: white;">
-        <h2 style="color: #333; margin: 0 0 20px 0;">New Booking Request Received</h2>
+        <h2 style="color: #333; margin: 0 0 20px 0;">${t.adminNotification.header}</h2>
+        <p>${t.adminNotification.newRequest}</p>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin: 0 0 15px 0;">Customer Details</h3>
-          <p><strong>Name:</strong> ${options.customerName}</p>
-          <p><strong>Email:</strong> ${options.customerEmail}</p>
-          <p><strong>Phone:</strong> ${options.customerPhone}</p>
+          <h3 style="color: #333; margin: 0 0 15px 0;">${t.adminNotification.customerDetails}</h3>
+          <p><strong>${t.adminNotification.customerName}:</strong> ${options.customerName}</p>
+          <p><strong>${t.adminNotification.customerEmail}:</strong> ${options.customerEmail}</p>
+          <p><strong>${t.adminNotification.customerPhone}:</strong> ${options.customerPhone}</p>
         </div>
 
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin: 0 0 15px 0;">Tour Details</h3>
-          <p><strong>Tour:</strong> ${options.tourName}</p>
-          <p><strong>Requested Date:</strong> ${options.date}</p>
-          <p><strong>Requested Time:</strong> ${options.time}</p>
-          <p><strong>Participants:</strong> ${options.participants}</p>
-          <p><strong>Reference:</strong> ${options.bookingReference}</p>
+          <h3 style="color: #333; margin: 0 0 15px 0;">${t.adminNotification.tourDetails}</h3>
+          <p><strong>${t.adminNotification.tour}:</strong> ${options.tourName}</p>
+          <p><strong>${t.adminNotification.requestedDate}:</strong> ${options.date}</p>
+          <p><strong>${t.adminNotification.requestedTime}:</strong> ${options.time}</p>
+          <p><strong>${t.adminNotification.participants}:</strong> ${options.participants}</p>
+          <p><strong>${t.adminNotification.reference}:</strong> ${options.bookingReference}</p>
         </div>
 
         ${options.specialRequests ? `
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin: 0 0 15px 0;">Special Requests</h3>
+          <h3 style="color: #333; margin: 0 0 15px 0;">${t.adminNotification.specialRequests}</h3>
           <p>${options.specialRequests}</p>
         </div>
         ` : ''}
 
         <div style="text-align: center; margin: 30px 0;">
-          <p style="color: #666; margin: 0;">Please review this request in your admin dashboard and contact the customer to discuss details.</p>
+          <p style="color: #666; margin: 0;">${t.adminNotification.reviewRequest}</p>
         </div>
       </div>
     </div>
@@ -540,16 +544,16 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
       </div>
        
       <div class="note-box">
-        <h3 style="margin-top: 0; color: #92400e;">Important Information</h3>
+        <h3 style="margin-top: 0; color: #92400e;">${t.bookingConfirmation.importantInfo}</h3>
         <ul>
-          <li>This is not a confirmation of your tour. Our team will contact you shortly.</li>
+          <li>${t.requestConfirmation.reviewSoon}</li>
         </ul>
       </div>
       
-      <p>If you have any questions, please contact us at <a href="mailto:lisbonlovesme@gmail.com">lisbonlovesme@gmail.com</a> or +351 938 607 585.</p>
+      <p>${t.adminNotification.questionsContact}</p>
       
-      <p>We look forward to showing you the best of Lisbon!</p>
-      <p>Best regards,<br>Lisbonlovesme Team</p>
+      <p>${t.adminNotification.lookingForward}</p>
+      <p>${t.requestConfirmation.bestRegards},<br>${t.requestConfirmation.teamName}</p>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} Lisbonlovesme. All rights reserved.</p>

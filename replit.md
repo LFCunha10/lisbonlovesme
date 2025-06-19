@@ -105,6 +105,7 @@ Changelog:
 - June 19, 2025. Fixed navbar overlap issue on tour detail pages by adjusting top padding
 - June 19, 2025. Implemented comprehensive email translation system for English, Portuguese, and Russian with automatic language detection
 - June 19, 2025. Migrated email translations from server/emailService.ts to client/src/i18n/locales for centralized translation management
+- June 19, 2025. Completed email translation system - all hardcoded English text in sendBookingRequestNotification and sendRequestConfirmationEmail functions now uses i18n translations
 ```
 
 ## User Preferences
