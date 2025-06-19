@@ -629,6 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const confirmationDate = booking.confirmedDate || booking.additionalInfo?.date || 'TBD';
       const confirmationTime = booking.confirmedTime || booking.additionalInfo?.time || 'TBD';
       const meetingPoint = booking.confirmedMeetingPoint || booking.meetingPoint || 'TBD';
+      const adminNotes = booking.adminNotes || '-';
       
       await sendBookingConfirmationEmail({
         to: booking.customerEmail,
@@ -640,7 +641,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         participants: booking.numberOfParticipants,
         totalAmount: `€${(booking.totalAmount / 100).toFixed(2)}`,
         meetingPoint: meetingPoint,
-        duration: tour.duration
+        duration: tour.duration,
+        adminNotes: adminNotes
       });
       
       // Update booking status to confirmed

@@ -24,6 +24,7 @@ interface ConfirmationEmailOptions {
   totalAmount: string;
   meetingPoint: string;
   duration?: string; // Duration in hours
+  adminNotes?: string;
 }
 
 interface BookingRequestNotificationOptions {
@@ -118,7 +119,8 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     participants,
     totalAmount,
     meetingPoint,
-    duration = '3 hours' // Default tour duration is 2 hours if not specified
+    duration = '3 hours', // Default tour duration is 3 hours if not specified
+    adminNotes,
   } = options;
   
   // Format the date
@@ -202,6 +204,9 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
       
       <h3>Meeting Point</h3>
       <p>${meetingPoint}</p>
+
+      <h3>Additional Info</h3>
+      <p>${adminNotes}</p>
       
       <div class="note-box">
         <h3 style="margin-top: 0; color: #92400e;">Important Information</h3>

@@ -250,13 +250,13 @@ export default function BookingRequests() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.numberOfParticipants} {t('booking.participants')}</span>
+                          <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span>
                             {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
-                              ? `${request.confirmedDate} ${request.confirmedTime}` 
+                              ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}` 
                               : request.additionalInfo?.date 
                                 ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}` 
                                 : 'TBD'
