@@ -9,7 +9,7 @@ import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-up
 import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
-import { getLocalizedText } from "./utils/tour-utils";
+import { getLocalizedText } from "./utils/tour-utils.js";
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -779,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           customerName: `${booking.customerFirstName} ${booking.customerLastName}`,
           customerEmail: booking.customerEmail,
           customerPhone: booking.customerPhone,
-          tourName: tour.name,
+          tourName: getLocalizedText(tour.name, booking.language || 'en'),
           date: availability.date,
           time: availability.time,
           participants: booking.numberOfParticipants,

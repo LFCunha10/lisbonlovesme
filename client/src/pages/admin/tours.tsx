@@ -9,6 +9,8 @@ import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { marked } from "marked";
+import { useTranslation } from "react-i18next";
+import { getLocalizedText } from "@/lib/tour-utils";
 
 import {
   Card,
@@ -115,6 +117,7 @@ type AvailabilityFormValues = z.infer<typeof availabilitySchema>;
 export default function AdminTours() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [isCreateTourOpen, setIsCreateTourOpen] = useState(false);
   const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] =
@@ -606,9 +609,9 @@ export default function AdminTours() {
                     onClick={() => handleTourSelect(tour)}
                   >
                     <div>
-                      <div className="font-medium">{tour.name}</div>
+                      <div className="font-medium">{getLocalizedText(tour.name, i18n.language)}</div>
                       <div className="text-xs text-gray-500">
-                        {tour.duration} • €{(tour.price / 100).toFixed(2)}
+                        {getLocalizedText(tour.duration, i18n.language)} • €{(tour.price / 100).toFixed(2)}
                       </div>
                     </div>
                     {!tour.isActive && (

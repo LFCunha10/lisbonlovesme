@@ -183,19 +183,19 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
           <div className="flex space-x-4 mb-4">
             <img
               src={tour.imageUrl}
-              alt={getLocalizedText(tour.name)}
+              alt={getLocalizedText(tour.name, i18n.language)}
               className="w-20 h-20 object-cover rounded-lg"
             />
             <div className="flex-1">
               <h4 className="font-medium text-gray-900 dark:text-white">
-                {getLocalizedText(tour.name)}
+                {getLocalizedText(tour.name, i18n.language)}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {getLocalizedText(tour.duration)}
+                {getLocalizedText(tour.duration, i18n.language)}
               </p>
-              {getLocalizedText(tour.badge || undefined) && (
+              {tour.badge && getLocalizedText(tour.badge, i18n.language) && (
                 <Badge variant="secondary" className="text-xs">
-                  {getLocalizedText(tour.badge || undefined)}
+                  {getLocalizedText(tour.badge, i18n.language)}
                 </Badge>
               )}
             </div>

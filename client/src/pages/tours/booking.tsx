@@ -36,7 +36,7 @@ const steps = [
 ];
 
 export default function Booking() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const tourId = parseInt(id || "0");
@@ -145,7 +145,7 @@ export default function Booking() {
                 {t('booking.requestTour')}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 truncate-mobile">
-                {getLocalizedText(tour.name)}
+                {getLocalizedText(tour.name, i18n.language)}
               </p>
             </div>
 
@@ -261,9 +261,9 @@ export default function Booking() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {getLocalizedText(tour.duration)}
                       </p>
-                      {getLocalizedText(tour.badge || undefined) && (
+                      {tour.badge && getLocalizedText(tour.badge) && (
                         <Badge className="text-xs mt-1" variant="secondary">
-                          {getLocalizedText(tour.badge || undefined)}
+                          {getLocalizedText(tour.badge)}
                         </Badge>
                       )}
                     </div>

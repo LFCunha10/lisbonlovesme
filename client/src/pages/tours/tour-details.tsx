@@ -16,13 +16,7 @@ export default function TourDetailsPage() {
   const { t, i18n } = useTranslation();
   const tourId = parseInt(id as string);
   
-  const getLocalizedText = (text: string | { en: string; pt: string; ru: string } | undefined): string => {
-    if (!text) return '';
-    if (typeof text === 'string') return text;
-    
-    const lang = i18n.language.startsWith('pt') ? 'pt' : i18n.language.startsWith('ru') ? 'ru' : 'en';
-    return text[lang] || text.en || '';
-  };
+
 
   const { data: tour, isLoading: tourLoading } = useQuery<Tour>({
     queryKey: [`/api/tours/${tourId}`],

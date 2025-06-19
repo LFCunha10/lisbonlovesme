@@ -5,6 +5,7 @@ import { MapPin, Send, Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { FaInstagram, FaMailBulk, FaMailchimp, FaTiktok, FaTripadvisor, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { getLocalizedText } from "@/lib/tour-utils";
 
 export default function Footer() {
   const { data: tours, isLoading: isLoadingTours } = useQuery({
@@ -12,7 +13,7 @@ export default function Footer() {
     select: (data) => data as any[],
   });
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <footer className="bg-gray-800 text-white pt-12 pb-6">
       <div className="container mx-auto px-4">
@@ -50,7 +51,7 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">{t('common.ourTours')}</h4>
             <ul className="space-y-2">
               {tours?.map((tour: any) => (
-                <FooterLink key={tour.id} href={`/tours/${tour.id}`}>{tour.name}</FooterLink>
+                <FooterLink key={tour.id} href={`/tours/${tour.id}`}>{getLocalizedText(tour.name, i18n.language)}</FooterLink>
               ))} 
             </ul>
           </div>
