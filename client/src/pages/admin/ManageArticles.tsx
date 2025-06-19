@@ -303,17 +303,17 @@ export default function ManageArticles() {
                       <div>
                         <Label>Parent Article</Label>
                         <Select
-                          value={formData.parentId?.toString() || ""}
+                          value={formData.parentId?.toString() || "none"}
                           onValueChange={(value) => setFormData({ 
                             ...formData, 
-                            parentId: value ? parseInt(value) : undefined 
+                            parentId: value === "none" ? undefined : parseInt(value) 
                           })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select parent (optional)" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">No parent</SelectItem>
+                            <SelectItem value="none">No parent</SelectItem>
                             {Array.isArray(articles) && articles.map((article: Article) => (
                               <SelectItem key={article.id} value={article.id.toString()}>
                                 {getLocalizedText(article.title, currentLanguage)}
