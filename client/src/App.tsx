@@ -163,7 +163,7 @@ function Router() {
       </Route>
       <Route path="/admin/bookings">
         {() => {
-          const AdminBookingsPage = React.lazy(() => import("@/pages/admin/bookings-new"));
+          const AdminBookingsPage = React.lazy(() => import("@/pages/admin/bookings"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>

@@ -108,13 +108,15 @@ export default function BookingsCalendar() {
   // Fetch admin settings
   const { data: adminSettings } = useQuery({
     queryKey: ['/api/admin/settings'],
-    select: (data: any) => {
-      if (data) {
-        setAutoCloseDay(data.autoCloseDay);
-      }
-      return data;
-    },
+    select: (data: any) => data,
   });
+
+  // Update autoCloseDay when adminSettings change
+  useEffect(() => {
+    if (adminSettings && adminSettings.autoCloseDay !== undefined) {
+      setAutoCloseDay(adminSettings.autoCloseDay);
+    }
+  }, [adminSettings]);
   
   // Mutation to mark a day as closed
   const markDayAsClosed = useMutation({
@@ -324,23 +326,23 @@ export default function BookingsCalendar() {
           </div>
         </div>
         
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+        {/* Color Legend for Calendar */}
+        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg border">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-200 rounded"></div>
-            <span className="text-sm">Available Slots</span>
+            <div className="w-4 h-4 bg-blue-200 rounded border"></div>
+            <span className="text-sm font-medium">Available Slots</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-yellow-200 rounded"></div>
-            <span className="text-sm">Pending Bookings</span>
+            <div className="w-4 h-4 bg-yellow-200 rounded border"></div>
+            <span className="text-sm font-medium">Pending Bookings</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-200 rounded"></div>
-            <span className="text-sm">Confirmed Bookings</span>
+            <div className="w-4 h-4 bg-green-200 rounded border"></div>
+            <span className="text-sm font-medium">Confirmed Bookings</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-200 rounded"></div>
-            <span className="text-sm">Cancelled/Failed</span>
+            <div className="w-4 h-4 bg-red-200 rounded border"></div>
+            <span className="text-sm font-medium">Cancelled/Failed</span>
           </div>
         </div>
 
