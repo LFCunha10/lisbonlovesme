@@ -181,6 +181,7 @@ const emailTranslations: EmailTranslations = {
 // Helper function to get translations
 function getEmailTranslations(language?: string) {
   const lang = language?.split('-')[0] || 'en';
+  console.log(`Getting email translations for language: ${language} -> ${lang}`);
   return emailTranslations[lang] || emailTranslations.en;
 }
 
@@ -279,20 +280,20 @@ export async function sendReviewRequestEmail(options: {
     </div>
   </div>
 `;
-  const mailOptions = await transporter.sendMail({
-    from: `"No Reply" <${process.env.EMAIL_USER}>`,
+  const mailOptions = {
+    from: `"Lisbonlovesme" <${process.env.EMAIL_USER}>`,
     to: options.to,
-    subject: `How was your ${options.tourName} experience?`,
+    subject: t.reviewRequest.subject,
     html: textHtml,
-    
-  });
+  };
+
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Message sent:', info.messageId);
+    console.log(`Review request email sent: ${info.messageId}`);
   } catch (err) {
-    console.error('Error occurred:', err);
+    console.error('Error sending review request email:', err);
+    throw err;
   }
-  return Promise.resolve();
 }
 
 /**
@@ -469,13 +470,11 @@ ${t.bookingConfirmation.teamName}
   };
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Message sent:', info.messageId);
+    console.log(`Booking confirmation email sent: ${info.messageId}`);
   } catch (err) {
-    console.error('Error occurred:', err);
+    console.error('Error sending booking confirmation email:', err);
+    throw err;
   }
-  
-  // For development without SendGrid API key, just log to console
-  return Promise.resolve();
 }
 
 /**
@@ -646,41 +645,42 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
 
   // Create plain text version as fallback
   const textContent = `
-Hello ${name},
+${t.requestConfirmation.greeting} ${name},
 
-Thank you for choosing Lisbonlovesme!
+${t.requestConfirmation.requestReceived}
 
-WE RECEIVED YOUR REQUEST. OUR TEAM WILL CONTACT YOU SHORTLY:
+${t.requestConfirmation.tourDetails.toUpperCase()}:
 
-Booking Reference: ${bookingReference}
-Tour: ${tourName}
-Date: ${formattedDate}
-Time: ${time}
-Number of Participants: ${participants}
-Total Amount: €${totalAmount}
+${t.requestConfirmation.bookingReference}: ${bookingReference}
+${t.requestConfirmation.tour}: ${tourName}
+${t.requestConfirmation.date}: ${formattedDate}
+${t.requestConfirmation.time}: ${time}
+${t.requestConfirmation.participants}: ${participants}
+${t.requestConfirmation.totalAmount}: €${totalAmount}
 
-If you have any questions, please contact us at lisbonlovesme@gmail.com or +351 938 607 585.
+${t.requestConfirmation.reviewSoon}
 
-We look forward to showing you the best of Lisbon!
+${t.requestConfirmation.contactYou}
 
-Best regards,
-Lisbonlovesme Team
+${t.requestConfirmation.questions}
+
+${t.requestConfirmation.bestRegards},
+${t.requestConfirmation.teamName}
   `;
 
-  const mailOptions = await transporter.sendMail({
+  const mailOptions = {
     from: `"No Reply" <${process.env.EMAIL_USER}>`,
     to,
-    subject: `Lisbonlovesme - We received your request!`,
+    subject: `${t.requestConfirmation.subject} #${bookingReference}`,
     text: textContent,
     html: htmlContent,
-  });
+  };
+
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Message sent:', info.messageId);
+    console.log(`Request confirmation email sent: ${info.messageId}`);
   } catch (err) {
-    console.error('Error occurred:', err);
+    console.error('Error sending request confirmation email:', err);
+    throw err;
   }
-  
-  // For development without SendGrid API key, just log to console
-  return Promise.resolve();
 }
