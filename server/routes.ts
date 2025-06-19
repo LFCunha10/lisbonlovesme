@@ -310,7 +310,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Translate single field endpoint
+  app.post("/api/translate-tour", async (req: Request, res: Response) => {
+    try {
+      const { sourceData, sourceLang, targetLangs } = req.body;
+      
+      if (!sourceData || !sourceLang || !targetLangs) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const { TranslationService } = await import('./translation-api.js');
+      const translations = await TranslationService.translateTourFields(
+        sourceData,
+        sourceLang,
+        targetLangs
+      );
+
+      res.json({ translations });
+    } catch (error) {
+      console.error("Translation error:", error);
+      res.status(500).json({ error: "Translation failed" });
+    }
+  });
+
   app.post("/api/translate-field", async (req: Request, res: Response) => {
+    try {
+      const { text, sourceLang, targetLang } = req.body;
+      
+      if (!text || !sourceLang || !targetLang) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Import translation service
+      const { TranslationService } = await import('./translation-api.js');
+      const translatedText = await TranslationService.translateText(text, targetLang, sourceLang);
+
+      res.json({ 
+        translatedText,
+        sourceLang,
+        targetLang 
+      });
+    } catch (error) {
+      console.error("Translation error:", error);
+      res.status(500).json({ error: "Translation failed" });
+    }
+  });
+
+  app.post("/api/translate-field-old", async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
       

@@ -120,6 +120,10 @@ Changelog:
 - June 19, 2025. Fixed marked() function error in admin interface by ensuring multilingual content is localized before parsing
 - June 19, 2025. Completed multilingual system deployment with all components properly handling language switching
 - June 19, 2025. Fixed placeholder translations with proper Portuguese and Russian translations for all existing tours
+- June 19, 2025. Created comprehensive multilingual tour editing system with auto-translation capabilities
+- June 19, 2025. Added /admin/tours/edit/id and /admin/tours/create pages with full multilingual support
+- June 19, 2025. Implemented translation API service with common tour terminology translations
+- June 19, 2025. Added bulk translation feature to translate entire tour content at once
 ```
 
 ## User Preferences
