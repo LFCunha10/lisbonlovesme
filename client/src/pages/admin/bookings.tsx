@@ -503,7 +503,7 @@ export default function BookingsCalendar() {
                                 <div>
                                   <h3 className="font-medium">Tour Information</h3>
                                   <p className="text-sm text-gray-700">
-                                    {getLocalizedText(getTourById(booking.tourId)?.name, i18n.language)} 
+                                    {getTourById(booking.tourId) ? getLocalizedText(getTourById(booking.tourId)?.name, i18n.language) : 'Unknown Tour'} 
                                   </p>
                                   <p className="text-sm text-gray-500">
                                     {getAvailabilityById(booking.availabilityId)?.date} at {getAvailabilityById(booking.availabilityId)?.time}
