@@ -133,6 +133,12 @@ Changelog:
 - June 19, 2025. Implemented visual legend and enhanced dialogs with localized tour names for improved admin workflow
 - June 19, 2025. Fixed critical calendar booking display issue - corrected payment status filter values from 'paid'/'pending' to 'confirmed'/'requested' to match database schema
 - June 19, 2025. Created missing /api/bookings endpoint for calendar data access and resolved confirmed/pending booking cards not displaying properly
+- June 19, 2025. Implemented comprehensive articles management system with tree structure for blog-like content organization
+- June 19, 2025. Created articles database schema with multilingual support and parent-child relationships for directory/subdirectory structure
+- June 19, 2025. Built admin interface for creating and managing articles with rich text editing and image support
+- June 19, 2025. Added articles navigation to main navbar with automatic dropdown population from published articles
+- June 19, 2025. Fixed database ordering issues and restored missing tours data (3 sample tours added with multilingual content)
+- June 19, 2025. Completed full integration of articles system with proper API endpoints and multilingual functionality
 ```
 
 ## User Preferences

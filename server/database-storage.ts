@@ -356,9 +356,9 @@ export class DatabaseStorage implements IStorage {
         .select()
         .from(articles)
         .where(eq(articles.parentId, parentId))
-        .orderBy(asc(articles.sortOrder), asc(articles.title));
+        .orderBy(asc(articles.id));
     }
-    return db.select().from(articles).orderBy(asc(articles.sortOrder), asc(articles.title));
+    return db.select().from(articles).orderBy(asc(articles.id));
   }
 
   async getArticle(id: number): Promise<Article | undefined> {
@@ -405,7 +405,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getArticleTree(): Promise<Article[]> {
-    const allArticles = await db.select().from(articles).orderBy(asc(articles.sortOrder), asc(articles.title));
+    const allArticles = await db.select().from(articles).orderBy(asc(articles.id));
     return allArticles;
   }
 
@@ -419,6 +419,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(articles.parentId, parentId));
     }
     
-    return query.orderBy(asc(articles.sortOrder), asc(articles.title));
+    const result = await query.orderBy(asc(articles.id));
+    return result;
   }
 }
