@@ -174,7 +174,8 @@
       "bookingInfo": "Информация о бронировании",
       "customTourRequest": "Индивидуальный запрос",
       "feedback": "Отзыв",
-      "other": "Другое"
+      "other": "Другое",
+      "sending": "Отправка..."
     },
     "tour": {
       "notFound": "Тур не найден",

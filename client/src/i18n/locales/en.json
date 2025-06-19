@@ -174,7 +174,8 @@
       "bookingInfo": "Booking Information",
       "customTourRequest": "Custom Tour Request",
       "feedback": "Feedback",
-      "other": "Other"
+      "other": "Other",
+      "sending": "Sending..."
     },
     "tour": {
       "notFound": "Tour not found",

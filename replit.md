@@ -110,6 +110,7 @@ Changelog:
 - June 19, 2025. Added WhatsApp and email contact buttons to admin notification emails for direct customer communication
 - June 19, 2025. Integrated contact form on main page with email service - admin receives notifications for all form submissions
 - June 19, 2025. Fixed critical JSON syntax errors in all translation files (en.json, pt.json, ru.json) - resolved missing commas that were preventing application startup
+- June 19, 2025. Fixed contact form functionality - added missing translation keys, created /api/contact endpoint, and resolved API call issues
 ```
 
 ## User Preferences

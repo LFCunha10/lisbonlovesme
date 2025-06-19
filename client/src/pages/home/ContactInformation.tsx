@@ -47,13 +47,23 @@ export default function ContactInformation() {
     setIsSubmitting(true);
     
     try {
-      await apiRequest("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          ...form,
+          name: `${form.firstName} ${form.lastName}`,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
           language: i18n.language
         }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
       
       toast({
         title: t('contact.messageSent') || "Message Sent!",

@@ -174,7 +174,8 @@
       "bookingInfo": "Informações sobre Reserva",
       "customTourRequest": "Solicitação de Passeio Personalizado",
       "feedback": "Feedback",
-      "other": "Outro"
+      "other": "Outro",
+      "sending": "Enviando..."
     },
     "tour": {
       "notFound": "Passeio não encontrado",
