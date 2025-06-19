@@ -4,6 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import migrateData from "./migrate-data";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import passport from "passport";
+import { createAdminUserIfNotExists } from "./auth";
 
 const app = express();
 app.use(express.json());
@@ -61,7 +63,13 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 (async () => {
+  // Create admin user if not exists
+  await createAdminUserIfNotExists();
   // Migrate sample data to the database
   try {
     await migrateData();

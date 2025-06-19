@@ -31,6 +31,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const navItems = [
     { href: "/admin", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
     { href: "/admin/tours", icon: <Map className="w-5 h-5" />, label: "Tours" },
+    { href: "/admin/requests", icon: <MessageSquare className="w-5 h-5" />, label: "Requests" },
     { href: "/admin/bookings", icon: <CalendarDays className="w-5 h-5" />, label: "Bookings" },
     { href: "/admin/payments", icon: <CreditCard className="w-5 h-5" />, label: "Payments" },
     { href: "/admin/gallery", icon: <ImageIcon className="w-5 h-5" />, label: "Gallery" },
