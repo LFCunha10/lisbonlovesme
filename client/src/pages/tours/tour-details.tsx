@@ -135,6 +135,58 @@ export default function TourDetailsPage() {
       </div>
 
       <div className="container mx-auto px-4 pb-12">
+        {/* Mobile Booking Section - Show only on mobile, right after banner */}
+        <div className="lg:hidden mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  {formatCurrency(tour.price)}
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {t('tours.perPerson')}
+                </p>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t('tours.duration')}
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {tour.duration}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t('tours.groupSize')}
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {tour.maxGroupSize} {t('tours.people')}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t('tours.difficulty')}
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {tour.difficulty}
+                  </span>
+                </div>
+              </div>
+
+              <Link href={`/book/${tour.id}`}>
+                <Button className="w-full text-lg py-6" size="lg">
+                  <Send className="w-5 h-5 mr-2" />
+                  {t('tours.sendYourRequest')}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -243,8 +295,8 @@ export default function TourDetailsPage() {
             )}
           </div>
 
-          {/* Booking Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Desktop Booking Sidebar - Hidden on mobile */}
+          <div className="hidden lg:block lg:col-span-1">
             <Card className="sticky top-6">
               <CardContent className="p-6">
                 <div className="text-center mb-6">
