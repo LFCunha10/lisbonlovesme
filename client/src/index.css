@@ -83,4 +83,68 @@ img {
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+
+  /* Language-specific font styling */
+  html[lang="en"] body,
+  html[lang="pt"] body {
+    @apply font-montserrat;
+  }
+
+  /* Titles and headings for English and Portuguese */
+  html[lang="en"] h1,
+  html[lang="en"] h2,
+  html[lang="en"] h3,
+  html[lang="en"] h4,
+  html[lang="en"] h5,
+  html[lang="en"] h6,
+  html[lang="en"] .font-display,
+  html[lang="en"] .font-bold,
+  html[lang="en"] .text-xl,
+  html[lang="en"] .text-2xl,
+  html[lang="en"] .text-3xl,
+  html[lang="en"] .text-4xl,
+  html[lang="en"] .text-5xl,
+  html[lang="en"] .text-6xl,
+  html[lang="pt"] h1,
+  html[lang="pt"] h2,
+  html[lang="pt"] h3,
+  html[lang="pt"] h4,
+  html[lang="pt"] h5,
+  html[lang="pt"] h6,
+  html[lang="pt"] .font-display,
+  html[lang="pt"] .font-bold,
+  html[lang="pt"] .text-xl,
+  html[lang="pt"] .text-2xl,
+  html[lang="pt"] .text-3xl,
+  html[lang="pt"] .text-4xl,
+  html[lang="pt"] .text-5xl,
+  html[lang="pt"] .text-6xl {
+    font-family: 'Fraunces', serif !important;
+    font-optical-sizing: auto;
+    font-weight: 300 !important; /* Light weight */
+    font-style: normal;
+  }
+
+  /* Logo/Brand name styling for English and Portuguese */
+  html[lang="en"] .brand-logo,
+  html[lang="pt"] .brand-logo {
+    font-family: 'Fraunces', serif !important;
+    font-optical-sizing: auto;
+    font-weight: 300 !important; /* Light weight */
+    font-style: normal;
+  }
+
+  /* Additional selectors for titles and large text */
+  html[lang="en"] .font-semibold,
+  html[lang="en"] .font-medium,
+  html[lang="pt"] .font-semibold,
+  html[lang="pt"] .font-medium {
+    font-family: 'Fraunces', serif !important;
+    font-weight: 300 !important;
+  }
+
+  /* Keep default fonts for Russian */
+  html[lang="ru"] body {
+    @apply font-sans;
+  }
 }

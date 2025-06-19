@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
 import ToursPage from "@/pages/tours";
@@ -213,7 +214,15 @@ function Router() {
   );
 }
 
-function App() {
+function LanguageAwareApp() {
+  const { i18n } = useTranslation();
+  
+  // Update HTML lang attribute when language changes
+  useEffect(() => {
+    const currentLang = i18n.language?.split('-')[0] || 'en';
+    document.documentElement.lang = currentLang;
+  }, [i18n.language]);
+
   return (
     <TooltipProvider>
       <div className="min-h-screen flex flex-col">
@@ -228,4 +237,6 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return <LanguageAwareApp />;
+}

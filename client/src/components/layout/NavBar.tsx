@@ -24,7 +24,7 @@ export default function NavBar() {
             <div className="text-xl sm:text-2xl font-display font-bold text-primary">
               <Link href="/" className="flex items-center">
                 <MapPin className="mr-1 sm:mr-2 h-5 w-5 sm:h-6 sm:w-6" />
-                <span className="truncate">Lisbonlovesme</span>
+                <span className="truncate brand-logo">Lisbonlovesme</span>
               </Link>
             </div>
           </div>
