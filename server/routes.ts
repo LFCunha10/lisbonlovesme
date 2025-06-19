@@ -14,6 +14,16 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" as any })
   : undefined;
 
+function generateRandomString(x: number): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < x; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Payment management routes
   app.get("/api/admin/payments", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
