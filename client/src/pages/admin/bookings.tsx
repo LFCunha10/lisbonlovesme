@@ -30,30 +30,13 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon, XIcon, MinusIcon } from "lucide-react";
 import { getLocalizedText } from "@/lib/tour-utils";
 import { useTranslation } from "react-i18next";
 
@@ -68,6 +51,7 @@ export default function BookingsCalendar() {
   const [autoCloseDay, setAutoCloseDay] = useState<boolean>(false);
   const [selectedDayForClosing, setSelectedDayForClosing] = useState<string | null>(null);
   const [closeReason, setCloseReason] = useState<string>("");
+  const [showCloseDayDialog, setShowCloseDayDialog] = useState<boolean>(false);
 
   // Fetch bookings
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
@@ -88,7 +72,7 @@ export default function BookingsCalendar() {
   });
 
   // Fetch availabilities
-  const { data: availabilities } = useQuery({
+  const { data: availabilities = [] } = useQuery({
     queryKey: ['/api/availabilities'],
     select: (data) => {
       const allAvailabilities = data as any[];
@@ -98,17 +82,17 @@ export default function BookingsCalendar() {
       return allAvailabilities;
     },
   });
-  
+
   // Fetch closed days
   const { data: closedDays = [] } = useQuery({
     queryKey: ['/api/closed-days'],
     select: (data) => data as any[],
   });
-  
+
   // Fetch admin settings
   const { data: adminSettings } = useQuery({
     queryKey: ['/api/admin/settings'],
-    select: (data: any) => data,
+    select: (data) => data as any,
   });
 
   // Update autoCloseDay when adminSettings change
@@ -117,7 +101,7 @@ export default function BookingsCalendar() {
       setAutoCloseDay(adminSettings.autoCloseDay);
     }
   }, [adminSettings]);
-  
+
   // Mutation to mark a day as closed
   const markDayAsClosed = useMutation({
     mutationFn: (data: { date: string, reason: string }) => 
@@ -130,6 +114,7 @@ export default function BookingsCalendar() {
       });
       setSelectedDayForClosing(null);
       setCloseReason("");
+      setShowCloseDayDialog(false);
     },
     onError: (error: any) => {
       toast({
@@ -139,7 +124,7 @@ export default function BookingsCalendar() {
       });
     }
   });
-  
+
   // Mutation to remove a closed day
   const removeClosure = useMutation({
     mutationFn: (date: string) => 
@@ -159,7 +144,7 @@ export default function BookingsCalendar() {
       });
     }
   });
-  
+
   // Mutation to update admin settings
   const updateAdminSettings = useMutation({
     mutationFn: (settings: { autoCloseDay: boolean }) => 
@@ -180,78 +165,54 @@ export default function BookingsCalendar() {
     }
   });
 
-  // Get days in current month
-  const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(currentDate),
-    end: endOfMonth(currentDate),
-  });
-
-  // Get previous month
-  const handlePrevMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setCurrentDate(newDate);
-  };
-
-  // Get next month
-  const handleNextMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setCurrentDate(newDate);
+  // Get tour by ID
+  const getTourById = (id: number) => {
+    return tours?.find((tour: any) => tour.id === id);
   };
 
   // Get bookings for a specific day
   const getBookingsForDay = (day: Date) => {
-    if (!bookings) return [];
-    
     const dayStr = format(day, 'yyyy-MM-dd');
-    return bookings.filter((booking: any) => {
-      const availability = availabilities?.find((a: any) => a.id === booking.availabilityId);
-      return availability && availability.date === dayStr;
-    });
+    return bookings?.filter((booking: any) => {
+      const bookingDate = getAvailabilityById(booking.availabilityId)?.date;
+      return bookingDate === dayStr;
+    }) || [];
   };
 
   // Get availabilities for a specific day
   const getAvailabilitiesForDay = (day: Date) => {
-    if (!availabilities) return [];
-    
     const dayStr = format(day, 'yyyy-MM-dd');
-    return availabilities.filter((a: any) => a.date === dayStr);
-  };
-
-  // Get tour by ID
-  const getTourById = (id: number) => {
-    return tours?.find((tour: any) => tour.id === id);
+    return availabilities?.filter((availability: any) => availability.date === dayStr) || [];
   };
 
   // Get availability by ID
   const getAvailabilityById = (id: number) => {
     return availabilities?.find((a: any) => a.id === id);
   };
-  
+
   // Check if a day has bookings
   const hasBookings = (day: Date) => {
     return getBookingsForDay(day).length > 0;
   };
-  
+
   // Check if a day is closed
   const isDayClosed = (day: Date) => {
     const dayStr = format(day, 'yyyy-MM-dd');
     return closedDays.some((closedDay: any) => closedDay.date === dayStr);
   };
-  
+
   // Get closed day info
   const getClosedDayInfo = (day: Date) => {
     const dayStr = format(day, 'yyyy-MM-dd');
     return closedDays.find((closedDay: any) => closedDay.date === dayStr);
   };
-  
+
   // Handle auto-close day setting change
   const handleAutoCloseChange = (checked: boolean) => {
     setAutoCloseDay(checked);
     updateAdminSettings.mutate({ autoCloseDay: checked });
   };
-  
+
   // Handle marking a day as closed
   const handleMarkDayClosed = () => {
     if (selectedDayForClosing) {
@@ -262,6 +223,12 @@ export default function BookingsCalendar() {
     }
   };
 
+  // Handle showing close day dialog
+  const handleShowCloseDay = (day: Date) => {
+    setSelectedDayForClosing(format(day, 'yyyy-MM-dd'));
+    setShowCloseDayDialog(true);
+  };
+
   if (isLoadingTours || isLoadingBookings) {
     return (
       <div className="h-screen flex justify-center items-center">
@@ -269,6 +236,24 @@ export default function BookingsCalendar() {
       </div>
     );
   }
+
+  // Generate days for the calendar
+  const start = startOfMonth(currentDate);
+  const end = endOfMonth(currentDate);
+  const days = eachDayOfInterval({ start, end });
+
+  // Calculate the start of the week for the first day of the month
+  const startDayOfWeek = start.getDay();
+  const daysInMonth = [
+    // Empty cells for days before the start of month
+    ...Array.from({ length: startDayOfWeek }, (_, i) => {
+      const day = new Date(start);
+      day.setDate(day.getDate() - (startDayOfWeek - i));
+      return day;
+    }),
+    // Days of the current month
+    ...days
+  ];
 
   return (
     <AdminLayout title="Booking Calendar">
@@ -278,103 +263,99 @@ export default function BookingsCalendar() {
             <h1 className="text-2xl font-bold">Booking Calendar</h1>
             <p className="text-gray-500">View and manage bookings</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <Select value={selectedTourId} onValueChange={setSelectedTourId}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Filter by tour" />
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Tours</SelectLabel>
-                  <SelectItem value="all">All Tours</SelectItem>
-                  {tours?.map((tour: any) => (
-                    <SelectItem key={tour.id} value={tour.id.toString()}>
-                      {getLocalizedText(tour.name, i18n.language)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
+                <SelectItem value="all">All Tours</SelectItem>
+                {tours?.map((tour: any) => (
+                  <SelectItem key={tour.id} value={tour.id.toString()}>
+                    {getLocalizedText(tour.name, i18n.language)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-              Back to Dashboard
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="show-booked-only"
-              checked={showBookedOnly}
-              onCheckedChange={setShowBookedOnly}
-            />
-            <Label htmlFor="show-booked-only">
-              Show only days with bookings
-            </Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="auto-close-day"
-              checked={autoCloseDay}
-              onCheckedChange={handleAutoCloseChange}
-            />
-            <Label htmlFor="auto-close-day">
-              Automatically close days when tours are booked
-            </Label>
-          </div>
-        </div>
-        
-        {/* Color Legend for Calendar */}
-        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg border">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-200 rounded border"></div>
-            <span className="text-sm font-medium">Available Slots</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-200 rounded border"></div>
-            <span className="text-sm font-medium">Pending Bookings</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-200 rounded border"></div>
-            <span className="text-sm font-medium">Confirmed Bookings</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-200 rounded border"></div>
-            <span className="text-sm font-medium">Cancelled/Failed</span>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show-booked-only"
+                checked={showBookedOnly}
+                onCheckedChange={setShowBookedOnly}
+              />
+              <Label htmlFor="show-booked-only">Booked only</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="auto-close-day"
+                checked={autoCloseDay}
+                onCheckedChange={handleAutoCloseChange}
+              />
+              <Label htmlFor="auto-close-day">Auto-close day</Label>
+            </div>
           </div>
         </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-bold">
+            <CardTitle className="text-2xl font-bold">
               {format(currentDate, 'MMMM yyyy')}
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
+              >
                 <ChevronLeftIcon className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="icon" onClick={() => setCurrentDate(new Date())}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentDate(new Date())}
+              >
                 <CalendarIcon className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="icon" onClick={handleNextMonth}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
+              >
                 <ChevronRightIcon className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
-          
           <CardContent>
+            {/* Color Legend */}
+            <div className="mb-4 flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-100 border border-blue-200 rounded"></div>
+                <span>Available Slots</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-yellow-200 border border-yellow-300 rounded"></div>
+                <span>Pending Bookings</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
+                <span>Confirmed Bookings</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-200 border border-red-300 rounded"></div>
+                <span>Cancelled/Failed</span>
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-1">
+              {/* Weekday headers */}
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center font-medium py-2">
+                <div key={day} className="p-2 text-center font-medium text-gray-700 bg-gray-50">
                   {day}
                 </div>
-              ))}
-              
-              {/* Empty cells for days before the start of month */}
-              {Array.from({ length: startOfMonth(currentDate).getDay() }).map((_, i) => (
-                <div key={`empty-start-${i}`} className="p-1 min-h-[100px]"></div>
               ))}
               
               {/* Days of the month */}
@@ -382,6 +363,7 @@ export default function BookingsCalendar() {
                 const dayBookings = getBookingsForDay(day);
                 const dayAvailabilities = getAvailabilitiesForDay(day);
                 const hasDayBookings = dayBookings.length > 0;
+                const isClosed = isDayClosed(day);
                 
                 // Skip this day if we're only showing booked days and there are no bookings
                 if (showBookedOnly && !hasDayBookings) {
@@ -405,17 +387,53 @@ export default function BookingsCalendar() {
                         ? 'bg-primary/10 border-primary' 
                         : !isSameMonth(day, currentDate) 
                           ? 'bg-gray-100 text-gray-400' 
-                          : hasDayBookings
-                            ? 'bg-green-50 border-green-200'
-                            : ''
+                          : isClosed
+                            ? 'bg-red-50 border-red-200'
+                            : hasDayBookings
+                              ? 'bg-green-50 border-green-200'
+                              : ''
                     }`}
                   >
-                    <div className="text-right p-1 text-sm font-medium">
-                      {format(day, 'd')}
+                    <div className="flex justify-between items-center p-1">
+                      <div className="text-sm font-medium">
+                        {format(day, 'd')}
+                      </div>
+                      {isClosed && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="destructive" className="text-xs">Closed</Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{getClosedDayInfo(day)?.reason || 'Day marked as closed'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      {isSameMonth(day, currentDate) && !isClosed && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 rounded-full hover:bg-red-100"
+                          onClick={() => handleShowCloseDay(day)}
+                        >
+                          <XIcon className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {isSameMonth(day, currentDate) && isClosed && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 rounded-full hover:bg-green-100"
+                          onClick={() => removeClosure.mutate(format(day, 'yyyy-MM-dd'))}
+                        >
+                          <MinusIcon className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                     <div className="space-y-1">
                       {/* Available slots - clickable, showing tour name and availability */}
-                      {!showBookedOnly && dayAvailabilities.map((availability: any) => {
+                      {!isClosed && !showBookedOnly && dayAvailabilities.map((availability: any) => {
                         const tour = getTourById(availability.tourId);
                         const isFullyBooked = availability.spotsLeft === 0;
                         
@@ -448,34 +466,20 @@ export default function BookingsCalendar() {
                                 </div>
                                 <div>
                                   <h3 className="font-medium">Availability</h3>
-                                  <p className="text-sm">
-                                    Available spots: {availability.spotsLeft} / {availability.maxSpots}
-                                  </p>
                                   <p className="text-sm text-gray-500">
-                                    Status: {isFullyBooked ? 'Fully Booked' : 'Available'}
+                                    {availability.spotsLeft} spots left out of {availability.maxSpots}
                                   </p>
                                 </div>
-                                {tour && (
-                                  <div>
-                                    <h3 className="font-medium">Tour Details</h3>
-                                    <p className="text-sm text-gray-500">
-                                      Duration: {tour.duration || 'Not specified'}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                      Price: €{tour.price ? (tour.price / 100).toFixed(2) : 'Not specified'} {tour.pricingType === 'per_group' ? 'per group' : 'per person'}
-                                    </p>
-                                  </div>
-                                )}
                               </div>
                             </DialogContent>
                           </Dialog>
                         );
                       })}
                       
-                      {/* Bookings - color coded by payment status */}
-                      {dayBookings.map((booking: any) => {
-                        const isPaid = booking.paymentStatus === 'paid';
-                        const isPending = booking.paymentStatus === 'pending';
+                      {/* Bookings - clickable, color-coded by status */}
+                      {!isClosed && dayBookings.map((booking: any) => {
+                        const isPaid = booking.paymentStatus === 'paid' || booking.paymentStatus === 'confirmed';
+                        const isPending = booking.paymentStatus === 'pending' || booking.paymentStatus === 'requires_payment_method';
                         
                         return (
                           <Dialog key={booking.id}>
@@ -562,6 +566,40 @@ export default function BookingsCalendar() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog for closing days */}
+      <Dialog open={showCloseDayDialog} onOpenChange={setShowCloseDayDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark Day as Closed</DialogTitle>
+            <DialogDescription>
+              {selectedDayForClosing && `This will mark ${selectedDayForClosing} as closed. No tours will be available on this day.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="close-reason" className="mb-2 block">Reason (optional)</Label>
+            <Textarea 
+              id="close-reason" 
+              placeholder="Enter reason for closure"
+              value={closeReason}
+              onChange={(e) => setCloseReason(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowCloseDayDialog(false);
+              setSelectedDayForClosing(null);
+              setCloseReason('');
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleMarkDayClosed}>
+              Mark as Closed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
