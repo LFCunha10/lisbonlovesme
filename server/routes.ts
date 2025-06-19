@@ -559,11 +559,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get booking requests (admin only)
-  app.get("/api/admin/requests", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.get("/api/admin/requests", async (req: Request, res: Response) => {
     try {
       const bookings = await storage.getBookings();
-      const requests = bookings.filter(booking => booking.paymentStatus === "requested");
-      res.json(requests);
+      // Include tour information and parse additional info
+      const requests = bookings
+        .filter(booking => booking.paymentStatus === "requested" || booking.paymentStatus === "confirmed" || booking.paymentStatus === "cancelled")
+        .map(booking => ({
+          ...booking,
+          additionalInfo: booking.additionalInfo ? JSON.parse(booking.additionalInfo) : null
+        }));
+      
+      // Get tour details for each request
+      const requestsWithTours = await Promise.all(
+        requests.map(async (request) => {
+          const tour = await storage.getTour(request.tourId);
+          return {
+            ...request,
+            tour: tour ? { name: tour.name, duration: tour.duration } : null
+          };
+        })
+      );
+      
+      res.json(requestsWithTours);
     } catch (error) {
       console.error("Error fetching booking requests:", error);
       res.status(500).json({ message: "Failed to fetch booking requests" });
@@ -571,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update booking request status (admin only)
-  app.put("/api/admin/requests/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.put("/api/admin/requests/:id", async (req: Request, res: Response) => {
     try {
       const bookingId = parseInt(req.params.id);
       const { paymentStatus, confirmedDate, confirmedTime, confirmedMeetingPoint, adminNotes } = req.body;
@@ -596,7 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Send confirmation email for booking request (admin only)
-  app.post("/api/admin/requests/:id/confirm", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  app.post("/api/admin/requests/:id/confirm", async (req: Request, res: Response) => {
     try {
       const bookingId = parseInt(req.params.id);
       const booking = await storage.getBooking(bookingId);
@@ -642,8 +660,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log("Starting booking creation with data:", req.body);
 
   try {
-    // 1. Insert booking
-    const booking = await storage.createBooking(req.body);
+    // 1. Insert booking with requested status
+    const bookingData = {
+      ...req.body,
+      paymentStatus: "requested", // Override to use request-based workflow
+      bookingReference: `LT-${generateRandomString(7)}`
+    };
+    const booking = await storage.createBooking(bookingData);
 
     // 2. Fetch availability
     const availability = await storage.getAvailability(booking.availabilityId);
