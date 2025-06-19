@@ -4,7 +4,6 @@ import { useTours } from "@/hooks/use-tours";
 import TourCard from "@/components/tours/TourCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { BookingModal } from "@/components/booking/BookingModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 
@@ -76,7 +75,7 @@ export default function ToursPage() {
           </>
         )}
       </div>
-      <BookingModal />
+      
     </div>
   );
 }

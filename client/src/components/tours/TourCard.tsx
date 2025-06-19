@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Clock, Users, Activity } from "lucide-react";
 import { Tour } from "@shared/schema";
 import { cn, formatCurrency } from "@/lib/utils";
-import { useBookingModal } from "@/hooks/use-bookings";
 import { useTranslation } from "react-i18next";
 
 interface TourCardProps {
@@ -11,7 +10,6 @@ interface TourCardProps {
 }
 
 export default function TourCard({ tour }: TourCardProps) {
-  const { openBookingModal } = useBookingModal();
   const { t } = useTranslation();
 
   const getBadgeColorClass = (color?: string) => {
@@ -41,11 +39,6 @@ export default function TourCard({ tour }: TourCardProps) {
           <h3 className="text-xl font-display font-bold">
             <Link href={`/tour/${tour.id}`}>{tour.name}</Link>
           </h3>
-          {tour.badge && (
-            <span className={cn("px-3 py-1 rounded-full text-sm font-semibold", getBadgeColorClass(tour.badgeColor))}>
-              {tour.badge}
-            </span>
-          )}
         </div>
         
         <p className="text-neutral-dark/80 mb-4">

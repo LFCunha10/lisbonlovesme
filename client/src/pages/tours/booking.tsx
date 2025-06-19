@@ -89,9 +89,9 @@ export default function Booking() {
     setCurrentStep(2);
   };
 
-  const handleParticipantsSelect = (data: Partial<BookingData>) => {
+  const handleParticipantsSelect = (data: Partial<BookingData>, moveStep = false) => {
     setBookingData(prev => ({ ...prev, ...data }));
-    setCurrentStep(3);
+    if (moveStep) setCurrentStep(3);
   };
 
   const handlePaymentComplete = (reference: string) => {

@@ -5,12 +5,10 @@ import { MapPin, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/language-switcher";
-import { useBookingModal } from "@/hooks/use-bookings";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
-  const { openBookingModal } = useBookingModal();
   const { t } = useTranslation();
   
   // Check if we're on an admin page

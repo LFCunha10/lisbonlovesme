@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useBookingModal } from "@/hooks/use-bookings";
 import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
-  const { openBookingModal } = useBookingModal();
   const { t } = useTranslation();
 
   return (

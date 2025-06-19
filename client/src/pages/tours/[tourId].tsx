@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Clock, Users, Activity, Star, Calendar } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { useBookingModal } from "@/hooks/use-bookings";
-import { BookingModal } from "@/components/booking/BookingModal";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TourDetailPage() {
@@ -15,7 +13,6 @@ export default function TourDetailPage() {
   const { tour, isLoading, error } = useTour(parseInt(tourId));
   const { testimonials, isLoading: testimonialsLoading } = useTestimonials(parseInt(tourId));
   const { availabilities } = useAvailabilities(parseInt(tourId));
-  const { openBookingModal } = useBookingModal();
   
   // Format dates of availabilities
   const [upcomingDates, setUpcomingDates] = useState<string[]>([]);
@@ -233,13 +230,6 @@ export default function TourDetailPage() {
                 )}
               </div>
               
-              <Button 
-                className="w-full mb-4"
-                onClick={() => openBookingModal(tour.id)}
-              >
-                Book Now
-              </Button>
-              
               <div className="text-sm text-neutral-dark/70">
                 <p className="mb-2">• Free cancellation up to 24 hours in advance</p>
                 <p className="mb-2">• Small groups for a personalized experience</p>
@@ -263,7 +253,6 @@ export default function TourDetailPage() {
           </div>
         </div>
       </div>
-      <BookingModal selectedTourId={parseInt(tourId)} />
     </div>
   );
 }

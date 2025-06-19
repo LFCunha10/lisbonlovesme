@@ -7,7 +7,6 @@ import Reviews from "./Reviews";
 import PhotoGallery from "./PhotoGallery";
 import CallToAction from "./CallToAction";
 import ContactInformation from "./ContactInformation";
-import { BookingModal } from "@/components/booking/BookingModal";
 
 export default function HomePage() {
   // Scroll to section if URL has a hash
@@ -35,7 +34,6 @@ export default function HomePage() {
       <PhotoGallery />
       <CallToAction />
       <ContactInformation />
-      <BookingModal />
     </>
   );
 }

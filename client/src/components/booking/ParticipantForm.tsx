@@ -21,7 +21,7 @@ interface ParticipantFormProps {
     customerEmail: string;
     customerPhone: string;
     specialRequests: string;
-  }) => void;
+  }, moveStep: boolean) => void;
   onBack: () => void;
   maxParticipants: number;
   availableSpots: number;
@@ -69,7 +69,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
       customerEmail: data.customerEmail,
       customerPhone: data.customerPhone,
       specialRequests: data.specialRequests || ""
-    });
+    }, true);
   };
 
   return (
@@ -104,6 +104,14 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                   const num = parseInt(value);
                   setParticipants(num);
                   form.setValue('numberOfParticipants', num);
+                  onSelect({
+                    numberOfParticipants: num,
+                    customerFirstName: form.getValues('customerFirstName'),
+                    customerLastName: form.getValues('customerLastName'),
+                    customerEmail: form.getValues('customerEmail'),
+                    customerPhone: form.getValues('customerPhone'),
+                    specialRequests: form.getValues('specialRequests') || ""
+                  }, false);
                 }}
               >
                 <SelectTrigger>
