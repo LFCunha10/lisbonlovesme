@@ -192,9 +192,9 @@ export default function BookingRequests() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="pending">{t('admin.requests.pending')} ({filteredRequests.filter(r => r.paymentStatus === "requested").length})</TabsTrigger>
-            <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({filteredRequests.filter(r => r.paymentStatus === "confirmed").length})</TabsTrigger>
-            <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({filteredRequests.filter(r => r.paymentStatus === "cancelled").length})</TabsTrigger>
+            <TabsTrigger value="pending">{t('admin.requests.pending')} ({requests?.filter(r => r.paymentStatus === "requested").length || 0})</TabsTrigger>
+            <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({requests?.filter(r => r.paymentStatus === "confirmed").length || 0})</TabsTrigger>
+            <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({requests?.filter(r => r.paymentStatus === "cancelled").length || 0})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="space-y-4">
@@ -254,7 +254,14 @@ export default function BookingRequests() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.additionalInfo?.date || 'TBD'} {request.additionalInfo?.time || ''}</span>
+                          <span>
+                            {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
+                              ? `${request.confirmedDate} ${request.confirmedTime}` 
+                              : request.additionalInfo?.date 
+                                ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}` 
+                                : 'TBD'
+                            }
+                          </span>
                         </div>
                       </div>
                     </CardContent>
