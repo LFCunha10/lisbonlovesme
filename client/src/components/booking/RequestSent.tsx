@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Users, Euro, Mail, Phone, Home, Clock } from "lucide-react";
 import { Link } from "wouter";
+import { getLocalizedText } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 
 interface BookingData {
@@ -27,7 +28,7 @@ interface RequestSentProps {
 }
 
 export default function RequestSent({ tour, bookingData, bookingReference, totalAmount }: RequestSentProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="space-y-6">
@@ -59,19 +60,19 @@ export default function RequestSent({ tour, bookingData, bookingReference, total
           <div className="flex space-x-4 mb-6">
             <img
               src={tour.imageUrl}
-              alt={tour.name}
+              alt={getLocalizedText(tour.name, i18n.language)}
               className="w-24 h-24 object-cover rounded-lg"
             />
             <div className="flex-1">
               <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-                {tour.name}
+                {getLocalizedText(tour.name, i18n.language)}
               </h4>
               <p className="text-gray-500 dark:text-gray-400 mb-2">
-                {tour.duration} • {tour.difficulty}
+                {getLocalizedText(tour.duration, i18n.language)} • {getLocalizedText(tour.difficulty, i18n.language)}
               </p>
-              {tour.badge && (
+              {tour.badge && getLocalizedText(tour.badge, i18n.language) && (
                 <Badge variant="secondary">
-                  {tour.badge}
+                  {getLocalizedText(tour.badge, i18n.language)}
                 </Badge>
               )}
             </div>

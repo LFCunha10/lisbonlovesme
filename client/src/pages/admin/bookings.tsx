@@ -54,6 +54,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
+import { getLocalizedText } from "@/lib/tour-utils";
 
 export default function BookingsCalendar() {
   const [, navigate] = useLocation();
@@ -105,15 +106,12 @@ export default function BookingsCalendar() {
   // Fetch admin settings
   const { data: adminSettings } = useQuery({
     queryKey: ['/api/admin/settings'],
-    onSuccess: (data: any) => {
+    select: (data: any) => {
       if (data) {
         setAutoCloseDay(data.autoCloseDay);
       }
+      return data;
     },
-    onError: () => {
-      // If there's an error (e.g., unauthorized), we just use the default value
-      setAutoCloseDay(false);
-    }
   });
   
   // Mutation to mark a day as closed
@@ -287,7 +285,7 @@ export default function BookingsCalendar() {
                   <SelectItem value="all">All Tours</SelectItem>
                   {tours?.map((tour: any) => (
                     <SelectItem key={tour.id} value={tour.id.toString()}>
-                      {tour.name}
+                      {getLocalizedText(tour.name)}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -421,7 +419,7 @@ export default function BookingsCalendar() {
                               <div>
                                 <h3 className="font-medium">Tour Information</h3>
                                 <p className="text-sm text-gray-500">
-                                  {getTourById(booking.tourId)?.name} - {getAvailabilityById(booking.availabilityId)?.date} at {getAvailabilityById(booking.availabilityId)?.time}
+                                  {getLocalizedText(getTourById(booking.tourId)?.name)} - {getAvailabilityById(booking.availabilityId)?.date} at {getAvailabilityById(booking.availabilityId)?.time}
                                 </p>
                               </div>
                               <div>
