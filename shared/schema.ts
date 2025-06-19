@@ -77,12 +77,16 @@ export const bookings = pgTable("bookings", {
   specialRequests: text("special_requests"),
   bookingReference: text("booking_reference").notNull().unique(),
   totalAmount: integer("total_amount").notNull(), // In cents
-  paymentStatus: text("payment_status").default("pending"),
+  paymentStatus: text("payment_status").default("requested"), // "requested", "confirmed", "cancelled"
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   createdAt: timestamp("created_at").defaultNow(),
   additionalInfo: json("additional_info"),
   meetingPoint: text("meeting_point"),
   remindersSent: boolean("reminders_sent").default(false),
+  confirmedDate: text("confirmed_date"), // Final confirmed date (may differ from original request)
+  confirmedTime: text("confirmed_time"), // Final confirmed time
+  confirmedMeetingPoint: text("confirmed_meeting_point"), // Final meeting point
+  adminNotes: text("admin_notes"), // Internal notes for admin
 });
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({

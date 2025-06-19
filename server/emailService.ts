@@ -26,6 +26,18 @@ interface ConfirmationEmailOptions {
   duration?: string; // Duration in hours
 }
 
+interface BookingRequestNotificationOptions {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  tourName: string;
+  date: string;
+  time: string;
+  participants: number;
+  specialRequests?: string;
+  bookingReference: string;
+}
+
 /**
  * Sends a review request email after tour completion
  */
@@ -268,6 +280,66 @@ Lisbonlovesme Team
   
   // For development without SendGrid API key, just log to console
   return Promise.resolve();
+}
+
+/**
+ * Sends a notification email to admin when a new booking request is made
+ */
+export async function sendBookingRequestNotification(options: BookingRequestNotificationOptions): Promise<void> {
+  const adminEmail = process.env.ADMIN_EMAIL || 'lisbonlovesme@gmail.com';
+  
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: adminEmail,
+    subject: `New Booking Request - ${options.tourName}`,
+    html: `
+    <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">New Booking Request</p>
+      </div>
+      
+      <div style="padding: 40px 30px; background: white;">
+        <h2 style="color: #333; margin: 0 0 20px 0;">New Booking Request Received</h2>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #333; margin: 0 0 15px 0;">Customer Details</h3>
+          <p><strong>Name:</strong> ${options.customerName}</p>
+          <p><strong>Email:</strong> ${options.customerEmail}</p>
+          <p><strong>Phone:</strong> ${options.customerPhone}</p>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #333; margin: 0 0 15px 0;">Tour Details</h3>
+          <p><strong>Tour:</strong> ${options.tourName}</p>
+          <p><strong>Requested Date:</strong> ${options.date}</p>
+          <p><strong>Requested Time:</strong> ${options.time}</p>
+          <p><strong>Participants:</strong> ${options.participants}</p>
+          <p><strong>Reference:</strong> ${options.bookingReference}</p>
+        </div>
+
+        ${options.specialRequests ? `
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #333; margin: 0 0 15px 0;">Special Requests</h3>
+          <p>${options.specialRequests}</p>
+        </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 30px 0;">
+          <p style="color: #666; margin: 0;">Please review this request in your admin dashboard and contact the customer to discuss details.</p>
+        </div>
+      </div>
+    </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Booking request notification sent for reference: ${options.bookingReference}`);
+  } catch (error) {
+    console.error('Error sending booking request notification:', error);
+    throw error;
+  }
 }
 
 export async function sendRequestConfirmationEmail(options: ConfirmationEmailOptions): Promise<void> {
