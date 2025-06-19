@@ -37,7 +37,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 5001
 
 [[workflows.workflow]]
 name = "Run the project"
