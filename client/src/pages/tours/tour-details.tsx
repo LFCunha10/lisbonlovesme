@@ -99,7 +99,7 @@ export default function TourDetailsPage() {
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-0">
+              <h1 className="text-3xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-0">
                 {tour.name}
               </h1>
               {tour.badge && (
@@ -140,18 +140,18 @@ export default function TourDetailsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                   {formatCurrency(tour.price)}
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   {t('tours.perPerson')}
                 </p>
               </div>
 
               <Separator className="my-6" />
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between text-sm">
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     {t('tours.duration')}
                   </span>
@@ -159,7 +159,7 @@ export default function TourDetailsPage() {
                     {tour.duration}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     {t('tours.groupSize')}
                   </span>
@@ -167,7 +167,7 @@ export default function TourDetailsPage() {
                     {tour.maxGroupSize} {t('tours.people')}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     {t('tours.difficulty')}
                   </span>
@@ -192,11 +192,51 @@ export default function TourDetailsPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Tour Details */}
             <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+              <CardContent className="p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 text-center">
                   {t('tours.tourDetails')}
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                
+                {/* Mobile: 2x2 Table Layout */}
+                <div className="lg:hidden">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                      <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        {t('tours.duration')}
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{tour.duration}</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                      <Users className="w-5 h-5 text-primary mx-auto mb-2" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        {t('tours.groupSize')}
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {tour.maxGroupSize} {t('tours.people')}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                      <MapPin className="w-5 h-5 text-primary mx-auto mb-2" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        {t('tours.difficulty')}
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{tour.difficulty}</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                      <Euro className="w-5 h-5 text-primary mx-auto mb-2" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        {t('tours.price')}
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {formatCurrency(tour.price)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop: Original Layout */}
+                <div className="hidden lg:grid lg:grid-cols-2 gap-6">
                   <div className="flex items-center space-x-3">
                     <Clock className="w-6 h-6 text-primary" />
                     <div>
@@ -300,18 +340,18 @@ export default function TourDetailsPage() {
             <Card className="sticky top-6">
               <CardContent className="p-6">
                 <div className="text-center mb-6">
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {formatCurrency(tour.price)}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                     {t('tours.perPerson')}
                   </p>
                 </div>
 
                 <Separator className="my-6" />
 
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-center justify-between text-sm">
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
                       {t('tours.duration')}
                     </span>
@@ -319,7 +359,7 @@ export default function TourDetailsPage() {
                       {tour.duration}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
                       {t('tours.groupSize')}
                     </span>
@@ -327,7 +367,7 @@ export default function TourDetailsPage() {
                       {tour.maxGroupSize} {t('tours.people')}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
                       {t('tours.difficulty')}
                     </span>
