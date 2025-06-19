@@ -635,7 +635,7 @@ ${t.requestConfirmation.teamName}
  * Sends a notification email to admin when a contact form is submitted
  */
 export async function sendContactFormNotification(options: ContactFormNotificationOptions): Promise<void> {
-  const adminEmail = process.env.ADMIN_EMAIL || 'lisbonlovesme@gmail.com';
+  const adminEmail = 'lisbonlovesme@gmail.com';
   
   const mailOptions = {
     from: process.env.EMAIL_USER,
