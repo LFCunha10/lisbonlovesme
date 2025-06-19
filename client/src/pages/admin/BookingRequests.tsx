@@ -66,15 +66,22 @@ export default function BookingRequests() {
   });
 
   const updateRequestMutation = useMutation({
-    mutationFn: (data: { id: number; updates: Partial<BookingRequest> }) => {
+    mutationFn: async (data: { id: number; updates: Partial<BookingRequest> }) => {
       console.log("Sending update request:", data);
-      return apiRequest(`/api/admin/requests/${data.id}`, {
+      const response = await fetch(`/api/admin/requests/${data.id}`, {
         method: 'PUT',
-        body: JSON.stringify(data.updates),
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(data.updates),
       });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update request');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
@@ -95,10 +102,21 @@ export default function BookingRequests() {
   });
 
   const sendConfirmationMutation = useMutation({
-    mutationFn: (id: number) =>
-      apiRequest(`/api/admin/requests/${id}/confirm`, {
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/requests/${id}/confirm`, {
         method: 'POST',
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send confirmation');
+      }
+      
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
       toast({
@@ -263,11 +281,22 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
   });
 
   const updateRequestMutation = useMutation({
-    mutationFn: (data: { id: number; updates: Partial<BookingRequest> }) =>
-      apiRequest(`/api/admin/requests/${data.id}`, {
+    mutationFn: async (data: { id: number; updates: Partial<BookingRequest> }) => {
+      const response = await fetch(`/api/admin/requests/${data.id}`, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data.updates),
-      }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update request');
+      }
+      
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
       toast({
@@ -278,10 +307,21 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
   });
 
   const sendConfirmationMutation = useMutation({
-    mutationFn: (id: number) =>
-      apiRequest(`/api/admin/requests/${id}/confirm`, {
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/requests/${id}/confirm`, {
         method: 'POST',
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send confirmation');
+      }
+      
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
       toast({
