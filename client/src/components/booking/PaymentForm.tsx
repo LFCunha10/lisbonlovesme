@@ -31,7 +31,7 @@ interface PaymentFormProps {
 }
 
 export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentComplete, onBack }: PaymentFormProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -98,7 +98,8 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         numberOfParticipants: bookingData.numberOfParticipants,
         specialRequests: bookingData.specialRequests || null,
         paymentStatus: 'completed',
-        totalAmount
+        totalAmount,
+        language: i18n.language // Include user's current language
       };
       
       console.log('Using test payment mode - automatic approval');

@@ -104,7 +104,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           participants,
           totalAmount,
           meetingPoint,
-          duration
+          duration,
+          language: req.body.language || 'en'
         });
         console.log("Confirmation email sent successfully");
         res.status(200).json({ success: true});
@@ -642,7 +643,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalAmount: `€${(booking.totalAmount / 100).toFixed(2)}`,
         meetingPoint: meetingPoint,
         duration: tour.duration,
-        adminNotes: adminNotes
+        adminNotes: adminNotes,
+        language: booking.language || 'en'
       });
       
       // Update booking status to confirmed
@@ -708,7 +710,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           participants: booking.numberOfParticipants,
           totalAmount: (booking.totalAmount / 100).toFixed(2),
           meetingPoint: booking.meetingPoint || "To be announced",
-          duration: tour.duration
+          duration: tour.duration,
+          language: booking.language || 'en'
         });
         
         // Send admin notification
@@ -721,7 +724,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           time: availability.time,
           participants: booking.numberOfParticipants,
           specialRequests: booking.specialRequests,
-          bookingReference: booking.bookingReference
+          bookingReference: booking.bookingReference,
+          language: booking.language || 'en'
         });
         
         console.log("Emails sent successfully");

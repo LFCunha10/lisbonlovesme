@@ -3,6 +3,187 @@ import dotenv from 'dotenv';
 import { generateICSFile } from './utils/ics-generator';
 dotenv.config();
 
+// Email translations
+interface EmailTranslations {
+  [key: string]: {
+    bookingConfirmation: {
+      subject: string;
+      header: string;
+      greeting: string;
+      confirmationMessage: string;
+      tourDetails: string;
+      bookingReference: string;
+      tour: string;
+      date: string;
+      time: string;
+      participants: string;
+      totalAmount: string;
+      meetingPoint: string;
+      importantInfo: string;
+      arriveEarly: string;
+      bringItems: string;
+      guideSign: string;
+      questions: string;
+      lookingForward: string;
+      bestRegards: string;
+      teamName: string;
+    };
+    reviewRequest: {
+      subject: string;
+      header: string;
+      greeting: string;
+      thankYou: string;
+      experienceMatters: string;
+      shareThoughts: string;
+      writeReview: string;
+      orVisit: string;
+      appreciateTime: string;
+      bestRegards: string;
+      teamName: string;
+    };
+    requestConfirmation: {
+      subject: string;
+      header: string;
+      greeting: string;
+      requestReceived: string;
+      reviewSoon: string;
+      contactYou: string;
+      questions: string;
+      bestRegards: string;
+      teamName: string;
+      tourDetails: string;
+      bookingReference: string;
+      tour: string;
+      date: string;
+      time: string;
+      participants: string;
+      totalAmount: string;
+      meetingPoint: string;
+    };
+  };
+}
+
+const emailTranslations: EmailTranslations = {
+  en: {
+    bookingConfirmation: {
+      subject: "Booking Confirmation - Lisbonlovesme",
+      header: "Booking Confirmation",
+      greeting: "Hello",
+      confirmationMessage: "Your booking has been confirmed and we're excited to show you the best of Lisbon!",
+      tourDetails: "Tour Details",
+      bookingReference: "Booking Reference",
+      tour: "Tour",
+      date: "Date",
+      time: "Time", 
+      participants: "Participants",
+      totalAmount: "Total Amount",
+      meetingPoint: "Meeting Point",
+      importantInfo: "Important Information",
+      arriveEarly: "Please arrive 15 minutes before the tour starts",
+      bringItems: "Bring comfortable walking shoes, water, and sun protection",
+      guideSign: "Your tour guide will be holding a \"Lisbonlovesme\" sign",
+      questions: "If you have any questions, please contact us at info@lisbonlovesme.com",
+      lookingForward: "We look forward to showing you the best of Lisbon!",
+      bestRegards: "Best regards",
+      teamName: "Lisbonlovesme Team"
+    },
+    reviewRequest: {
+      subject: "Share Your Experience - Lisbonlovesme",
+      header: "Share Your Experience",
+      greeting: "Hello",
+      thankYou: "Thank you for joining us on the tour! We hope you had an amazing time exploring Lisbon with us.",
+      experienceMatters: "Your experience matters to us and helps other travelers discover the magic of Lisbon.",
+      shareThoughts: "Would you mind taking a few minutes to share your thoughts?",
+      writeReview: "Write a Review",
+      orVisit: "Or visit",
+      appreciateTime: "We truly appreciate your time and feedback!",
+      bestRegards: "Best regards",
+      teamName: "Lisbonlovesme Team"
+    },
+    requestConfirmation: {
+      subject: "Booking Request Received - Lisbonlovesme",
+      header: "Booking Request Received",
+      greeting: "Hello",
+      requestReceived: "Thank you for your interest in our tour! We have received your booking request and will review it soon.",
+      reviewSoon: "We will review your request and contact you within 24 hours to confirm availability and finalize the details.",
+      contactYou: "Our team will contact you soon to discuss your tour and answer any questions you may have.",
+      questions: "If you have any urgent questions, please contact us at info@lisbonlovesme.com",
+      bestRegards: "Best regards",
+      teamName: "Lisbonlovesme Team",
+      tourDetails: "Tour Details",
+      bookingReference: "Booking Reference",
+      tour: "Tour",
+      date: "Date",
+      time: "Time",
+      participants: "Participants",
+      totalAmount: "Total Amount",
+      meetingPoint: "Meeting Point"
+    }
+  },
+  pt: {
+    bookingConfirmation: {
+      subject: "Confirmação de Reserva - Lisbonlovesme",
+      header: "Confirmação de Reserva",
+      greeting: "Olá",
+      confirmationMessage: "A sua reserva foi confirmada e estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+      tourDetails: "Detalhes do Tour",
+      bookingReference: "Referência da Reserva",
+      tour: "Tour",
+      date: "Data",
+      time: "Hora",
+      participants: "Participantes",
+      totalAmount: "Valor Total",
+      meetingPoint: "Ponto de Encontro",
+      importantInfo: "Informações Importantes",
+      arriveEarly: "Por favor chegue 15 minutos antes do início do tour",
+      bringItems: "Traga sapatos confortáveis, água e proteção solar",
+      guideSign: "O seu guia turístico estará com uma placa \"Lisbonlovesme\"",
+      questions: "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com",
+      lookingForward: "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+      bestRegards: "Melhores cumprimentos",
+      teamName: "Equipa Lisbonlovesme"
+    },
+    reviewRequest: {
+      subject: "Partilhe a Sua Experiência - Lisbonlovesme",
+      header: "Partilhe a Sua Experiência",
+      greeting: "Olá",
+      thankYou: "Obrigado por se juntar a nós no tour! Esperamos que tenha tido uma experiência incrível a explorar Lisboa connosco.",
+      experienceMatters: "A sua experiência é importante para nós e ajuda outros viajantes a descobrir a magia de Lisboa.",
+      shareThoughts: "Poderia dedicar alguns minutos para partilhar os seus pensamentos?",
+      writeReview: "Escrever uma Avaliação",
+      orVisit: "Ou visite",
+      appreciateTime: "Agradecemos muito o seu tempo e feedback!",
+      bestRegards: "Melhores cumprimentos",
+      teamName: "Equipa Lisbonlovesme"
+    },
+    requestConfirmation: {
+      subject: "Pedido de Reserva Recebido - Lisbonlovesme",
+      header: "Pedido de Reserva Recebido",
+      greeting: "Olá",
+      requestReceived: "Obrigado pelo seu interesse no nosso tour! Recebemos o seu pedido de reserva e iremos analisá-lo em breve.",
+      reviewSoon: "Iremos analisar o seu pedido e contactá-lo dentro de 24 horas para confirmar disponibilidade e finalizar os detalhes.",
+      contactYou: "A nossa equipa irá contactá-lo em breve para discutir o seu tour e responder a qualquer questão que possa ter.",
+      questions: "Se tiver alguma questão urgente, por favor contacte-nos em info@lisbonlovesme.com",
+      bestRegards: "Melhores cumprimentos",
+      teamName: "Equipa Lisbonlovesme",
+      tourDetails: "Detalhes do Tour",
+      bookingReference: "Referência da Reserva",
+      tour: "Tour",
+      date: "Data",
+      time: "Hora",
+      participants: "Participantes",
+      totalAmount: "Valor Total",
+      meetingPoint: "Ponto de Encontro"
+    }
+  }
+};
+
+// Helper function to get translations
+function getEmailTranslations(language?: string) {
+  const lang = language?.split('-')[0] || 'en';
+  return emailTranslations[lang] || emailTranslations.en;
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT ?? '587'),
@@ -25,6 +206,7 @@ interface ConfirmationEmailOptions {
   meetingPoint: string;
   duration?: string; // Duration in hours
   adminNotes?: string;
+  language?: string; // Add language support
 }
 
 interface BookingRequestNotificationOptions {
@@ -37,6 +219,7 @@ interface BookingRequestNotificationOptions {
   participants: number;
   specialRequests?: string;
   bookingReference: string;
+  language?: string; // Add language support
 }
 
 /**
@@ -48,30 +231,33 @@ export async function sendReviewRequestEmail(options: {
   bookingReference: string;
   tourName: string;
   baseUrl: string;
+  language?: string; // Add language support
 }): Promise<void> {
   
+  const t = getEmailTranslations(options.language);
   const reviewUrl = `${options.baseUrl}/review/${options.bookingReference}`;
+  
   const textHtml = `
   <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
       <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
-      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Share Your Experience</p>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">${t.reviewRequest.header}</p>
     </div>
     
     <div style="padding: 40px 30px; background: white;">
-      <h2 style="color: #333; margin: 0 0 20px 0;">Hello ${options.customerName}!</h2>
+      <h2 style="color: #333; margin: 0 0 20px 0;">${t.reviewRequest.greeting} ${options.customerName}!</h2>
       
       <p style="color: #666; line-height: 1.6; margin: 0 0 20px 0;">
-        Thank you for joining us on the <strong>${options.tourName}</strong>! We hope you had an amazing time exploring Lisbon with us.
+        ${t.reviewRequest.thankYou.replace('tour', `<strong>${options.tourName}</strong>`)}
       </p>
       
       <p style="color: #666; line-height: 1.6; margin: 0 0 25px 0;">
-        Your experience matters to us and helps other travelers discover the magic of Lisbon. Would you mind taking a few minutes to share your thoughts?
+        ${t.reviewRequest.experienceMatters} ${t.reviewRequest.shareThoughts}
       </p>
       
       <div style="text-align: center; margin: 30px 0;">
         <a href="${reviewUrl}" style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
-          Leave Your Review
+          ${t.reviewRequest.writeReview}
         </a>
       </div>
       
@@ -80,12 +266,16 @@ export async function sendReviewRequestEmail(options: {
       </p>
       
       <p style="color: #666; line-height: 1.6; margin: 20px 0 0 0; font-size: 14px;">
-        Thank you for choosing Lisbonlovesme. We look forward to welcoming you back for another adventure!
+        ${t.reviewRequest.appreciateTime}
+      </p>
+      
+      <p style="color: #666; line-height: 1.6; margin: 15px 0 0 0;">
+        ${t.reviewRequest.bestRegards},<br>${t.reviewRequest.teamName}
       </p>
     </div>
     
     <div style="background: #f8f9fa; padding: 20px 30px; text-align: center; color: #888; font-size: 12px;">
-      <p style="margin: 0;">© 2024 Lisbonlovesme Tours. All rights reserved.</p>
+      <p style="margin: 0;">© ${new Date().getFullYear()} Lisbonlovesme Tours. All rights reserved.</p>
     </div>
   </div>
 `;
@@ -121,10 +311,15 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     meetingPoint,
     duration = '3 hours', // Default tour duration is 3 hours if not specified
     adminNotes,
+    language
   } = options;
   
-  // Format the date
-  const formattedDate = new Date(date).toLocaleDateString('pt-PT', {
+  // Get translations for the specified language
+  const t = getEmailTranslations(language);
+  
+  // Format the date based on language
+  const locale = language?.startsWith('pt') ? 'pt-PT' : 'en-US';
+  const formattedDate = new Date(date).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -137,7 +332,7 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
   // Generate ICS file content
   const icsContent = generateICSFile({
     summary: `Lisbonlovesme Tour: ${tourName}`,
-    description: `Your booking with Lisbonlovesme has been confirmed.\n\nBooking Reference: ${bookingReference}\nNumber of Participants: ${participants}\nTotal Amount: €${totalAmount}\n\nPlease arrive 15 minutes before the tour starts.`,
+    description: `${t.bookingConfirmation.confirmationMessage}\n\n${t.bookingConfirmation.bookingReference}: ${bookingReference}\n${t.bookingConfirmation.participants}: ${participants}\n${t.bookingConfirmation.totalAmount}: €${totalAmount}\n\n${t.bookingConfirmation.arriveEarly}`,
     location: meetingPoint,
     start: eventDate.toISOString(),
     duration,
@@ -151,7 +346,7 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation</title>
+    <title>${t.bookingConfirmation.header}</title>
     <style>
       body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
       .header { background-color: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
@@ -167,61 +362,59 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
   </head>
   <body>
     <div class="header">
-      <h1 style="margin: 0;">Booking Confirmation</h1>
+      <h1 style="margin: 0;">${t.bookingConfirmation.header}</h1>
       <p style="margin: 5px 0 0 0;">Thank you for choosing Lisbonlovesme!</p>
     </div>
     <div class="content">
-      <p>Hello ${name},</p>
-      <p>Your booking has been confirmed and we're excited to show you the best of Lisbon!</p>
+      <p>${t.bookingConfirmation.greeting} ${name},</p>
+      <p>${t.bookingConfirmation.confirmationMessage}</p>
       
       <div class="booking-details">
-        <h2 style="margin-top: 0; color: #3b82f6;">Tour Details</h2>
+        <h2 style="margin-top: 0; color: #3b82f6;">${t.bookingConfirmation.tourDetails}</h2>
         <div class="detail-row">
-          <span class="detail-label">Booking Reference:</span>
+          <span class="detail-label">${t.bookingConfirmation.bookingReference}:</span>
           <span class="detail-value">${bookingReference}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tour:</span>
+          <span class="detail-label">${t.bookingConfirmation.tour}:</span>
           <span class="detail-value">${tourName}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Date:</span>
+          <span class="detail-label">${t.bookingConfirmation.date}:</span>
           <span class="detail-value">${formattedDate}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Time:</span>
+          <span class="detail-label">${t.bookingConfirmation.time}:</span>
           <span class="detail-value">${time}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Participants:</span>
+          <span class="detail-label">${t.bookingConfirmation.participants}:</span>
           <span class="detail-value">${participants}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Total Amount:</span>
+          <span class="detail-label">${t.bookingConfirmation.totalAmount}:</span>
           <span class="detail-value">€${totalAmount}</span>
         </div>
       </div>
       
-      <h3>Meeting Point</h3>
+      <h3>${t.bookingConfirmation.meetingPoint}</h3>
       <p>${meetingPoint}</p>
 
-      <h3>Additional Info</h3>
-      <p>${adminNotes}</p>
+      ${adminNotes ? `<h3>Additional Info</h3><p>${adminNotes}</p>` : ''}
       
       <div class="note-box">
-        <h3 style="margin-top: 0; color: #92400e;">Important Information</h3>
+        <h3 style="margin-top: 0; color: #92400e;">${t.bookingConfirmation.importantInfo}</h3>
         <ul>
-          <li>Please arrive <strong>15 minutes</strong> before the tour starts</li>
-          <li>Bring comfortable walking shoes, water, and sun protection</li>
-          <li>Your tour guide will be holding a "Lisbonlovesme" sign</li>
+          <li>${t.bookingConfirmation.arriveEarly}</li>
+          <li>${t.bookingConfirmation.bringItems}</li>
+          <li>${t.bookingConfirmation.guideSign}</li>
         </ul>
       </div>
       
-      <p>We've attached a calendar invitation to help you remember your booking.</p>
-      <p>If you have any questions, please contact us at <a href="mailto:info@lisbonlovesme.com">info@lisbonlovesme.com</a> or +351 21 123 4567.</p>
+      <p>${t.bookingConfirmation.questions}</p>
       
-      <p>We look forward to showing you the best of Lisbon!</p>
-      <p>Best regards,<br>Lisbonlovesme Team</p>
+      <p>${t.bookingConfirmation.lookingForward}</p>
+      <p>${t.bookingConfirmation.bestRegards},<br>${t.bookingConfirmation.teamName}</p>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} Lisbonlovesme. All rights reserved.</p>
@@ -232,41 +425,39 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
 
   // Create plain text version as fallback
   const textContent = `
-Hello ${name},
+${t.bookingConfirmation.greeting} ${name},
 
-Thank you for booking with Lisbonlovesme!
+${t.bookingConfirmation.confirmationMessage}
 
-YOUR BOOKING HAS BEEN CONFIRMED:
+${t.bookingConfirmation.tourDetails.toUpperCase()}:
 
-Booking Reference: ${bookingReference}
-Tour: ${tourName}
-Date: ${formattedDate}
-Time: ${time}
-Number of Participants: ${participants}
-Total Amount: €${totalAmount}
+${t.bookingConfirmation.bookingReference}: ${bookingReference}
+${t.bookingConfirmation.tour}: ${tourName}
+${t.bookingConfirmation.date}: ${formattedDate}
+${t.bookingConfirmation.time}: ${time}
+${t.bookingConfirmation.participants}: ${participants}
+${t.bookingConfirmation.totalAmount}: €${totalAmount}
 
-MEETING POINT:
+${t.bookingConfirmation.meetingPoint.toUpperCase()}:
 ${meetingPoint}
 
-IMPORTANT INFORMATION:
-- Please arrive 15 minutes before the tour starts
-- Bring comfortable walking shoes, water, and sun protection
-- Your tour guide will be holding a "Lisbonlovesme" sign
+${t.bookingConfirmation.importantInfo.toUpperCase()}:
+- ${t.bookingConfirmation.arriveEarly}
+- ${t.bookingConfirmation.bringItems}
+- ${t.bookingConfirmation.guideSign}
 
-We've attached a calendar invitation to help you remember your booking.
+${t.bookingConfirmation.questions}
 
-If you have any questions, please contact us at info@lisbonlovesme.com or +351 21 123 4567.
+${t.bookingConfirmation.lookingForward}
 
-We look forward to showing you the best of Lisbon!
-
-Best regards,
-Lisbonlovesme Team
+${t.bookingConfirmation.bestRegards},
+${t.bookingConfirmation.teamName}
   `;
 
-  const mailOptions = await transporter.sendMail({
+  const mailOptions = {
     from: `"No Reply" <${process.env.EMAIL_USER}>`,
     to,
-    subject: `Lisbonlovesme - Booking Confirmation #${bookingReference}`,
+    subject: `${t.bookingConfirmation.subject} #${bookingReference}`,
     text: textContent,
     html: htmlContent,
     attachments: [
@@ -275,7 +466,7 @@ Lisbonlovesme Team
         filename: 'tour-booking.ics',
       }
     ]
-  });
+  };
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log('Message sent:', info.messageId);
@@ -358,11 +549,15 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
     participants,
     totalAmount,
     meetingPoint,
-    duration = '3 hours' // Default tour duration is 2 hours if not specified
+    duration = '3 hours',
+    language
   } = options;
   
-  // Format the date
-  const formattedDate = new Date(date).toLocaleDateString('pt-PT', {
+  const t = getEmailTranslations(language);
+  
+  // Format the date based on language
+  const locale = language?.startsWith('pt') ? 'pt-PT' : 'en-US';
+  const formattedDate = new Date(date).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -379,7 +574,7 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>We received your request!</title>
+    <title>${t.requestConfirmation.header}</title>
     <style>
       body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
       .header { background-color: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
@@ -395,37 +590,37 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
   </head>
   <body>
     <div class="header">
-      <h1 style="margin: 0;">We received your request!</h1>
+      <h1 style="margin: 0;">${t.requestConfirmation.header}</h1>
       <p style="margin: 5px 0 0 0;">Thank you for choosing Lisbonlovesme!</p>
     </div>
     <div class="content">
-      <p>Hello ${name},</p>
-      <p>We received your request! Soon we will get in touch and finish the details for your tour!</p>
+      <p>${t.requestConfirmation.greeting} ${name},</p>
+      <p>${t.requestConfirmation.requestReceived}</p>
       
       <div class="booking-details">
-        <h2 style="margin-top: 0; color: #3b82f6;">Tour Details</h2>
+        <h2 style="margin-top: 0; color: #3b82f6;">${t.requestConfirmation.tourDetails}</h2>
         <div class="detail-row">
-          <span class="detail-label">Booking Reference:</span>
+          <span class="detail-label">${t.requestConfirmation.bookingReference}:</span>
           <span class="detail-value">${bookingReference}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Tour:</span>
+          <span class="detail-label">${t.requestConfirmation.tour}:</span>
           <span class="detail-value">${tourName}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Date:</span>
+          <span class="detail-label">${t.requestConfirmation.date}:</span>
           <span class="detail-value">${formattedDate}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Time:</span>
+          <span class="detail-label">${t.requestConfirmation.time}:</span>
           <span class="detail-value">${time}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Participants:</span>
+          <span class="detail-label">${t.requestConfirmation.participants}:</span>
           <span class="detail-value">${participants}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Total Amount:</span>
+          <span class="detail-label">${t.requestConfirmation.totalAmount}:</span>
           <span class="detail-value">€${totalAmount}</span>
         </div>
       </div>

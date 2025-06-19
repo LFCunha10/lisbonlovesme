@@ -88,6 +88,7 @@ export const bookings = pgTable("bookings", {
   confirmedTime: text("confirmed_time"), // Final confirmed time
   confirmedMeetingPoint: text("confirmed_meeting_point"), // Final meeting point
   adminNotes: text("admin_notes"), // Internal notes for admin
+  language: text("language").default("en") // User's preferred language for emails
 });
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
