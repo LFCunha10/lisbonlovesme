@@ -592,24 +592,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/requests/:id", async (req: Request, res: Response) => {
     try {
       const bookingId = parseInt(req.params.id);
-      const { paymentStatus, confirmedDate, confirmedTime, confirmedMeetingPoint, adminNotes } = req.body;
+      const updateData = req.body;
       
-      const updatedBooking = await storage.updateBooking(bookingId, {
-        paymentStatus,
-        confirmedDate,
-        confirmedTime,
-        confirmedMeetingPoint,
-        adminNotes
-      });
+      console.log("Updating booking request:", bookingId, updateData);
+      
+      const updatedBooking = await storage.updateBooking(bookingId, updateData);
       
       if (!updatedBooking) {
         return res.status(404).json({ message: "Booking request not found" });
       }
       
+      console.log("Booking request updated successfully:", updatedBooking);
       res.json(updatedBooking);
     } catch (error) {
       console.error("Error updating booking request:", error);
-      res.status(500).json({ message: "Failed to update booking request" });
+      res.status(500).json({ message: "Failed to update booking request", error: error.message });
     }
   });
 

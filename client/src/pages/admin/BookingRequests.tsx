@@ -66,20 +66,26 @@ export default function BookingRequests() {
   });
 
   const updateRequestMutation = useMutation({
-    mutationFn: (data: { id: number; updates: Partial<BookingRequest> }) =>
-      apiRequest(`/api/admin/requests/${data.id}`, {
+    mutationFn: (data: { id: number; updates: Partial<BookingRequest> }) => {
+      console.log("Sending update request:", data);
+      return apiRequest(`/api/admin/requests/${data.id}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
       toast({
-        title: t('admin.requests.confirmationSent'),
-        description: t('admin.requests.confirmationSent'),
+        title: "Success",
+        description: "Booking request updated successfully",
       });
       setSelectedRequest(null);
     },
     onError: (error: any) => {
+      console.error("Update request error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update request",
@@ -286,11 +292,15 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
   });
 
   const handleSaveAndConfirm = () => {
+    console.log("Confirming booking with data:", formData);
     updateRequestMutation.mutate({
       id: request.id,
       updates: {
         paymentStatus: "confirmed",
-        ...formData,
+        confirmedDate: formData.confirmedDate,
+        confirmedTime: formData.confirmedTime,
+        confirmedMeetingPoint: formData.confirmedMeetingPoint,
+        adminNotes: formData.adminNotes,
       },
     });
   };
