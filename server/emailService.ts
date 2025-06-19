@@ -175,6 +175,62 @@ const emailTranslations: EmailTranslations = {
       totalAmount: "Valor Total",
       meetingPoint: "Ponto de Encontro"
     }
+  },
+  ru: {
+    bookingConfirmation: {
+      subject: "Подтверждение бронирования - Lisbonlovesme",
+      header: "Подтверждение бронирования",
+      greeting: "Здравствуйте",
+      confirmationMessage: "Ваше бронирование подтверждено, и мы рады показать вам лучшее в Лиссабоне!",
+      tourDetails: "Детали тура",
+      bookingReference: "Номер бронирования",
+      tour: "Тур",
+      date: "Дата",
+      time: "Время",
+      participants: "Участники",
+      totalAmount: "Общая сумма",
+      meetingPoint: "Место встречи",
+      importantInfo: "Важная информация",
+      arriveEarly: "Пожалуйста, прибудьте за 15 минут до начала",
+      bringItems: "Возьмите с собой удобную обувь и воду",
+      guideSign: "Ваш гид будет с табличкой \"Lisbonlovesme\"",
+      questions: "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com",
+      lookingForward: "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
+      bestRegards: "С наилучшими пожеланиями",
+      teamName: "Команда Lisbonlovesme"
+    },
+    reviewRequest: {
+      subject: "Поделитесь своим впечатлением - Lisbonlovesme",
+      header: "Поделитесь своим впечатлением",
+      greeting: "Здравствуйте",
+      thankYou: "Спасибо, что присоединились к нашему туру! Надеемся, у вас был невероятный опыт изучения Лиссабона с нами.",
+      experienceMatters: "Ваш опыт важен для нас и помогает другим путешественникам открыть для себя магию Лиссабона.",
+      shareThoughts: "Не могли бы вы уделить несколько минут, чтобы поделиться своими мыслями?",
+      writeReview: "Написать отзыв",
+      orVisit: "Или посетите",
+      appreciateTime: "Мы очень ценим ваше время и обратную связь!",
+      bestRegards: "С наилучшими пожеланиями",
+      teamName: "Команда Lisbonlovesme"
+    },
+    requestConfirmation: {
+      subject: "Запрос на бронирование получен - Lisbonlovesme",
+      header: "Запрос на бронирование получен",
+      greeting: "Здравствуйте",
+      requestReceived: "Спасибо за ваш интерес к нашему туру! Мы получили ваш запрос на бронирование и скоро его рассмотрим.",
+      reviewSoon: "Мы рассмотрим ваш запрос и свяжемся с вами в течение 24 часов для подтверждения доступности и уточнения деталей.",
+      contactYou: "Наша команда скоро свяжется с вами, чтобы обсудить ваш тур и ответить на любые вопросы, которые у вас могут быть.",
+      questions: "Если у вас есть срочные вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com",
+      bestRegards: "С наилучшими пожеланиями",
+      teamName: "Команда Lisbonlovesme",
+      tourDetails: "Детали тура",
+      bookingReference: "Номер бронирования",
+      tour: "Тур",
+      date: "Дата",
+      time: "Время",
+      participants: "Участники",
+      totalAmount: "Общая сумма",
+      meetingPoint: "Место встречи"
+    }
   }
 };
 

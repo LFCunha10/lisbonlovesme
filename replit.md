@@ -103,7 +103,7 @@ Changelog:
 - June 19, 2025. Added pricing type feature: tours can now be priced "per person" or "per group"
 - June 19, 2025. Implemented Google Fonts (Fraunces 120 Light, Montserrat) with language-aware typography system
 - June 19, 2025. Fixed navbar overlap issue on tour detail pages by adjusting top padding
-- June 19, 2025. Implemented email translation system for Portuguese and English with language-aware email sending
+- June 19, 2025. Implemented comprehensive email translation system for English, Portuguese, and Russian with automatic language detection
 ```
 
 ## User Preferences
