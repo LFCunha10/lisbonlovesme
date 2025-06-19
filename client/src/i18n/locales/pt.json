@@ -352,7 +352,9 @@
       "formEmail": "Seu E-mail",
       "formSubject": "Assunto",
       "formMessage": "Sua Mensagem",
-      "formSubmit": "Enviar Mensagem"
+      "formSubmit": "Enviar Mensagem",
+      "messageSent": "Mensagem Enviada!",
+      "thankYou": "Obrigado por nos contactar. Responderemos em breve."
     },
     "email": {
       "bookingConfirmation": {
@@ -431,6 +433,18 @@
         "whatsappButton": "WhatsApp Cliente",
         "emailButton": "Enviar Email",
         "thankYouChoosing": "Obrigado por escolher a Lisbonlovesme!",
+        "contactForm": {
+          "subject": "Nova Mensagem do Formulário de Contacto - Lisbonlovesme",
+          "header": "Nova Mensagem do Formulário de Contacto",
+          "greeting": "Olá Admin",
+          "newMessage": "Foi recebida uma nova mensagem do formulário de contacto:",
+          "messageDetails": "Detalhes da Mensagem",
+          "name": "Nome",
+          "email": "Email",
+          "subject": "Assunto",
+          "message": "Mensagem",
+          "respondSoon": "Por favor responda a esta questão o mais breve possível."
+        }
         "lookingForward": "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
         "questionsContact": "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com"
       }

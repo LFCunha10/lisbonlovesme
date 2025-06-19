@@ -8,10 +8,11 @@ import { FaInstagram, FaTripadvisor } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function ContactInformation() {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -19,6 +20,7 @@ export default function ContactInformation() {
     subject: "General Inquiry",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,35 +31,54 @@ export default function ContactInformation() {
     setForm(prev => ({ ...prev, subject: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
     if (!form.firstName || !form.lastName || !form.email || !form.message) {
       toast({
         variant: "destructive",
-        title: "Please fill in all required fields",
+        title: t('common.error'),
         description: "All fields are required to submit the form"
       });
       return;
     }
     
-    // Mock form submission
-    console.log("Form submitted:", form);
+    setIsSubmitting(true);
     
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon."
-    });
-    
-    // Reset form
-    setForm({
-      firstName: "",
-      lastName: "",
-      email: "",
-      subject: "General Inquiry",
-      message: ""
-    });
+    try {
+      await apiRequest("/api/contact", {
+        method: "POST",
+        body: JSON.stringify({
+          ...form,
+          language: i18n.language
+        }),
+      });
+      
+      toast({
+        title: t('contact.messageSent') || "Message Sent!",
+        description: t('contact.thankYou') || "Thank you for contacting us. We'll get back to you soon."
+      });
+      
+      // Reset form
+      setForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        subject: "General Inquiry",
+        message: ""
+      });
+      
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        variant: "destructive",
+        title: t('common.error') || "Error",
+        description: "Failed to send message. Please try again."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -154,7 +175,9 @@ export default function ContactInformation() {
                 />
               </div>
               
-              <Button type="submit" className="w-full md:w-auto">{t('contact.formSubmit')}</Button>
+              <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                {isSubmitting ? t('common.sending') || 'Sending...' : t('contact.formSubmit')}
+              </Button>
             </form>
           </div>
         </div>

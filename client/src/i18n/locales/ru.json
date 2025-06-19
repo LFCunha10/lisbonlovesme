@@ -352,7 +352,9 @@
       "formEmail": "Ваш email",
       "formSubject": "Тема",
       "formMessage": "Ваше сообщение",
-      "formSubmit": "Отправить"
+      "formSubmit": "Отправить",
+      "messageSent": "Сообщение отправлено!",
+      "thankYou": "Спасибо за обращение к нам. Мы ответим в ближайшее время."
     },
     "email": {
       "bookingConfirmation": {
@@ -431,6 +433,18 @@
         "whatsappButton": "WhatsApp клиенту",
         "emailButton": "Отправить Email",
         "thankYouChoosing": "Спасибо, что выбрали Lisbonlovesme!",
+        "contactForm": {
+          "subject": "Новое сообщение из контактной формы - Lisbonlovesme",
+          "header": "Новое сообщение из контактной формы",
+          "greeting": "Здравствуйте, Администратор",
+          "newMessage": "Получено новое сообщение из контактной формы:",
+          "messageDetails": "Детали сообщения",
+          "name": "Имя",
+          "email": "Email",
+          "subject": "Тема",
+          "message": "Сообщение",
+          "respondSoon": "Пожалуйста, ответьте на этот запрос как можно скорее."
+        }
         "lookingForward": "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
         "questionsContact": "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com"
       }

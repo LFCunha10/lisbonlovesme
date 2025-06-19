@@ -108,6 +108,7 @@ Changelog:
 - June 19, 2025. Completed email translation system - all hardcoded English text in sendBookingRequestNotification and sendRequestConfirmationEmail functions now uses i18n translations
 - June 19, 2025. Added direct review button to admin notification emails that links to /admin/requests page for quick access
 - June 19, 2025. Added WhatsApp and email contact buttons to admin notification emails for direct customer communication
+- June 19, 2025. Integrated contact form on main page with email service - admin receives notifications for all form submissions
 ```
 
 ## User Preferences
