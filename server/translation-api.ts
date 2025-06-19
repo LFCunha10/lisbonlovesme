@@ -91,26 +91,24 @@ export class TranslationService {
       return exactMatch;
     }
 
-    // Check for partial matches and common patterns
+    try {
+      // Use LibreTranslate API for real translations
+      const libreTranslation = await TranslationService.translateWithLibreTranslate(text, sourceLang, targetLang);
+      if (libreTranslation && libreTranslation !== text) {
+        return libreTranslation;
+      }
+    } catch (error) {
+      console.warn('LibreTranslate API failed, falling back to local translation:', error);
+    }
+
+    // Fallback to pattern matching for common phrases
     const patternTranslation = this.translateCommonPatterns(text, targetLang);
     if (patternTranslation !== text) {
       return patternTranslation;
     }
 
-    // Always translate using word replacement - this is our primary translation method
-    const wordTranslation = this.mockTranslate(text, targetLang);
-    
-    // If no translation occurred (text unchanged), force a basic translation
-    if (wordTranslation === text && targetLang !== 'en') {
-      if (targetLang === 'pt') {
-        return `[Português] ${text}`;
-      }
-      if (targetLang === 'ru') {
-        return `[Русский] ${text}`;
-      }
-    }
-    
-    return wordTranslation;
+    // Final fallback to mock translation
+    return this.mockTranslate(text, targetLang);
   }
 
   private static translateCommonPatterns(text: string, targetLang: string): string {
@@ -347,6 +345,56 @@ export class TranslationService {
     
     // Fallback for other languages
     return text;
+  }
+
+  /**
+   * Use LibreTranslate API for translation
+   */
+  private static async translateWithLibreTranslate(
+    text: string, 
+    sourceLang: string, 
+    targetLang: string
+  ): Promise<string> {
+    // Map our language codes to LibreTranslate language codes
+    const langMap: Record<string, string> = {
+      'en': 'en',
+      'pt': 'pt',
+      'ru': 'ru'
+    };
+
+    const sourceCode = langMap[sourceLang];
+    const targetCode = langMap[targetLang];
+
+    if (!sourceCode || !targetCode) {
+      throw new Error(`Unsupported language pair: ${sourceLang} -> ${targetLang}`);
+    }
+
+    const requestBody: any = {
+      q: text,
+      source: sourceCode,
+      target: targetCode,
+      format: 'text'
+    };
+
+    // Add API key if available
+    if (process.env.LIBRETRANSLATE_API_KEY) {
+      requestBody.api_key = process.env.LIBRETRANSLATE_API_KEY;
+    }
+
+    const response = await fetch('https://libretranslate.com/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`LibreTranslate API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.translatedText || text;
   }
 
   /**

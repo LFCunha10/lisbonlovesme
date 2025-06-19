@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Globe, Wand2, Save, Eye } from "lucide-react";
+import { ArrowLeft, Globe, Save, Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
@@ -58,31 +58,7 @@ const multilingualTourSchema = z.object({
 
 type MultilingualTourForm = z.infer<typeof multilingualTourSchema>;
 
-interface TranslationService {
-  translateText: (text: string, targetLang: string, sourceLang?: string) => Promise<string>;
-}
-
-// Translation service using backend API
-const translationService: TranslationService = {
-  async translateText(text: string, targetLang: string, sourceLang: string = 'en'): Promise<string> {
-    try {
-      const response = await fetch('/api/translate-field', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text,
-          sourceLang,
-          targetLang
-        })
-      });
-      const data = await response.json();
-      return data.translatedText || text;
-    } catch (error) {
-      console.error('Translation failed:', error);
-      return `[${targetLang.toUpperCase()}: ${text}]`;
-    }
-  }
-};
+// Removed translation service - will be added back later
 
 export default function EditTourPage() {
   const { id } = useParams();
@@ -91,7 +67,7 @@ export default function EditTourPage() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'pt' | 'ru'>('en');
-  const [isTranslating, setIsTranslating] = useState(false);
+  // Translation state removed
 
   const tourId = parseInt(id as string);
   const isEditing = !isNaN(tourId);
@@ -182,108 +158,7 @@ export default function EditTourPage() {
     },
   });
 
-  // Auto-translate entire tour content from English to the current tab language
-  const autoTranslateAll = async (targetLang: 'en' | 'pt' | 'ru') => {
-    // Always translate FROM English TO the target language
-    const sourceLang = 'en';
-    
-    if (targetLang === 'en') {
-      toast({
-        title: "Cannot translate English",
-        description: "English is the source language. Fill in English content first, then translate to other languages.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsTranslating(true);
-    try {
-      const currentValues = form.getValues();
-      const sourceData = {
-        name: currentValues.name[sourceLang],
-        description: currentValues.description[sourceLang],
-        shortDescription: currentValues.shortDescription?.[sourceLang] || '',
-        duration: currentValues.duration[sourceLang],
-        difficulty: currentValues.difficulty[sourceLang],
-      };
-
-      // Check if English source content exists
-      if (!sourceData.name || !sourceData.description) {
-        toast({
-          title: "Missing English content",
-          description: "Please fill in the English content first before translating",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Translate each field individually
-      const translatedName = await translationService.translateText(sourceData.name, targetLang, sourceLang);
-      const translatedDescription = await translationService.translateText(sourceData.description, targetLang, sourceLang);
-      const translatedShortDescription = sourceData.shortDescription ? 
-        await translationService.translateText(sourceData.shortDescription, targetLang, sourceLang) : '';
-      const translatedDuration = await translationService.translateText(sourceData.duration, targetLang, sourceLang);
-      const translatedDifficulty = await translationService.translateText(sourceData.difficulty, targetLang, sourceLang);
-
-      // Update only the target language fields
-      form.setValue(`name.${targetLang}` as any, translatedName);
-      form.setValue(`description.${targetLang}` as any, translatedDescription);
-      if (translatedShortDescription) {
-        form.setValue(`shortDescription.${targetLang}` as any, translatedShortDescription);
-      }
-      form.setValue(`duration.${targetLang}` as any, translatedDuration);
-      form.setValue(`difficulty.${targetLang}` as any, translatedDifficulty);
-
-      toast({
-        title: "Translation completed",
-        description: `Content translated from English to ${targetLang.toUpperCase()}`,
-      });
-    } catch (error) {
-      toast({
-        title: "Translation failed",
-        description: "Failed to translate content. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
-  // Auto-translate single field
-  const autoTranslate = async (sourceField: keyof MultilingualTourForm, sourceLang: 'en' | 'pt' | 'ru') => {
-    setIsTranslating(true);
-    try {
-      const sourceValue = form.getValues(`${sourceField}.${sourceLang}` as any);
-      if (!sourceValue) {
-        toast({
-          title: "No source text",
-          description: `Please enter ${sourceLang.toUpperCase()} text first`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const languages = ['en', 'pt', 'ru'].filter(lang => lang !== sourceLang) as ('en' | 'pt' | 'ru')[];
-      
-      for (const targetLang of languages) {
-        const translated = await translationService.translateText(sourceValue, targetLang);
-        form.setValue(`${sourceField}.${targetLang}` as any, translated);
-      }
-
-      toast({
-        title: "Translation completed",
-        description: `${sourceField} has been translated to all languages`,
-      });
-    } catch (error) {
-      toast({
-        title: "Translation failed",
-        description: "Failed to translate text. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTranslating(false);
-    }
-  };
+  // Translation functionality removed - will be added back later
 
   const onSubmit = (data: MultilingualTourForm) => {
     tourMutation.mutate(data);
@@ -341,23 +216,11 @@ export default function EditTourPage() {
                           {lang === 'ru' && 'Russian Content'}
                         </h3>
                         <div className="flex gap-2">
-                          {lang !== 'en' && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => autoTranslateAll(lang)}
-                              disabled={isTranslating}
-                            >
-                              <Wand2 className="w-4 h-4 mr-2" />
-                              {isTranslating ? 'Translating...' : 'Translate from English'}
-                            </Button>
-                          )}
-                          {lang === 'en' && (
-                            <span className="text-sm text-gray-500 py-2">
-                              Fill in English content first, then translate to other languages
-                            </span>
-                          )}
+                          <span className="text-sm text-gray-500 py-2">
+                            {lang === 'en' && 'English content (source language)'}
+                            {lang === 'pt' && 'Portuguese content'}
+                            {lang === 'ru' && 'Russian content'}
+                          </span>
                         </div>
                       </div>
 

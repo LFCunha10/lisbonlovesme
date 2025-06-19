@@ -126,6 +126,8 @@ Changelog:
 - June 19, 2025. Added bulk translation feature to translate entire tour content at once
 - June 19, 2025. Enhanced translation system with comprehensive word dictionaries for more complete Portuguese and Russian translations
 - June 19, 2025. Fixed translation logic to properly handle all words in sentences, not just partial translations
+- June 19, 2025. Integrated LibreTranslate API (https://libretranslate.com) for real-time translation with fallback to local translation dictionary
+- June 19, 2025. Removed auto-translate buttons from tour editor interface per user request - translation functionality to be added back later
 ```
 
 ## User Preferences
