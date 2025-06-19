@@ -26,23 +26,23 @@ export default function Footer() {
               {t('footer.message')}
             </p>
             <div className="flex space-x-3">
-              <SocialLink href="https://www.instagram.com/lisbonlovesme/" icon={<FaInstagram size={18} />} />
-              <SocialLink href="https://www.tiktok.com/@lisbonlovesme" icon={<FaTiktok size={18} />} />
-              <SocialLink href="https://wa.me/+351938607585" icon={<FaWhatsapp size={18} />} />
-              <SocialLink href="https://www.youtube.com/@Lisbonlovesme" icon={<FaYoutube size={18} />} />
-              <SocialLink href="https://mailto:lisbonlovesme@gmail.com" icon={<Mail size={18} />} />
+              <SocialLink key="instagram" href="https://www.instagram.com/lisbonlovesme/" icon={<FaInstagram size={18} />} />
+              <SocialLink key="tiktok" href="https://www.tiktok.com/@lisbonlovesme" icon={<FaTiktok size={18} />} />
+              <SocialLink key="whatsapp" href="https://wa.me/+351938607585" icon={<FaWhatsapp size={18} />} />
+              <SocialLink key="youtube" href="https://www.youtube.com/@Lisbonlovesme" icon={<FaYoutube size={18} />} />
+              <SocialLink key="email" href="https://mailto:lisbonlovesme@gmail.com" icon={<Mail size={18} />} />
             </div>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('common.quickLinks')}</h4>
             <ul className="space-y-2">
-              <FooterLink href="/">{t('nav.home')}</FooterLink>
-              <FooterLink href="/#tours">{t('nav.tours')}</FooterLink>
-              <FooterLink href="/#about">{t('nav.about')}</FooterLink>
-              <FooterLink href="/#reviews">{t('reviews.title')}</FooterLink>
-              <FooterLink href="/#contact">{t('nav.contact')}</FooterLink>
-              <FooterLink href="/tours">{t('nav.booking')}</FooterLink>
+              <FooterLink key="home" href="/">{t('nav.home')}</FooterLink>
+              <FooterLink key="tours" href="/#tours">{t('nav.tours')}</FooterLink>
+              <FooterLink key="about" href="/#about">{t('nav.about')}</FooterLink>
+              <FooterLink key="reviews" href="/#reviews">{t('reviews.title')}</FooterLink>
+              <FooterLink key="contact" href="/#contact">{t('nav.contact')}</FooterLink>
+              <FooterLink key="booking" href="/tours">{t('nav.booking')}</FooterLink>
             </ul>
           </div>
 
@@ -83,9 +83,9 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Lisbonlovesme. {t('footer.rights')}
           </div>
           <div className="flex space-x-4">
-            <Link href="#" className="hover:text-white">{t('footer.termsOfService')}</Link>
-            <Link href="#" className="hover:text-white">{t('footer.privacyPolicy')}</Link>
-            <Link href="#" className="hover:text-white">{t('footer.cookiePolicy')}</Link>
+            <Link key="terms" href="#" className="hover:text-white">{t('footer.termsOfService')}</Link>
+            <Link key="privacy" href="#" className="hover:text-white">{t('footer.privacyPolicy')}</Link>
+            <Link key="cookies" href="#" className="hover:text-white">{t('footer.cookiePolicy')}</Link>
           </div>
         </div>
       </div>
