@@ -7,6 +7,15 @@
       "contact": "Contact",
       "booking": "Book a Tour"
     },
+    "navbar": {
+      "home": "Home",
+      "tours": "Tours",
+      "gallery": "Gallery",
+      "bookingRequest": "Book a Tour",
+      "contact": "Contact",
+      "articles": "Articles",
+      "language": "Language"
+    },
     "aboutUs": {
       "title": "Local Guides with Passion for Lisbon",
       "description": "Our team consists of certified local guides who are passionate about sharing Lisbon's rich history, vibrant culture, and hidden gems with visitors from around the world.",

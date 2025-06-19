@@ -896,6 +896,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Articles routes
+  app.get("/api/articles", async (req: Request, res: Response) => {
+    try {
+      const parentId = req.query.parentId ? parseInt(req.query.parentId as string) : undefined;
+      const published = req.query.published === 'true';
+      
+      let articles;
+      if (published) {
+        articles = await storage.getPublishedArticles(parentId);
+      } else {
+        articles = await storage.getArticles(parentId);
+      }
+      
+      res.json(articles);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching articles: " + error.message });
+    }
+  });
+
+  app.get("/api/articles/tree", async (req: Request, res: Response) => {
+    try {
+      const published = req.query.published === 'true';
+      let articles;
+      
+      if (published) {
+        articles = await storage.getPublishedArticles();
+      } else {
+        articles = await storage.getArticleTree();
+      }
+      
+      res.json(articles);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching article tree: " + error.message });
+    }
+  });
+
+  app.get("/api/articles/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const article = await storage.getArticle(id);
+      
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching article: " + error.message });
+    }
+  });
+
+  app.get("/api/articles/slug/:slug", async (req: Request, res: Response) => {
+    try {
+      const { slug } = req.params;
+      const article = await storage.getArticleBySlug(slug);
+      
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching article: " + error.message });
+    }
+  });
+
+  app.post("/api/articles", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const article = await storage.createArticle(req.body);
+      res.status(201).json(article);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating article: " + error.message });
+    }
+  });
+
+  app.put("/api/articles/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const article = await storage.updateArticle(id, req.body);
+      
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error updating article: " + error.message });
+    }
+  });
+
+  app.delete("/api/articles/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteArticle(id);
+      
+      if (success) {
+        res.json({ message: "Article deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Article not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: "Error deleting article: " + error.message });
+    }
+  });
+
   // Image Upload Endpoint
   app.post("/api/upload-image", upload.single('image'), handleUploadErrors, (req: Request, res: Response) => {
     try {

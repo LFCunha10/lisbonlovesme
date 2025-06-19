@@ -7,6 +7,15 @@
       "contact": "Contato",
       "booking": "Reservar um Passeio"
     },
+    "navbar": {
+      "home": "Início",
+      "tours": "Tours",
+      "gallery": "Galeria",
+      "bookingRequest": "Reservar Tour",
+      "contact": "Contato",
+      "articles": "Artigos",
+      "language": "Idioma"
+    },
     "aboutUs": {
       "title": "Guias Locais com Paixão por Lisboa",
       "description": "Nossa equipe é composta por guias locais certificados, apaixonados por compartilhar a rica história, vibrante cultura e joias escondidas de Lisboa com visitantes do mundo inteiro.",

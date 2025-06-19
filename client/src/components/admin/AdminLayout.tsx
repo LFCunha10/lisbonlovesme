@@ -9,7 +9,8 @@ import {
   LogOut,
   Database,
   CreditCard,
-  ImageIcon
+  ImageIcon,
+  FileText
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 
@@ -34,6 +35,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     { href: "/admin/requests", icon: <MessageSquare className="w-5 h-5" />, label: "Requests" },
     { href: "/admin/bookings", icon: <CalendarDays className="w-5 h-5" />, label: "Bookings" },
     { href: "/admin/payments", icon: <CreditCard className="w-5 h-5" />, label: "Payments" },
+    { href: "/admin/articles", icon: <FileText className="w-5 h-5" />, label: "Articles" },
     { href: "/admin/gallery", icon: <ImageIcon className="w-5 h-5" />, label: "Gallery" },
     { href: "/admin/reviews", icon: <MessageSquare className="w-5 h-5" />, label: "Reviews" },
     { href: "/admin/password", icon: <Lock className="w-5 h-5" />, label: "Password" },

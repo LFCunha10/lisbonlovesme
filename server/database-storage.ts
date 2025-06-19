@@ -1,7 +1,7 @@
 import { eq, and, desc, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery,
+  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles,
   type User, type InsertUser,
   type Tour, type InsertTour,
   type Availability, type InsertAvailability,
@@ -9,7 +9,8 @@ import {
   type Testimonial, type InsertTestimonial,
   type ClosedDay, type InsertClosedDay,
   type AdminSetting, type InsertAdminSetting,
-  type Gallery, type InsertGallery
+  type Gallery, type InsertGallery,
+  type Article, type InsertArticle
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
@@ -346,5 +347,78 @@ export class DatabaseStorage implements IStorage {
       .where(eq(testimonials.id, id))
       .returning();
     return updatedTestimonial;
+  }
+
+  // Article operations
+  async getArticles(parentId?: number): Promise<Article[]> {
+    if (parentId !== undefined) {
+      return db
+        .select()
+        .from(articles)
+        .where(eq(articles.parentId, parentId))
+        .orderBy(asc(articles.sortOrder), asc(articles.title));
+    }
+    return db.select().from(articles).orderBy(asc(articles.sortOrder), asc(articles.title));
+  }
+
+  async getArticle(id: number): Promise<Article | undefined> {
+    const [article] = await db.select().from(articles).where(eq(articles.id, id));
+    return article;
+  }
+
+  async getArticleBySlug(slug: string): Promise<Article | undefined> {
+    const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
+    return article;
+  }
+
+  async createArticle(article: InsertArticle): Promise<Article> {
+    const [newArticle] = await db
+      .insert(articles)
+      .values({
+        ...article,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return newArticle;
+  }
+
+  async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
+    const [updatedArticle] = await db
+      .update(articles)
+      .set({
+        ...article,
+        updatedAt: new Date(),
+      })
+      .where(eq(articles.id, id))
+      .returning();
+    return updatedArticle;
+  }
+
+  async deleteArticle(id: number): Promise<boolean> {
+    try {
+      await db.delete(articles).where(eq(articles.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      return false;
+    }
+  }
+
+  async getArticleTree(): Promise<Article[]> {
+    const allArticles = await db.select().from(articles).orderBy(asc(articles.sortOrder), asc(articles.title));
+    return allArticles;
+  }
+
+  async getPublishedArticles(parentId?: number): Promise<Article[]> {
+    let query = db
+      .select()
+      .from(articles)
+      .where(eq(articles.isPublished, true));
+    
+    if (parentId !== undefined) {
+      query = query.where(eq(articles.parentId, parentId));
+    }
+    
+    return query.orderBy(asc(articles.sortOrder), asc(articles.title));
   }
 }

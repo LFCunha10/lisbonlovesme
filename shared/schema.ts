@@ -215,3 +215,39 @@ export type InsertAdminSetting = z.infer<typeof insertAdminSettingsSchema>;
 
 export type Gallery = typeof gallery.$inferSelect;
 export type InsertGallery = z.infer<typeof insertGallerySchema>;
+
+// Articles model - tree structure for blog-like content
+export const articles = pgTable("articles", {
+  id: serial("id").primaryKey(),
+  title: json("title").notNull(), // Multilingual: { en: "", pt: "", ru: "" }
+  slug: text("slug").notNull().unique(), // URL-friendly identifier
+  content: json("content").notNull(), // Multilingual: { en: "", pt: "", ru: "" }
+  excerpt: json("excerpt"), // Optional short description, multilingual
+  featuredImage: text("featured_image"), // Main image for the article
+  parentId: integer("parent_id").references(() => articles.id, { onDelete: "cascade" }), // For tree structure
+  sortOrder: integer("sort_order").default(0), // For manual ordering within same parent
+  isPublished: boolean("is_published").default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const articlesRelations = relations(articles, ({ one, many }) => ({
+  parent: one(articles, {
+    fields: [articles.parentId],
+    references: [articles.id],
+    relationName: "article_parent",
+  }),
+  children: many(articles, {
+    relationName: "article_parent",
+  }),
+}));
+
+export const insertArticleSchema = createInsertSchema(articles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Article = typeof articles.$inferSelect;
+export type InsertArticle = z.infer<typeof insertArticleSchema>;
