@@ -1,573 +1,217 @@
-import React, { useEffect } from "react";
-import { useLocation, useParams } from "wouter";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import AdminLayout from "@/components/admin/AdminLayout";
-import { QuillEditor } from "@/components/admin/QuillEditor";
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "wouter";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ArrowLeft, ImageIcon, Loader2 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { ArrowLeft, Save } from "lucide-react";
+import MultilingualEditor from "./multilingual-editor";
+import type { Tour } from "@shared/schema";
 
-// Color options for badges
-const colorOptions = [
-  { value: "primary", label: "Blue", bgClass: "bg-primary" },
-  { value: "secondary", label: "Purple", bgClass: "bg-secondary" },
-  { value: "green", label: "Green", bgClass: "bg-green-500" },
-  { value: "red", label: "Red", bgClass: "bg-red-500" },
-  { value: "orange", label: "Orange", bgClass: "bg-orange-500" },
-  { value: "yellow", label: "Yellow", bgClass: "bg-yellow-500" },
-  { value: "teal", label: "Teal", bgClass: "bg-teal-500" },
-  { value: "indigo", label: "Indigo", bgClass: "bg-indigo-500" },
-  { value: "pink", label: "Pink", bgClass: "bg-pink-500" },
-];
+interface TourFormData {
+  price: number;
+  priceType: 'per_person' | 'per_group';
+  maxGroupSize: number;
+  imageUrl: string;
+  meetingPoint: string;
+  name: { en: string; pt: string; ru: string };
+  shortDescription: { en: string; pt: string; ru: string };
+  description: { en: string; pt: string; ru: string };
+  duration: { en: string; pt: string; ru: string };
+  difficulty: { en: string; pt: string; ru: string };
+  badge: { en: string; pt: string; ru: string };
+}
 
-// Tour form schema
-const tourSchema = z.object({
-  name: z.string().min(2, { message: "Tour name must be at least 2 characters" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-  imageUrl: z.string().optional(),
-  duration: z.string().min(2, { message: "Duration is required (e.g., '2 hours')" }),
-  maxGroupSize: z.coerce.number().min(1, { message: "Max group size must be at least 1" }),
-  difficulty: z.string().min(1, { message: "Difficulty is required" }),
-  price: z.string().min(1, { message: "Price is required" }),
-  priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
-  badge: z.string().optional().nullable(),
-  badgeColor: z.string().optional().nullable(),
-  isActive: z.boolean().optional(),
-});
-
-type TourFormValues = z.infer<typeof tourSchema>;
-
-export default function EditTourPage() {
-  const [, navigate] = useLocation();
-  const { id } = useParams<{ id: string }>();
-  const tourId = parseInt(id);
+export default function EditTour() {
+  const { id } = useParams();
+  const [, setLocation] = useLocation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = React.useState("details");
-  const [uploadingImage, setUploadingImage] = React.useState(false);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
 
-  const form = useForm<TourFormValues>({
-    resolver: zodResolver(tourSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      imageUrl: "",
-      duration: "",
-      maxGroupSize: 10,
-      difficulty: "medium",
-      price: "",
-      badge: "",
-      badgeColor: "primary",
-      isActive: true,
-    },
+  const [formData, setFormData] = useState<TourFormData>({
+    price: 0,
+    priceType: 'per_person',
+    maxGroupSize: 8,
+    imageUrl: '',
+    meetingPoint: '',
+    name: { en: '', pt: '', ru: '' },
+    shortDescription: { en: '', pt: '', ru: '' },
+    description: { en: '', pt: '', ru: '' },
+    duration: { en: '', pt: '', ru: '' },
+    difficulty: { en: '', pt: '', ru: '' },
+    badge: { en: '', pt: '', ru: '' }
   });
 
-  // Fetch tour data
-  const { data: tour, isLoading } = useQuery({
-    queryKey: ['/api/tours', tourId],
-    queryFn: async () => {
-      const response = await apiRequest("GET", `/api/tours/${tourId}`);
-      return response.json();
-    },
-    enabled: !!tourId && !isNaN(tourId)
+  const { data: tour, isLoading } = useQuery<Tour>({
+    queryKey: [`/api/tours/${id}`],
+    enabled: !!id
   });
 
-  // Set form values when tour data is loaded
   useEffect(() => {
     if (tour) {
-      form.reset({
-        name: tour.name,
-        description: tour.description || "",
-        imageUrl: tour.imageUrl || "",
-        duration: tour.duration,
+      setFormData({
+        price: tour.price,
+        priceType: tour.priceType as 'per_person' | 'per_group',
         maxGroupSize: tour.maxGroupSize,
-        difficulty: tour.difficulty,
-        price: (tour.price / 100).toFixed(2), // Convert cents to decimal
-        badge: tour.badge || "",
-        badgeColor: tour.badgeColor || "primary",
-        isActive: tour.isActive !== false, // Default to true if not specified
+        imageUrl: tour.imageUrl || '',
+        meetingPoint: (tour as any).meetingPoint || '',
+        name: typeof tour.name === 'string' ? { en: tour.name, pt: '', ru: '' } : tour.name,
+        shortDescription: typeof tour.shortDescription === 'string' ? { en: tour.shortDescription, pt: '', ru: '' } : tour.shortDescription || { en: '', pt: '', ru: '' },
+        description: typeof tour.description === 'string' ? { en: tour.description, pt: '', ru: '' } : tour.description,
+        duration: typeof tour.duration === 'string' ? { en: tour.duration, pt: '', ru: '' } : tour.duration,
+        difficulty: typeof tour.difficulty === 'string' ? { en: tour.difficulty, pt: '', ru: '' } : tour.difficulty,
+        badge: typeof tour.badge === 'string' ? { en: tour.badge, pt: '', ru: '' } : tour.badge || { en: '', pt: '', ru: '' }
       });
-
-      if (tour.imageUrl) {
-        setImagePreview(tour.imageUrl);
-      }
     }
-  }, [tour, form]);
+  }, [tour]);
 
-  // Image upload handler
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // File size validation (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Image is too large. Maximum size is 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Create a preview
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-    
-    // Upload the image
-    setUploadingImage(true);
-    
-    const formData = new FormData();
-    formData.append("image", file);
-    
-    try {
-      const response = await fetch("/api/upload-image", {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
-      
-      const data = await response.json();
-      form.setValue("imageUrl", data.imageUrl);
-      
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-    } catch (error) {
-      console.error("Image upload error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload image. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  // Tour update mutation
-  const updateTourMutation = useMutation({
-    mutationFn: async (data: TourFormValues) => {
-      const formattedData = {
-        ...data,
-        price: parseFloat(data.price) * 100, // Convert price to cents
-      };
-      return apiRequest("PUT", `/api/tours/${tourId}`, formattedData);
+  const updateMutation = useMutation({
+    mutationFn: async (data: TourFormData) => {
+      const response = await apiRequest("PUT", `/api/tours/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
+      toast({
+        title: "Tour updated successfully",
+        description: "The tour has been updated with the new information."
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
-      toast({
-        title: "Success",
-        description: "Tour updated successfully",
-      });
-      navigate("/admin/tours");
+      setLocation('/admin/tours');
     },
-    onError: (error) => {
-      console.error("Error updating tour:", error);
+    onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to update tour. Please try again.",
         variant: "destructive",
+        title: "Error updating tour",
+        description: "Please try again."
       });
-    },
+    }
   });
 
-  const onSubmit = (data: TourFormValues) => {
-    updateTourMutation.mutate(data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate(formData);
+  };
+
+  const handleMultilingualChange = (data: {
+    name: { en: string; pt: string; ru: string };
+    shortDescription: { en: string; pt: string; ru: string };
+    description: { en: string; pt: string; ru: string };
+    duration: { en: string; pt: string; ru: string };
+    difficulty: { en: string; pt: string; ru: string };
+    badge: { en: string; pt: string; ru: string };
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      ...data
+    }));
   };
 
   if (isLoading) {
-    return (
-      <AdminLayout title="Edit Tour">
-        <div className="container mx-auto py-6 flex items-center justify-center h-[60vh]">
-          <div className="text-center">
-            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-4 text-primary" />
-            <p>Loading tour data...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
+    return <div>Loading...</div>;
   }
 
   return (
-    <AdminLayout title="Edit Tour">
-      <div className="container mx-auto py-6">
+    <div className="container mx-auto py-8">
+      <div className="mb-6">
         <Button 
-          variant="outline" 
-          onClick={() => navigate("/admin/tours")}
-          className="mb-6"
+          variant="ghost" 
+          onClick={() => setLocation('/admin/tours')}
+          className="mb-4"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Tours
         </Button>
-        
-        <Card className="max-w-4xl mx-auto">
-          <CardHeader>
-            <CardTitle>Edit Tour</CardTitle>
-            <CardDescription>
-              Update the details for this tour.
-            </CardDescription>
-          </CardHeader>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mx-auto px-6">
-              <TabsTrigger value="details">Tour Details</TabsTrigger>
-              <TabsTrigger value="media">Media & Appearance</TabsTrigger>
-            </TabsList>
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <CardContent className="space-y-6 pt-6">
-                  <TabsContent value="details" className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tour Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Historic Walking Tour" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <QuillEditor
-                              value={field.value}
-                              onChange={field.onChange}
-                              className="mb-6"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Duration</FormLabel>
-                            <FormControl>
-                              <Input placeholder="2 hours" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="maxGroupSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Maximum Group Size</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min={1} 
-                                placeholder="10"
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="difficulty"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Difficulty</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select difficulty" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="easy">Easy</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="hard">Hard</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Price (€)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="text"
-                                placeholder="45.00" 
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="media" className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="imageUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tour Image</FormLabel>
-                          <div className="border rounded-md p-4">
-                            {imagePreview ? (
-                              <div className="mb-4">
-                                <img 
-                                  src={imagePreview} 
-                                  alt="Tour preview" 
-                                  className="max-h-60 rounded-md mx-auto"
-                                />
-                              </div>
-                            ) : field.value ? (
-                              <div className="mb-4">
-                                <img 
-                                  src={field.value} 
-                                  alt="Tour" 
-                                  className="max-h-60 rounded-md mx-auto"
-                                />
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-center h-40 bg-gray-100 rounded-md mb-4">
-                                <ImageIcon className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center justify-center">
-                              <Input
-                                id="tour-image"
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleImageUpload}
-                                disabled={uploadingImage}
-                              />
-                              <label htmlFor="tour-image">
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
-                                  disabled={uploadingImage}
-                                  className="cursor-pointer"
-                                  asChild
-                                >
-                                  <span>
-                                    {uploadingImage ? (
-                                      <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Uploading...
-                                      </>
-                                    ) : field.value ? (
-                                      "Change Image"
-                                    ) : (
-                                      "Upload Image"
-                                    )}
-                                  </span>
-                                </Button>
-                              </label>
-                            </div>
-                            
-                            <input 
-                              type="hidden" 
-                              {...field} 
-                            />
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="badge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Label (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="Best Seller" 
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="badgeColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Color</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={`w-full justify-start text-left font-normal ${
-                                      !field.value && "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {field.value && (
-                                      <div
-                                        className={`h-4 w-4 rounded mr-2 ${
-                                          colorOptions.find(c => c.value === field.value)?.bgClass || 'bg-primary'
-                                        }`}
-                                      />
-                                    )}
-                                    {colorOptions.find(c => c.value === field.value)?.label || "Select color"}
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-60 p-3">
-                                <div className="grid grid-cols-3 gap-2">
-                                  {colorOptions.map((color) => (
-                                    <Button
-                                      key={color.value}
-                                      type="button"
-                                      variant="outline"
-                                      className={`h-8 w-full p-0 ${
-                                        field.value === color.value && "border-2 border-primary"
-                                      }`}
-                                      onClick={() => field.onChange(color.value)}
-                                    >
-                                      <div className={`h-full w-full rounded ${color.bgClass}`} />
-                                    </Button>
-                                  ))}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="isActive"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Active Status</FormLabel>
-                            <FormDescription>
-                              Make this tour visible to customers
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </TabsContent>
-                </CardContent>
-                
-                <CardFooter className="flex justify-between">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => navigate("/admin/tours")}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={updateTourMutation.isPending}
-                  >
-                    {updateTourMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </>
-                    ) : (
-                      "Update Tour"
-                    )}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Form>
-          </Tabs>
-        </Card>
+        <h1 className="text-3xl font-bold">Edit Tour</h1>
       </div>
-    </AdminLayout>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <MultilingualEditor 
+          tourData={formData}
+          onChange={handleMultilingualChange}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tour Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">Price (€)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="priceType">Price Type</Label>
+                <Select value={formData.priceType} onValueChange={(value: 'per_person' | 'per_group') => setFormData(prev => ({ ...prev, priceType: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="per_person">Per Person</SelectItem>
+                    <SelectItem value="per_group">Per Group</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="maxGroupSize">Max Group Size</Label>
+                <Input
+                  id="maxGroupSize"
+                  type="number"
+                  value={formData.maxGroupSize}
+                  onChange={(e) => setFormData(prev => ({ ...prev, maxGroupSize: parseInt(e.target.value) }))}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="imageUrl">Image URL</Label>
+                <Input
+                  id="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="meetingPoint">Meeting Point</Label>
+              <Textarea
+                id="meetingPoint"
+                value={formData.meetingPoint}
+                onChange={(e) => setFormData(prev => ({ ...prev, meetingPoint: e.target.value }))}
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={() => setLocation('/admin/tours')}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={updateMutation.isPending}>
+            <Save className="h-4 w-4 mr-2" />
+            {updateMutation.isPending ? 'Saving...' : 'Save Tour'}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

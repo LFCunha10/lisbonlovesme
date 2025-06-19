@@ -16,19 +16,19 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-// Tour model
+// Tour model - now stores translations as JSON
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  shortDescription: text("short_description").default(""),
-  description: text("description").notNull(),
+  name: json("name").$type<{en: string; pt: string; ru: string}>().notNull(),
+  shortDescription: json("short_description").$type<{en: string; pt: string; ru: string}>().default({en: "", pt: "", ru: ""}),
+  description: json("description").$type<{en: string; pt: string; ru: string}>().notNull(),
   imageUrl: text("image_url").notNull(),
-  duration: text("duration").notNull(),
+  duration: json("duration").$type<{en: string; pt: string; ru: string}>().notNull(),
   maxGroupSize: integer("max_group_size").notNull(),
-  difficulty: text("difficulty").notNull(),
+  difficulty: json("difficulty").$type<{en: string; pt: string; ru: string}>().notNull(),
   price: integer("price").notNull(), // Price in cents
   priceType: text("price_type").notNull().default("per_person"), // "per_person" or "per_group"
-  badge: text("badge"), // "Most Popular", "Evening Tour", "Full Day", etc.
+  badge: json("badge").$type<{en: string; pt: string; ru: string}>().default({en: "", pt: "", ru: ""}),
   badgeColor: text("badge_color"), // For styling
   isActive: boolean("is_active").default(true),
 });
@@ -42,6 +42,22 @@ export const toursRelations = relations(tours, ({ many }) => ({
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
 });
+
+// Helper types for multilingual content
+export type MultilingualText = {
+  en: string;
+  pt: string;
+  ru: string;
+};
+
+export type TourTranslations = {
+  name: MultilingualText;
+  shortDescription: MultilingualText;
+  description: MultilingualText;
+  duration: MultilingualText;
+  difficulty: MultilingualText;
+  badge: MultilingualText;
+};
 
 // Availability model
 export const availabilities = pgTable("availabilities", {

@@ -14,7 +14,7 @@ import ParticipantForm from "@/components/booking/ParticipantForm";
 import PaymentForm from "@/components/booking/PaymentForm";
 import RequestSent from "@/components/booking/RequestSent";
 import { Link } from "wouter";
-import { json } from "stream/consumers";
+import { getLocalizedText } from "@/lib/tour-utils";
 
 interface BookingData {
   date: string;
@@ -145,7 +145,7 @@ export default function Booking() {
                 {t('booking.requestTour')}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 truncate-mobile">
-                {tour.name}
+                {getLocalizedText(tour.name)}
               </p>
             </div>
 
@@ -251,19 +251,19 @@ export default function Booking() {
                   <div className="flex space-x-3">
                     <img
                       src={tour.imageUrl}
-                      alt={tour.name}
+                      alt={getLocalizedText(tour.name)}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                        {tour.name}
+                        {getLocalizedText(tour.name)}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {tour.duration}
+                        {getLocalizedText(tour.duration)}
                       </p>
-                      {tour.badge && (
+                      {getLocalizedText(tour.badge || undefined) && (
                         <Badge className="text-xs mt-1" variant="secondary">
-                          {tour.badge}
+                          {getLocalizedText(tour.badge || undefined)}
                         </Badge>
                       )}
                     </div>

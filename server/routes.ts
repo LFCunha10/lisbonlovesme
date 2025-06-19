@@ -3,11 +3,13 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
 import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification } from "./emailService.js";
+import { autoTranslateTourContent, translateField } from "./translation-service.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
+import { getLocalizedText } from "./utils/tour-utils";
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -275,6 +277,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(tour);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to create tour" });
+    }
+  });
+
+  // Auto-translate tour content endpoint
+  app.post("/api/tours/auto-translate", async (req: Request, res: Response) => {
+    try {
+      const { name, shortDescription, description, duration, difficulty, badge } = req.body;
+      
+      if (!name || !description || !duration || !difficulty) {
+        return res.status(400).json({ 
+          message: "Name, description, duration, and difficulty are required for translation" 
+        });
+      }
+
+      const translations = await autoTranslateTourContent({
+        name,
+        shortDescription: shortDescription || '',
+        description,
+        duration,
+        difficulty,
+        badge: badge || ''
+      });
+
+      res.json(translations);
+    } catch (error: any) {
+      console.error("Auto-translation error:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to auto-translate content" 
+      });
+    }
+  });
+
+  // Translate single field endpoint
+  app.post("/api/translate-field", async (req: Request, res: Response) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ message: "Text is required for translation" });
+      }
+
+      const translations = await translateField(text);
+      res.json(translations);
+    } catch (error: any) {
+      console.error("Field translation error:", error);
+      res.status(500).json({ 
+        message: error.message || "Failed to translate field" 
+      });
     }
   });
   

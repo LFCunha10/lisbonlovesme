@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CreditCard, ChevronLeft, Lock, Calendar, Users, MapPin, Euro } from "lucide-react";
+import { getLocalizedText } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 
 interface BookingData {
@@ -182,19 +183,19 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
           <div className="flex space-x-4 mb-4">
             <img
               src={tour.imageUrl}
-              alt={tour.name}
+              alt={getLocalizedText(tour.name)}
               className="w-20 h-20 object-cover rounded-lg"
             />
             <div className="flex-1">
               <h4 className="font-medium text-gray-900 dark:text-white">
-                {tour.name}
+                {getLocalizedText(tour.name)}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {tour.duration}
+                {getLocalizedText(tour.duration)}
               </p>
-              {tour.badge && (
+              {getLocalizedText(tour.badge || undefined) && (
                 <Badge variant="secondary" className="text-xs">
-                  {tour.badge}
+                  {getLocalizedText(tour.badge || undefined)}
                 </Badge>
               )}
             </div>

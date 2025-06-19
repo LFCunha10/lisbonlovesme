@@ -10,7 +10,15 @@ interface TourCardProps {
 }
 
 export default function TourCard({ tour }: TourCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  const getLocalizedText = (text: string | { en: string; pt: string; ru: string } | undefined): string => {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    
+    const lang = i18n.language.startsWith('pt') ? 'pt' : i18n.language.startsWith('ru') ? 'ru' : 'en';
+    return text[lang] || text.en || '';
+  };
 
   const getBadgeColorClass = (color?: string) => {
     if (!color) return "bg-primary/10 text-primary";
@@ -29,7 +37,7 @@ export default function TourCard({ tour }: TourCardProps) {
       <Link href={`/tour/${tour.id}`}>
         <img 
           src={tour.imageUrl} 
-          alt={tour.name} 
+          alt={getLocalizedText(tour.name)} 
           className="w-full h-56 object-cover"
         />
       </Link>
@@ -37,27 +45,31 @@ export default function TourCard({ tour }: TourCardProps) {
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-display font-bold">
-            <Link href={`/tour/${tour.id}`}>{tour.name}</Link>
+            <Link href={`/tour/${tour.id}`}>{getLocalizedText(tour.name)}</Link>
           </h3>
         </div>
         
         <p className="text-neutral-dark/80 mb-4">
-          {tour.shortDescription 
-            ? tour.shortDescription 
-            : (tour.description.length > 100 
-                ? `${tour.description.substring(0, 100)}...` 
-                : tour.description)}
+          {(() => {
+            const shortDesc = getLocalizedText(tour.shortDescription || tour.description);
+            const desc = getLocalizedText(tour.description);
+            return shortDesc 
+              ? shortDesc 
+              : (desc.length > 100 
+                  ? `${desc.substring(0, 100)}...` 
+                  : desc);
+          })()}
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
-            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.duration}
+            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {getLocalizedText(tour.duration)}
           </span>
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
             <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.maxGroupSize}
           </span>
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
-            <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {t(`tours.${tour.difficulty.toLowerCase()}`)}
+            <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {t(`tours.${getLocalizedText(tour.difficulty).toLowerCase()}`)}
           </span>
         </div>
         

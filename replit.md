@@ -111,6 +111,12 @@ Changelog:
 - June 19, 2025. Integrated contact form on main page with email service - admin receives notifications for all form submissions
 - June 19, 2025. Fixed critical JSON syntax errors in all translation files (en.json, pt.json, ru.json) - resolved missing commas that were preventing application startup
 - June 19, 2025. Fixed contact form functionality - added missing translation keys, created /api/contact endpoint, and resolved API call issues
+- June 19, 2025. Implemented multilingual tour system with auto-translation support for English, Portuguese, and Russian
+- June 19, 2025. Created multilingual editor interface for tour content management with translation features
+- June 19, 2025. Updated database schema to support JSON-based multilingual content storage
+- June 19, 2025. Completed comprehensive multilingual tour system implementation with English, Portuguese, and Russian language support
+- June 19, 2025. Fixed React rendering errors and TypeScript issues throughout multilingual implementation
+- June 19, 2025. Implemented getLocalizedText utility function for proper multilingual content extraction across frontend and backend
 ```
 
 ## User Preferences
