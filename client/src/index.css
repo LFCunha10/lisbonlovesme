@@ -121,17 +121,18 @@ img {
   html[lang="pt"] .text-6xl {
     font-family: 'Fraunces', serif !important;
     font-optical-sizing: auto;
-    font-weight: 300 !important; /* Light weight */
+    font-weight: 700 !important; /* Light weight */
     font-style: normal;
+    
   }
 
   /* Logo/Brand name styling for English and Portuguese */
   html[lang="en"] .brand-logo,
   html[lang="pt"] .brand-logo {
     font-family: 'Fraunces', serif !important;
-    font-optical-sizing: auto;
     font-weight: 300 !important; /* Light weight */
     font-style: normal;
+    color: black;
   }
 
   /* Additional selectors for titles and large text */
