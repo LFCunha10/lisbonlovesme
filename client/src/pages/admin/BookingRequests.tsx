@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
+import AdminLayout from "@/components/admin/AdminLayout";
 import { 
   Eye, 
   Check, 
@@ -147,94 +148,100 @@ export default function BookingRequests() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">{t('admin.requests.loading')}</h1>
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex items-center space-x-4">
+          <div className="text-2xl font-bold">{t('admin.requests.loading')}</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">{t('admin.requests.title')}</h1>
-        <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
+    <AdminLayout title={t('admin.requests.title')}>
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{t('admin.requests.title')}</h2>
+            <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="pending">{t('admin.requests.pending')} ({filteredRequests.filter(r => r.paymentStatus === "requested").length})</TabsTrigger>
+            <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({filteredRequests.filter(r => r.paymentStatus === "confirmed").length})</TabsTrigger>
+            <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({filteredRequests.filter(r => r.paymentStatus === "cancelled").length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab} className="space-y-4">
+            {filteredRequests.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {filteredRequests.map((request) => (
+                  <Card key={request.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">
+                            {request.customerFirstName} {request.customerLastName}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            {t('booking.referenceNumber')}: {request.bookingReference}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(request.paymentStatus)}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setSelectedRequest(request)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                {t('admin.requests.viewDetails')}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                              {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.customerEmail}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.customerPhone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.numberOfParticipants} {t('booking.participants')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.additionalInfo?.date || 'TBD'} {request.additionalInfo?.time || ''}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="pending">{t('admin.requests.pending')} ({filteredRequests.filter(r => r.paymentStatus === "requested").length})</TabsTrigger>
-          <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({filteredRequests.filter(r => r.paymentStatus === "confirmed").length})</TabsTrigger>
-          <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({filteredRequests.filter(r => r.paymentStatus === "cancelled").length})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="space-y-4">
-          {filteredRequests.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {filteredRequests.map((request) => (
-                <Card key={request.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">
-                          {request.customerFirstName} {request.customerLastName}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {t('booking.referenceNumber')}: {request.bookingReference}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(request.paymentStatus)}
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setSelectedRequest(request)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              {t('admin.requests.viewDetails')}
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                            {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{request.customerEmail}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{request.customerPhone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{request.numberOfParticipants} {t('booking.participants')}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{request.additionalInfo?.date || 'TBD'} {request.additionalInfo?.time || ''}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+    </AdminLayout>
   );
 }
 
