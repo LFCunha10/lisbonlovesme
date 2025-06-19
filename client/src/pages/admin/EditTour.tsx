@@ -182,8 +182,20 @@ export default function EditTourPage() {
     },
   });
 
-  // Auto-translate entire tour content
-  const autoTranslateAll = async (sourceLang: 'en' | 'pt' | 'ru') => {
+  // Auto-translate entire tour content from English to the current tab language
+  const autoTranslateAll = async (targetLang: 'en' | 'pt' | 'ru') => {
+    // Always translate FROM English TO the target language
+    const sourceLang = 'en';
+    
+    if (targetLang === 'en') {
+      toast({
+        title: "Cannot translate English",
+        description: "English is the source language. Fill in English content first, then translate to other languages.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsTranslating(true);
     try {
       const currentValues = form.getValues();
@@ -195,45 +207,36 @@ export default function EditTourPage() {
         difficulty: currentValues.difficulty[sourceLang],
       };
 
-      // Check if source content exists
+      // Check if English source content exists
       if (!sourceData.name || !sourceData.description) {
         toast({
-          title: "Missing source content",
-          description: `Please fill in the ${sourceLang.toUpperCase()} content first`,
+          title: "Missing English content",
+          description: "Please fill in the English content first before translating",
           variant: "destructive",
         });
         return;
       }
 
-      const targetLangs = ['en', 'pt', 'ru'].filter(lang => lang !== sourceLang);
-      
-      const response = await fetch('/api/translate-tour', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceData,
-          sourceLang,
-          targetLangs
-        })
-      });
-      
-      const data = await response.json();
+      // Translate each field individually
+      const translatedName = await translationService.translateText(sourceData.name, targetLang, sourceLang);
+      const translatedDescription = await translationService.translateText(sourceData.description, targetLang, sourceLang);
+      const translatedShortDescription = sourceData.shortDescription ? 
+        await translationService.translateText(sourceData.shortDescription, targetLang, sourceLang) : '';
+      const translatedDuration = await translationService.translateText(sourceData.duration, targetLang, sourceLang);
+      const translatedDifficulty = await translationService.translateText(sourceData.difficulty, targetLang, sourceLang);
 
-      // Update form with translations
-      for (const targetLang of targetLangs) {
-        const translations = data.translations[targetLang];
-        form.setValue(`name.${targetLang}` as any, translations.name);
-        form.setValue(`description.${targetLang}` as any, translations.description);
-        if (translations.shortDescription) {
-          form.setValue(`shortDescription.${targetLang}` as any, translations.shortDescription);
-        }
-        form.setValue(`duration.${targetLang}` as any, translations.duration);
-        form.setValue(`difficulty.${targetLang}` as any, translations.difficulty);
+      // Update only the target language fields
+      form.setValue(`name.${targetLang}` as any, translatedName);
+      form.setValue(`description.${targetLang}` as any, translatedDescription);
+      if (translatedShortDescription) {
+        form.setValue(`shortDescription.${targetLang}` as any, translatedShortDescription);
       }
+      form.setValue(`duration.${targetLang}` as any, translatedDuration);
+      form.setValue(`difficulty.${targetLang}` as any, translatedDifficulty);
 
       toast({
         title: "Translation completed",
-        description: `All content has been translated from ${sourceLang.toUpperCase()}`,
+        description: `Content translated from English to ${targetLang.toUpperCase()}`,
       });
     } catch (error) {
       toast({
@@ -338,25 +341,23 @@ export default function EditTourPage() {
                           {lang === 'ru' && 'Russian Content'}
                         </h3>
                         <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => autoTranslateAll(lang)}
-                            disabled={isTranslating}
-                          >
-                            <Wand2 className="w-4 h-4 mr-2" />
-                            {isTranslating ? 'Translating...' : 'Translate All'}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => autoTranslate('name', lang)}
-                            disabled={isTranslating}
-                          >
-                            Single Field
-                          </Button>
+                          {lang !== 'en' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => autoTranslateAll(lang)}
+                              disabled={isTranslating}
+                            >
+                              <Wand2 className="w-4 h-4 mr-2" />
+                              {isTranslating ? 'Translating...' : 'Translate from English'}
+                            </Button>
+                          )}
+                          {lang === 'en' && (
+                            <span className="text-sm text-gray-500 py-2">
+                              Fill in English content first, then translate to other languages
+                            </span>
+                          )}
                         </div>
                       </div>
 

@@ -137,13 +137,63 @@ export class TranslationService {
   }
 
   private static mockTranslate(text: string, targetLang: string): string {
-    // Simple mock translation - in production replace with real API call
-    const prefixes: Record<string, string> = {
-      pt: '[PT] ',
-      ru: '[RU] '
-    };
+    // Enhanced mock translation with better language handling
+    // In production, replace with real translation API like Google Translate
     
-    return `${prefixes[targetLang] || ''}${text}`;
+    if (targetLang === 'pt') {
+      // Basic Portuguese translations for common terms
+      const ptTranslations: Record<string, string> = {
+        'tour': 'tour',
+        'walking': 'a pé',
+        'historic': 'histórico',
+        'discover': 'descubra',
+        'explore': 'explore',
+        'beautiful': 'belo',
+        'amazing': 'incrível',
+        'experience': 'experiência',
+        'guide': 'guia',
+        'hours': 'horas',
+        'easy': 'fácil',
+        'medium': 'médio',
+        'hard': 'difícil'
+      };
+      
+      let translated = text.toLowerCase();
+      for (const [en, pt] of Object.entries(ptTranslations)) {
+        translated = translated.replace(new RegExp(en, 'gi'), pt);
+      }
+      
+      return translated.charAt(0).toUpperCase() + translated.slice(1);
+    }
+    
+    if (targetLang === 'ru') {
+      // Basic Russian translations for common terms
+      const ruTranslations: Record<string, string> = {
+        'tour': 'тур',
+        'walking': 'пешеходный',
+        'historic': 'исторический',
+        'discover': 'откройте',
+        'explore': 'исследуйте',
+        'beautiful': 'красивый',
+        'amazing': 'удивительный',
+        'experience': 'опыт',
+        'guide': 'гид',
+        'hours': 'часов',
+        'easy': 'легкий',
+        'medium': 'средний',
+        'hard': 'сложный'
+      };
+      
+      let translated = text.toLowerCase();
+      for (const [en, ru] of Object.entries(ruTranslations)) {
+        translated = translated.replace(new RegExp(en, 'gi'), ru);
+      }
+      
+      return translated.charAt(0).toUpperCase() + translated.slice(1);
+    }
+    
+    // Fallback for other languages
+    return text;
   }
 
   /**
