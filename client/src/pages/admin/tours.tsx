@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { marked } from 'marked';
+import { marked } from "marked";
 
 import {
   Card,
@@ -58,30 +58,55 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Calendar } from "@/components/ui/calendar";
-import { PlusIcon, PencilIcon, TrashIcon, InfoIcon, AlertTriangleIcon } from "lucide-react";
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  InfoIcon,
+  AlertTriangleIcon,
+} from "lucide-react";
 
 const tourSchema = z.object({
-  name: z.string().min(3, { message: "Tour name must be at least 3 characters long" }),
-  shortDescription: z.string().max(150, { message: "Short description must be less than 150 characters" }).optional(),
-  description: z.string().min(10, { message: "Description must be at least 10 characters long" }),
-  imageUrl: z.string().url({ message: "Please enter a valid URL for the image" }),
+  name: z
+    .string()
+    .min(3, { message: "Tour name must be at least 3 characters long" }),
+  shortDescription: z
+    .string()
+    .max(150, { message: "Short description must be less than 150 characters" })
+    .optional(),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters long" }),
+  imageUrl: z
+    .string()
+    .url({ message: "Please enter a valid URL for the image" }),
   duration: z.string().min(2, { message: "Please enter a valid duration" }),
-  maxGroupSize: z.coerce.number().min(1, { message: "Group size must be at least 1" }),
-  difficulty: z.string().min(2, { message: "Please enter a valid difficulty level" }),
+  maxGroupSize: z.coerce
+    .number()
+    .min(1, { message: "Group size must be at least 1" }),
+  difficulty: z
+    .string()
+    .min(2, { message: "Please enter a valid difficulty level" }),
   price: z.coerce.number().min(100, { message: "Price must be at least €1" }),
   badge: z.string().nullable().optional(),
   badgeColor: z.string().nullable().optional(),
-  isActive: z.boolean().default(true)
+  isActive: z.boolean().default(true),
 });
 
 type TourFormValues = z.infer<typeof tourSchema>;
 
 const availabilitySchema = z.object({
   tourId: z.coerce.number(),
-  selectedDates: z.array(z.date()).min(1, { message: "Please select at least one date" }),
+  selectedDates: z
+    .array(z.date())
+    .min(1, { message: "Please select at least one date" }),
   time: z.string().min(5, { message: "Please enter a valid time" }),
-  maxSpots: z.coerce.number().min(1, { message: "Max spots must be at least 1" }),
-  spotsLeft: z.coerce.number().min(0, { message: "Spots left must be 0 or more" }),
+  maxSpots: z.coerce
+    .number()
+    .min(1, { message: "Max spots must be at least 1" }),
+  spotsLeft: z.coerce
+    .number()
+    .min(0, { message: "Spots left must be 0 or more" }),
 });
 
 type AvailabilityFormValues = z.infer<typeof availabilitySchema>;
@@ -91,7 +116,8 @@ export default function AdminTours() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isCreateTourOpen, setIsCreateTourOpen] = useState(false);
-  const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] = useState(false);
+  const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] =
+    useState(false);
   const [isEditTourOpen, setIsEditTourOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
@@ -99,21 +125,26 @@ export default function AdminTours() {
 
   // Fetch tours
   const { data: tours, isLoading: isLoadingTours } = useQuery({
-    queryKey: ['/api/tours'],
+    queryKey: ["/api/tours"],
     select: (data) => data as any[],
   });
 
-  const selectedTour = selectedTourId ? tours?.find((tour: any) => tour.id === selectedTourId) : null;
+  const selectedTour = selectedTourId
+    ? tours?.find((tour: any) => tour.id === selectedTourId)
+    : null;
   // Fetch availabilities for selected tour
-  const { data: availabilities, isLoading: isLoadingAvailabilities } = useQuery({
-    queryKey: ['/api/availabilities', selectedTourId],
-    queryFn: () => fetch(`/api/availabilities/${selectedTourId}`).then(res => res.json()),
-    enabled: !!selectedTourId && selectedTab === "availabilities",
-  });
+  const { data: availabilities, isLoading: isLoadingAvailabilities } = useQuery(
+    {
+      queryKey: ["/api/availabilities", selectedTourId],
+      queryFn: () =>
+        fetch(`/api/availabilities/${selectedTourId}`).then((res) =>
+          res.json(),
+        ),
+      enabled: !!selectedTourId && selectedTab === "availabilities",
+    },
+  );
 
   // Selected tour data
-
-  
 
   // Form for creating/editing tours
   const tourForm = useForm<TourFormValues>({
@@ -128,8 +159,8 @@ export default function AdminTours() {
       price: 4500,
       badge: "",
       badgeColor: "",
-      isActive: true
-    }
+      isActive: true,
+    },
   });
 
   // Form for creating availabilities
@@ -140,8 +171,8 @@ export default function AdminTours() {
       selectedDates: [],
       time: "09:00",
       maxSpots: 10,
-      spotsLeft: 10
-    }
+      spotsLeft: 10,
+    },
   });
 
   // Update form values when selected tour changes
@@ -151,8 +182,8 @@ export default function AdminTours() {
       const formData = {
         ...selectedTour,
       };
-      
-      Object.keys(formData).forEach(key => {
+
+      Object.keys(formData).forEach((key) => {
         tourForm.setValue(key as any, formData[key as keyof typeof formData]);
       });
     }
@@ -161,7 +192,7 @@ export default function AdminTours() {
   // Update availability form when selected tour changes
   React.useEffect(() => {
     if (selectedTourId) {
-      availabilityForm.setValue('tourId', selectedTourId);
+      availabilityForm.setValue("tourId", selectedTourId);
     }
   }, [selectedTourId, availabilityForm]);
 
@@ -171,7 +202,7 @@ export default function AdminTours() {
       return apiRequest("POST", "/api/tours", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsCreateTourOpen(false);
       tourForm.reset();
       toast({
@@ -185,7 +216,7 @@ export default function AdminTours() {
         description: "Failed to create tour. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const updateTourMutation = useMutation({
@@ -194,7 +225,7 @@ export default function AdminTours() {
       return apiRequest("PUT", `/api/tours/${id}`, tourData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsEditTourOpen(false);
       toast({
         title: "Tour Updated",
@@ -207,7 +238,7 @@ export default function AdminTours() {
         description: "Failed to update tour. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const deleteTourMutation = useMutation({
@@ -215,7 +246,7 @@ export default function AdminTours() {
       return apiRequest("DELETE", `/api/tours/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsDeleteDialogOpen(false);
       setSelectedTourId(null);
       toast({
@@ -229,44 +260,46 @@ export default function AdminTours() {
         description: "Failed to delete tour. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const createAvailabilityMutation = useMutation({
     mutationFn: async (data: AvailabilityFormValues) => {
       // Create availability for each selected date
-      const promises = data.selectedDates.map(date => {
+      const promises = data.selectedDates.map((date) => {
         // Use local date format to avoid timezone issues
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         const localDateStr = `${year}-${month}-${day}`;
-        
+
         const availabilityData = {
           tourId: data.tourId,
           date: localDateStr,
           time: data.time,
           maxSpots: data.maxSpots,
-          spotsLeft: data.spotsLeft
+          spotsLeft: data.spotsLeft,
         };
         return apiRequest("POST", "/api/availabilities", availabilityData);
       });
-      
+
       return Promise.all(promises);
     },
     onSuccess: (results) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/availabilities', selectedTourId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/availabilities", selectedTourId],
+      });
       setIsCreateAvailabilityOpen(false);
-      availabilityForm.reset({ 
+      availabilityForm.reset({
         tourId: selectedTourId || 0,
         selectedDates: [],
         time: "09:00",
         maxSpots: 10,
-        spotsLeft: 10
+        spotsLeft: 10,
       });
       toast({
         title: "Availabilities Created",
-        description: `Successfully created ${results.length} availability slot${results.length !== 1 ? 's' : ''}.`,
+        description: `Successfully created ${results.length} availability slot${results.length !== 1 ? "s" : ""}.`,
       });
     },
     onError: (error) => {
@@ -275,7 +308,7 @@ export default function AdminTours() {
         description: "Failed to create availability. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const onCreateTourSubmit = (data: TourFormValues) => {
@@ -322,7 +355,7 @@ export default function AdminTours() {
               <PlusIcon className="mr-2 h-4 w-4" />
               Add New Tour
             </Button>
-            
+
             {/* Keep the dialog for backward compatibility but hidden */}
             <Dialog open={isCreateTourOpen} onOpenChange={setIsCreateTourOpen}>
               <DialogTrigger asChild>
@@ -336,7 +369,10 @@ export default function AdminTours() {
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...tourForm}>
-                  <form onSubmit={tourForm.handleSubmit(onCreateTourSubmit)} className="space-y-4 py-4">
+                  <form
+                    onSubmit={tourForm.handleSubmit(onCreateTourSubmit)}
+                    className="space-y-4 py-4"
+                  >
                     <FormField
                       control={tourForm.control}
                       name="name"
@@ -344,7 +380,10 @@ export default function AdminTours() {
                         <FormItem>
                           <FormLabel>Tour Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Historic Belém Tour" {...field} />
+                            <Input
+                              placeholder="Historic Belém Tour"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -357,10 +396,10 @@ export default function AdminTours() {
                         <FormItem>
                           <FormLabel>Short Description</FormLabel>
                           <FormControl>
-                            <Textarea 
-                              placeholder="A brief description that will appear on tour cards (max 150 characters)" 
-                              rows={2} 
-                              {...field} 
+                            <Textarea
+                              placeholder="A brief description that will appear on tour cards (max 150 characters)"
+                              rows={2}
+                              {...field}
                               value={field.value || ""}
                             />
                           </FormControl>
@@ -378,7 +417,11 @@ export default function AdminTours() {
                         <FormItem>
                           <FormLabel>Full Description</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Explore the historic Belém district..." rows={4} {...field} />
+                            <Textarea
+                              placeholder="Explore the historic Belém district..."
+                              rows={4}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -392,7 +435,10 @@ export default function AdminTours() {
                           <FormItem>
                             <FormLabel>Image URL</FormLabel>
                             <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
+                              <Input
+                                placeholder="https://example.com/image.jpg"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -433,7 +479,10 @@ export default function AdminTours() {
                           <FormItem>
                             <FormLabel>Difficulty</FormLabel>
                             <FormControl>
-                              <Input placeholder="Easy, Moderate, Challenging" {...field} />
+                              <Input
+                                placeholder="Easy, Moderate, Challenging"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -448,14 +497,18 @@ export default function AdminTours() {
                           <FormItem>
                             <FormLabel>Price (in cents)</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="number" 
-                                {...field} 
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(parseInt(e.target.value))
+                                }
                               />
                             </FormControl>
                             <FormMessage />
-                            <p className="text-xs text-gray-500">Example: 4500 for €45.00</p>
+                            <p className="text-xs text-gray-500">
+                              Example: 4500 for €45.00
+                            </p>
                           </FormItem>
                         )}
                       />
@@ -485,7 +538,11 @@ export default function AdminTours() {
                           <FormItem>
                             <FormLabel>Badge (optional)</FormLabel>
                             <FormControl>
-                              <Input placeholder="Most Popular, Evening Tour, etc." {...field} value={field.value || ''} />
+                              <Input
+                                placeholder="Most Popular, Evening Tour, etc."
+                                {...field}
+                                value={field.value || ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -498,7 +555,11 @@ export default function AdminTours() {
                           <FormItem>
                             <FormLabel>Badge Color (optional)</FormLabel>
                             <FormControl>
-                              <Input placeholder="primary, secondary, accent" {...field} value={field.value || ''} />
+                              <Input
+                                placeholder="primary, secondary, accent"
+                                {...field}
+                                value={field.value || ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -506,16 +567,24 @@ export default function AdminTours() {
                       />
                     </div>
                     <DialogFooter>
-                      <Button type="submit" disabled={createTourMutation.isPending}>
-                        {createTourMutation.isPending ? "Creating..." : "Create Tour"}
+                      <Button
+                        type="submit"
+                        disabled={createTourMutation.isPending}
+                      >
+                        {createTourMutation.isPending
+                          ? "Creating..."
+                          : "Create Tour"}
                       </Button>
                     </DialogFooter>
                   </form>
                 </Form>
               </DialogContent>
             </Dialog>
-            
-            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
+
+            <Button
+              variant="outline"
+              onClick={() => navigate("/admin/dashboard")}
+            >
               Back to Dashboard
             </Button>
           </div>
@@ -525,24 +594,26 @@ export default function AdminTours() {
           <Card className="md:col-span-1">
             <CardHeader>
               <CardTitle>Tours</CardTitle>
-              <CardDescription>
-                Select a tour to manage
-              </CardDescription>
+              <CardDescription>Select a tour to manage</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {tours?.map((tour: any) => (
                   <div
                     key={tour.id}
-                    className={`p-3 rounded-md cursor-pointer transition-colors hover:bg-primary/10 flex justify-between items-center ${selectedTourId === tour.id ? 'bg-primary/10 border-l-4 border-primary' : ''}`}
+                    className={`p-3 rounded-md cursor-pointer transition-colors hover:bg-primary/10 flex justify-between items-center ${selectedTourId === tour.id ? "bg-primary/10 border-l-4 border-primary" : ""}`}
                     onClick={() => handleTourSelect(tour)}
                   >
                     <div>
                       <div className="font-medium">{tour.name}</div>
-                      <div className="text-xs text-gray-500">{tour.duration} • €{(tour.price / 100).toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">
+                        {tour.duration} • €{(tour.price / 100).toFixed(2)}
+                      </div>
                     </div>
                     {!tour.isActive && (
-                      <Badge variant="outline" className="ml-2">Inactive</Badge>
+                      <Badge variant="outline" className="ml-2">
+                        Inactive
+                      </Badge>
                     )}
                   </div>
                 ))}
@@ -550,7 +621,11 @@ export default function AdminTours() {
                 {tours?.length === 0 && (
                   <div className="text-center p-4">
                     <p className="text-gray-500">No tours found</p>
-                    <Button variant="outline" className="mt-2" onClick={() => setIsCreateTourOpen(true)}>
+                    <Button
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setIsCreateTourOpen(true)}
+                    >
                       Create your first tour
                     </Button>
                   </div>
@@ -566,17 +641,27 @@ export default function AdminTours() {
                   <div>
                     <CardTitle>{selectedTour.name}</CardTitle>
                     <CardDescription>
-                      {selectedTour.duration} • €{(selectedTour.price / 100).toFixed(2)}
+                      {selectedTour.duration} • €
+                      {(selectedTour.price / 100).toFixed(2)}
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/admin/tours/edit/${selectedTour.id}`)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        navigate(`/admin/tours/edit/${selectedTour.id}`)
+                      }
+                    >
                       <PencilIcon className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
-                    
+
                     {/* Keep dialog hidden for backward compatibility */}
-                    <Dialog open={isEditTourOpen} onOpenChange={setIsEditTourOpen}>
+                    <Dialog
+                      open={isEditTourOpen}
+                      onOpenChange={setIsEditTourOpen}
+                    >
                       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto hidden">
                         <DialogHeader>
                           <DialogTitle>Edit Tour</DialogTitle>
@@ -585,7 +670,10 @@ export default function AdminTours() {
                           </DialogDescription>
                         </DialogHeader>
                         <Form {...tourForm}>
-                          <form onSubmit={tourForm.handleSubmit(onUpdateTourSubmit)} className="space-y-4 py-4">
+                          <form
+                            onSubmit={tourForm.handleSubmit(onUpdateTourSubmit)}
+                            className="space-y-4 py-4"
+                          >
                             <FormField
                               control={tourForm.control}
                               name="name"
@@ -593,7 +681,10 @@ export default function AdminTours() {
                                 <FormItem>
                                   <FormLabel>Tour Name</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Historic Belém Tour" {...field} />
+                                    <Input
+                                      placeholder="Historic Belém Tour"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -606,10 +697,10 @@ export default function AdminTours() {
                                 <FormItem>
                                   <FormLabel>Short Description</FormLabel>
                                   <FormControl>
-                                    <Textarea 
-                                      placeholder="A brief description that will appear on tour cards (max 150 characters)" 
-                                      rows={2} 
-                                      {...field} 
+                                    <Textarea
+                                      placeholder="A brief description that will appear on tour cards (max 150 characters)"
+                                      rows={2}
+                                      {...field}
                                       value={field.value || ""}
                                     />
                                   </FormControl>
@@ -627,7 +718,11 @@ export default function AdminTours() {
                                 <FormItem>
                                   <FormLabel>Full Description</FormLabel>
                                   <FormControl>
-                                    <Textarea placeholder="Explore the historic Belém district..." rows={4} {...field} />
+                                    <Textarea
+                                      placeholder="Explore the historic Belém district..."
+                                      rows={4}
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -641,7 +736,10 @@ export default function AdminTours() {
                                   <FormItem>
                                     <FormLabel>Image URL</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="https://example.com/image.jpg" {...field} />
+                                      <Input
+                                        placeholder="https://example.com/image.jpg"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -669,8 +767,14 @@ export default function AdminTours() {
                                   <FormItem>
                                     <FormLabel>Max Group Size</FormLabel>
                                     <FormControl>
-                                      <Input type="number" {...field} 
-                                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                      <Input
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseInt(e.target.value),
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -684,7 +788,10 @@ export default function AdminTours() {
                                   <FormItem>
                                     <FormLabel>Difficulty</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Easy, Moderate, Challenging" {...field} />
+                                      <Input
+                                        placeholder="Easy, Moderate, Challenging"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -699,14 +806,20 @@ export default function AdminTours() {
                                   <FormItem>
                                     <FormLabel>Price (in cents)</FormLabel>
                                     <FormControl>
-                                      <Input 
-                                        type="number" 
-                                        {...field} 
-                                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                      <Input
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseInt(e.target.value),
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
-                                    <p className="text-xs text-gray-500">Example: 4500 for €45.00</p>
+                                    <p className="text-xs text-gray-500">
+                                      Example: 4500 for €45.00
+                                    </p>
                                   </FormItem>
                                 )}
                               />
@@ -736,7 +849,11 @@ export default function AdminTours() {
                                   <FormItem>
                                     <FormLabel>Badge (optional)</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Most Popular, Evening Tour, etc." {...field} value={field.value || ''} />
+                                      <Input
+                                        placeholder="Most Popular, Evening Tour, etc."
+                                        {...field}
+                                        value={field.value || ""}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -747,9 +864,15 @@ export default function AdminTours() {
                                 name="badgeColor"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Badge Color (optional)</FormLabel>
+                                    <FormLabel>
+                                      Badge Color (optional)
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input placeholder="primary, secondary, accent" {...field} value={field.value || ''} />
+                                      <Input
+                                        placeholder="primary, secondary, accent"
+                                        {...field}
+                                        value={field.value || ""}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -757,8 +880,13 @@ export default function AdminTours() {
                               />
                             </div>
                             <DialogFooter>
-                              <Button type="submit" disabled={updateTourMutation.isPending}>
-                                {updateTourMutation.isPending ? "Saving..." : "Save Changes"}
+                              <Button
+                                type="submit"
+                                disabled={updateTourMutation.isPending}
+                              >
+                                {updateTourMutation.isPending
+                                  ? "Saving..."
+                                  : "Save Changes"}
                               </Button>
                             </DialogFooter>
                           </form>
@@ -766,7 +894,10 @@ export default function AdminTours() {
                       </DialogContent>
                     </Dialog>
 
-                    <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <Dialog
+                      open={isDeleteDialogOpen}
+                      onOpenChange={setIsDeleteDialogOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button size="sm" variant="destructive">
                           <TrashIcon className="h-4 w-4 mr-2" />
@@ -777,23 +908,34 @@ export default function AdminTours() {
                         <DialogHeader>
                           <DialogTitle>Delete Tour</DialogTitle>
                           <DialogDescription>
-                            Are you sure you want to delete this tour? This action cannot be undone.
+                            Are you sure you want to delete this tour? This
+                            action cannot be undone.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="py-4">
                           <Alert>
                             <AlertTriangleIcon className="h-4 w-4" />
                             <AlertDescription>
-                              Deleting this tour will also remove all associated availabilities and may affect bookings.
+                              Deleting this tour will also remove all associated
+                              availabilities and may affect bookings.
                             </AlertDescription>
                           </Alert>
                         </div>
                         <DialogFooter>
-                          <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                          >
                             Cancel
                           </Button>
-                          <Button variant="destructive" onClick={handleDeleteTour} disabled={deleteTourMutation.isPending}>
-                            {deleteTourMutation.isPending ? "Deleting..." : "Delete Tour"}
+                          <Button
+                            variant="destructive"
+                            onClick={handleDeleteTour}
+                            disabled={deleteTourMutation.isPending}
+                          >
+                            {deleteTourMutation.isPending
+                              ? "Deleting..."
+                              : "Delete Tour"}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
@@ -804,7 +946,9 @@ export default function AdminTours() {
                   <Tabs value={selectedTab} onValueChange={setSelectedTab}>
                     <TabsList className="grid w-full grid-cols-3 mb-6">
                       <TabsTrigger value="details">Details</TabsTrigger>
-                      <TabsTrigger value="availabilities">Availabilities</TabsTrigger>
+                      <TabsTrigger value="availabilities">
+                        Availabilities
+                      </TabsTrigger>
                       <TabsTrigger value="bookings">Bookings</TabsTrigger>
                     </TabsList>
 
@@ -812,28 +956,38 @@ export default function AdminTours() {
                       <div className="space-y-4">
                         <div>
                           <h3 className="font-medium">Description</h3>
-                          <div 
+                          <div
                             className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: marked.parse(selectedTour.description) }}
+                            dangerouslySetInnerHTML={{
+                              __html: marked.parse(selectedTour.description),
+                            }}
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <h3 className="font-medium">Duration</h3>
-                            <p className="text-sm text-gray-600 mt-1">{selectedTour.duration}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {selectedTour.duration}
+                            </p>
                           </div>
                           <div>
                             <h3 className="font-medium">Max Group Size</h3>
-                            <p className="text-sm text-gray-600 mt-1">{selectedTour.maxGroupSize} participants</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {selectedTour.maxGroupSize} participants
+                            </p>
                           </div>
                           <div>
                             <h3 className="font-medium">Difficulty</h3>
-                            <p className="text-sm text-gray-600 mt-1">{selectedTour.difficulty}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {selectedTour.difficulty}
+                            </p>
                           </div>
                           <div>
                             <h3 className="font-medium">Price</h3>
-                            <p className="text-sm text-gray-600 mt-1">€{(selectedTour.price / 100).toFixed(2)}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              €{(selectedTour.price / 100).toFixed(2)}
+                            </p>
                           </div>
                         </div>
 
@@ -841,9 +995,9 @@ export default function AdminTours() {
                           <div>
                             <h3 className="font-medium">Image</h3>
                             <div className="mt-2 relative rounded-md overflow-hidden aspect-video">
-                              <img 
-                                src={selectedTour.imageUrl} 
-                                alt={selectedTour.name} 
+                              <img
+                                src={selectedTour.imageUrl}
+                                alt={selectedTour.name}
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -856,7 +1010,10 @@ export default function AdminTours() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h3 className="font-medium">Availabilities</h3>
-                          <Dialog open={isCreateAvailabilityOpen} onOpenChange={setIsCreateAvailabilityOpen}>
+                          <Dialog
+                            open={isCreateAvailabilityOpen}
+                            onOpenChange={setIsCreateAvailabilityOpen}
+                          >
                             <DialogTrigger asChild>
                               <Button size="sm">
                                 <PlusIcon className="h-4 w-4 mr-2" />
@@ -867,11 +1024,17 @@ export default function AdminTours() {
                               <DialogHeader>
                                 <DialogTitle>Add Availability</DialogTitle>
                                 <DialogDescription>
-                                  Select multiple dates and set the time and capacity for this tour.
+                                  Select multiple dates and set the time and
+                                  capacity for this tour.
                                 </DialogDescription>
                               </DialogHeader>
                               <Form {...availabilityForm}>
-                                <form onSubmit={availabilityForm.handleSubmit(onCreateAvailabilitySubmit)} className="space-y-4 py-4">
+                                <form
+                                  onSubmit={availabilityForm.handleSubmit(
+                                    onCreateAvailabilitySubmit,
+                                  )}
+                                  className="space-y-4 py-4"
+                                >
                                   <FormField
                                     control={availabilityForm.control}
                                     name="selectedDates"
@@ -879,21 +1042,40 @@ export default function AdminTours() {
                                       <FormItem>
                                         <FormLabel>Select Dates</FormLabel>
                                         <FormControl>
-                                          <div className="border rounded-md p-2 max-w-sm mx-auto">
-                                            <Calendar
-                                              mode="multiple"
-                                              selected={field.value || []}
-                                              onSelect={field.onChange}
-                                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                              className="w-full"
-                                            />
-                                            <div className="mt-2 text-xs text-gray-600 text-center">
+                                          <div className="w-[450px] h-[360px] border rounded-md p-3 flex flex-col items-center justify-center">
+                                            <div className="flex flex-1 items-center justify-center">
+                                              <Calendar
+                                                mode="multiple"
+                                                selected={field.value || []}
+                                                onSelect={field.onChange}
+                                                disabled={(date) =>
+                                                  date <
+                                                  new Date(
+                                                    new Date().setHours(
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      0,
+                                                    ),
+                                                  )
+                                                }
+                                                className="w-full h-auto max-w-full"
+                                              />
+                                            </div>
+                                            <div className="mt-2 text-sm text-gray-600 text-center">
                                               {field.value?.length > 0 ? (
                                                 <span>
-                                                  {field.value.length} date{field.value.length !== 1 ? 's' : ''} selected
+                                                  {field.value.length} date
+                                                  {field.value.length !== 1
+                                                    ? "s"
+                                                    : ""}{" "}
+                                                  selected
                                                 </span>
                                               ) : (
-                                                <span>Click dates to select multiple days</span>
+                                                <span>
+                                                  Click dates to select multiple
+                                                  days
+                                                </span>
                                               )}
                                             </div>
                                           </div>
@@ -923,13 +1105,18 @@ export default function AdminTours() {
                                         <FormItem>
                                           <FormLabel>Max Spots</FormLabel>
                                           <FormControl>
-                                            <Input 
+                                            <Input
                                               type="number"
                                               {...field}
                                               onChange={(e) => {
-                                                field.onChange(parseInt(e.target.value));
+                                                field.onChange(
+                                                  parseInt(e.target.value),
+                                                );
                                                 // Also update spotsLeft to match maxSpots when initially setting
-                                                availabilityForm.setValue('spotsLeft', parseInt(e.target.value));
+                                                availabilityForm.setValue(
+                                                  "spotsLeft",
+                                                  parseInt(e.target.value),
+                                                );
                                               }}
                                             />
                                           </FormControl>
@@ -944,10 +1131,14 @@ export default function AdminTours() {
                                         <FormItem>
                                           <FormLabel>Spots Left</FormLabel>
                                           <FormControl>
-                                            <Input 
+                                            <Input
                                               type="number"
                                               {...field}
-                                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  parseInt(e.target.value),
+                                                )
+                                              }
                                             />
                                           </FormControl>
                                           <FormMessage />
@@ -956,8 +1147,15 @@ export default function AdminTours() {
                                     />
                                   </div>
                                   <DialogFooter>
-                                    <Button type="submit" disabled={createAvailabilityMutation.isPending}>
-                                      {createAvailabilityMutation.isPending ? "Adding..." : "Add Availability"}
+                                    <Button
+                                      type="submit"
+                                      disabled={
+                                        createAvailabilityMutation.isPending
+                                      }
+                                    >
+                                      {createAvailabilityMutation.isPending
+                                        ? "Adding..."
+                                        : "Add Availability"}
                                     </Button>
                                   </DialogFooter>
                                 </form>
@@ -981,29 +1179,42 @@ export default function AdminTours() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {Array.isArray(availabilities) && availabilities.length === 0 && (
-                                <TableRow>
-                                  <TableCell colSpan={4} className="text-center py-6 text-gray-500">
-                                    No availabilities found. Add some to make this tour bookable.
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                              {Array.isArray(availabilities) && availabilities.map((availability: any) => (
-                                <TableRow key={availability.id}>
-                                  <TableCell>{availability.date}</TableCell>
-                                  <TableCell>{availability.time}</TableCell>
-                                  <TableCell>{availability.spotsLeft}/{availability.maxSpots} available</TableCell>
-                                  <TableCell>
-                                    {availability.spotsLeft === 0 ? (
-                                      <Badge variant="destructive">Sold Out</Badge>
-                                    ) : availability.spotsLeft < 3 ? (
-                                      <Badge variant="outline">Limited</Badge>
-                                    ) : (
-                                      <Badge variant="default">Available</Badge>
-                                    )}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {Array.isArray(availabilities) &&
+                                availabilities.length === 0 && (
+                                  <TableRow>
+                                    <TableCell
+                                      colSpan={4}
+                                      className="text-center py-6 text-gray-500"
+                                    >
+                                      No availabilities found. Add some to make
+                                      this tour bookable.
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              {Array.isArray(availabilities) &&
+                                availabilities.map((availability: any) => (
+                                  <TableRow key={availability.id}>
+                                    <TableCell>{availability.date}</TableCell>
+                                    <TableCell>{availability.time}</TableCell>
+                                    <TableCell>
+                                      {availability.spotsLeft}/
+                                      {availability.maxSpots} available
+                                    </TableCell>
+                                    <TableCell>
+                                      {availability.spotsLeft === 0 ? (
+                                        <Badge variant="destructive">
+                                          Sold Out
+                                        </Badge>
+                                      ) : availability.spotsLeft < 3 ? (
+                                        <Badge variant="outline">Limited</Badge>
+                                      ) : (
+                                        <Badge variant="default">
+                                          Available
+                                        </Badge>
+                                      )}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
                             </TableBody>
                           </Table>
                         )}
@@ -1014,10 +1225,14 @@ export default function AdminTours() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h3 className="font-medium">Bookings</h3>
-                          <Button 
+                          <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => navigate(`/admin/bookings?tourId=${selectedTourId}`)}
+                            onClick={() =>
+                              navigate(
+                                `/admin/bookings?tourId=${selectedTourId}`,
+                              )
+                            }
                           >
                             View in Calendar
                           </Button>
@@ -1026,14 +1241,21 @@ export default function AdminTours() {
                           <div className="text-center space-y-3">
                             <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
                             <div>
-                              <h3 className="font-medium">Bookings are shown in the Calendar View</h3>
+                              <h3 className="font-medium">
+                                Bookings are shown in the Calendar View
+                              </h3>
                               <p className="text-sm text-gray-500 mt-1">
-                                Visit the Booking Calendar to see all bookings for this tour.
+                                Visit the Booking Calendar to see all bookings
+                                for this tour.
                               </p>
                             </div>
-                            <Button 
+                            <Button
                               variant="default"
-                              onClick={() => navigate(`/admin/bookings?tourId=${selectedTourId}`)}
+                              onClick={() =>
+                                navigate(
+                                  `/admin/bookings?tourId=${selectedTourId}`,
+                                )
+                              }
                             >
                               Go to Calendar
                             </Button>
@@ -1050,7 +1272,8 @@ export default function AdminTours() {
                   <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="font-medium">Select a tour</h3>
                   <p className="text-sm text-gray-500 max-w-md">
-                    Select a tour from the list to view and manage its details, or create a new tour to get started.
+                    Select a tour from the list to view and manage its details,
+                    or create a new tour to get started.
                   </p>
                 </div>
               </CardContent>
