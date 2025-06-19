@@ -68,6 +68,7 @@ const tourSchema = z.object({
   maxGroupSize: z.coerce.number().min(1, { message: "Max group size must be at least 1" }),
   difficulty: z.string().min(1, { message: "Difficulty is required" }),
   price: z.string().min(1, { message: "Price is required" }),
+  priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
   badge: z.string().optional().nullable(),
   badgeColor: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
@@ -98,6 +99,7 @@ export default function TourEditorPage() {
       maxGroupSize: 10,
       difficulty: "medium",
       price: "",
+      priceType: "per_person" as const,
       badge: "",
       badgeColor: "primary",
       isActive: true,
@@ -125,6 +127,7 @@ export default function TourEditorPage() {
         maxGroupSize: tour.maxGroupSize,
         difficulty: tour.difficulty,
         price: (tour.price / 100).toFixed(2), // Convert cents to decimal
+        priceType: tour.priceType || "per_person",
         badge: tour.badge || "",
         badgeColor: tour.badgeColor || "primary",
         isActive: tour.isActive !== false, // Default to true if not specified
@@ -420,22 +423,51 @@ export default function TourEditorPage() {
                       
                       <FormField
                         control={form.control}
-                        name="price"
+                        name="priceType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("admin.tours.price")}</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="text"
-                                placeholder="45.00" 
-                                {...field}
-                              />
-                            </FormControl>
+                            <FormLabel>Price Type</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select pricing type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="per_person">Per Person</SelectItem>
+                                <SelectItem value="per_group">Per Group</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("admin.tours.price")} (€)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="text"
+                              placeholder="45.00" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Price in Euros{form.watch("priceType") === "per_person" ? " per person" : " per group"}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </TabsContent>
                   
                   <TabsContent value="media" className="space-y-6">

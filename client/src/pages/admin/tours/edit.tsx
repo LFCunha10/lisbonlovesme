@@ -66,6 +66,7 @@ const tourSchema = z.object({
   maxGroupSize: z.coerce.number().min(1, { message: "Max group size must be at least 1" }),
   difficulty: z.string().min(1, { message: "Difficulty is required" }),
   price: z.string().min(1, { message: "Price is required" }),
+  priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
   badge: z.string().optional().nullable(),
   badgeColor: z.string().optional().nullable(),
   isActive: z.boolean().optional(),

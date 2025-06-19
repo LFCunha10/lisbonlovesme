@@ -27,6 +27,7 @@ export const tours = pgTable("tours", {
   maxGroupSize: integer("max_group_size").notNull(),
   difficulty: text("difficulty").notNull(),
   price: integer("price").notNull(), // Price in cents
+  priceType: text("price_type").notNull().default("per_person"), // "per_person" or "per_group"
   badge: text("badge"), // "Most Popular", "Evening Tour", "Full Day", etc.
   badgeColor: text("badge_color"), // For styling
   isActive: boolean("is_active").default(true),

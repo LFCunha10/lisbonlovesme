@@ -122,7 +122,9 @@ export default function Booking() {
   };
 
   const calculateTotal = () => {
-    return (bookingData.numberOfParticipants || 1) * tour.price;
+    const participants = bookingData.numberOfParticipants || 1;
+    // If priceType is per_group, use the base price. If per_person, multiply by participants
+    return tour.priceType === "per_group" ? tour.price : participants * tour.price;
   };
 
   return (
@@ -294,7 +296,7 @@ export default function Booking() {
 
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-400">
-                        {t('booking.pricePerPerson')}
+                        {tour.priceType === "per_group" ? "Price per group" : t('booking.pricePerPerson')}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
                         €{(tour.price / 100).toFixed(2)}

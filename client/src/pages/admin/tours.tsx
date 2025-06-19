@@ -88,6 +88,7 @@ const tourSchema = z.object({
     .string()
     .min(2, { message: "Please enter a valid difficulty level" }),
   price: z.coerce.number().min(100, { message: "Price must be at least €1" }),
+  priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
   badge: z.string().nullable().optional(),
   badgeColor: z.string().nullable().optional(),
   isActive: z.boolean().default(true),

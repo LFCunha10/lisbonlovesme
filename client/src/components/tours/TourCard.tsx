@@ -64,7 +64,9 @@ export default function TourCard({ tour }: TourCardProps) {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div className="text-lg sm:text-xl font-semibold text-neutral-dark">
             {formatCurrency(tour.price)}
-            <span className="text-xs sm:text-sm font-normal text-neutral-dark/70 block sm:inline">/{t('tours.perPerson')}</span>
+            <span className="text-xs sm:text-sm font-normal text-neutral-dark/70 block sm:inline">
+              /{tour.priceType === "per_group" ? "per group" : t('tours.perPerson')}
+            </span>
           </div>
           <Link href={`/tour/${tour.id}`} className="w-full sm:w-auto">
             <Button size="sm" className="w-full sm:w-auto">

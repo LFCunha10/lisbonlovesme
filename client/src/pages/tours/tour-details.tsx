@@ -144,7 +144,7 @@ export default function TourDetailsPage() {
                   {formatCurrency(tour.price)}
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  {t('tours.perPerson')}
+                  {tour.priceType === "per_group" ? "per group" : t('tours.perPerson')}
                 </p>
               </div>
 
@@ -229,7 +229,7 @@ export default function TourDetailsPage() {
                         {t('tours.price')}
                       </h3>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)}
+                        {formatCurrency(tour.price)}{tour.priceType === "per_group" ? "/group" : "/person"}
                       </p>
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function TourDetailsPage() {
                         {t('tours.price')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)} {t('tours.perPerson')}
+                        {formatCurrency(tour.price)} {tour.priceType === "per_group" ? "per group" : t('tours.perPerson')}
                       </p>
                     </div>
                   </div>
@@ -344,7 +344,7 @@ export default function TourDetailsPage() {
                     {formatCurrency(tour.price)}
                   </div>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                    {t('tours.perPerson')}
+                    {tour.priceType === "per_group" ? "per group" : t('tours.perPerson')}
                   </p>
                 </div>
 

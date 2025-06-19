@@ -225,7 +225,9 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-2">
                 <Euro className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600 dark:text-gray-400">{t('booking.pricePerPerson')}</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  {tour.priceType === "per_group" ? "Price per group" : t('booking.pricePerPerson')}
+                </span>
               </div>
               <span className="font-medium text-gray-900 dark:text-white">€{(tour.price / 100).toFixed(2)}</span>
             </div>
