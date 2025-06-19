@@ -871,29 +871,32 @@ export default function AdminTours() {
                                     name="selectedDates"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Select Dates</FormLabel>
-                                        <FormControl>
-                                          <div className="border rounded-md p-3">
-                                            <Calendar
-                                              mode="multiple"
-                                              selected={field.value || []}
-                                              onSelect={field.onChange}
-                                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                              className="rounded-md border-0"
-                                            />
-                                            <div className="mt-2 text-sm text-gray-600">
-                                              {field.value?.length > 0 ? (
-                                                <span>
-                                                  {field.value.length} date{field.value.length !== 1 ? 's' : ''} selected
-                                                </span>
-                                              ) : (
-                                                <span>Click dates to select multiple days</span>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
+  <FormLabel>Select Dates</FormLabel>
+  <FormControl>
+    <div className="w-[450px] h-[360px] border rounded-md p-3 flex flex-col items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
+        <Calendar
+          mode="multiple"
+          selected={field.value || []}
+          onSelect={field.onChange}
+          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+          className="w-full h-auto max-w-full"
+        />
+      </div>
+      <div className="mt-2 text-sm text-gray-600 text-center">
+          {field.value?.length > 0 ? (
+            <span>
+              {field.value.length} date{field.value.length !== 1 ? 's' : ''} selected
+            </span>
+          ) : (
+            <span>Click dates to select multiple days</span>
+          )}
+        </div>
+    </div>
+  </FormControl>
+  <FormMessage />
+</FormItem>
+
                                     )}
                                   />
                                   <FormField
