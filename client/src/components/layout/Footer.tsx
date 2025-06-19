@@ -60,16 +60,16 @@ export default function Footer() {
             <p className="text-white/70 mb-4">
               {t('common.subscribeText')}
             </p>
-            <form className="flex" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex w-full" onSubmit={(e) => e.preventDefault()}>
               <Input 
                 type="email" 
                 placeholder={t('common.emailPlaceholder')} 
-                className="bg-white/10 text-white placeholder:text-white/50 rounded-r-none focus:ring-primary/50 border-white/10"
+                className="bg-white/10 text-white placeholder:text-white/50 rounded-r-none focus:ring-primary/50 border-white/10 flex-1 min-w-0"
               />
               <Button 
                 type="submit" 
                 variant="default" 
-                className="rounded-l-none" 
+                className="rounded-l-none shrink-0" 
                 size="icon"
               >
                 <Send size={18} />
@@ -79,13 +79,13 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-white/70 text-sm">
-          <div className="mb-4 md:mb-0">
+          <div className="mb-4 md:mb-0 text-center md:text-left">
             &copy; {new Date().getFullYear()} Lisbonlovesme. {t('footer.rights')}
           </div>
-          <div className="flex space-x-4">
-            <Link key="terms" href="#" className="hover:text-white">{t('footer.termsOfService')}</Link>
-            <Link key="privacy" href="#" className="hover:text-white">{t('footer.privacyPolicy')}</Link>
-            <Link key="cookies" href="#" className="hover:text-white">{t('footer.cookiePolicy')}</Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link key="terms" href="#" className="hover:text-white whitespace-nowrap">{t('footer.termsOfService')}</Link>
+            <Link key="privacy" href="#" className="hover:text-white whitespace-nowrap">{t('footer.privacyPolicy')}</Link>
+            <Link key="cookies" href="#" className="hover:text-white whitespace-nowrap">{t('footer.cookiePolicy')}</Link>
           </div>
         </div>
       </div>

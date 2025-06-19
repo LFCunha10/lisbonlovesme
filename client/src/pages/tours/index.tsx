@@ -30,16 +30,16 @@ export default function ToursPage() {
             </Link>
           </Button>
           
-          <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-2">
             {t('tour.allTours')}
           </h1>
-          <p className="text-lg text-neutral-dark/80">
+          <p className="text-base sm:text-lg text-neutral-dark/80">
             {t('tour.allToursDescription')}
           </p>
         </div>
 
         {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <TourCardSkeleton key={i} />
             ))}
@@ -66,7 +66,7 @@ export default function ToursPage() {
                 <p className="text-xl text-neutral-dark/70">No tours available at the moment.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {tours.map((tour) => (
                   <TourCard key={tour.id} tour={tour} />
                 ))}

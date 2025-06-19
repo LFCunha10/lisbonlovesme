@@ -13,9 +13,9 @@ export default function FeaturedTours() {
   return (
     <section id="tours" className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">{t('home.featuredTours')}</h2>
-          <p className="text-lg text-neutral-dark/80 max-w-2xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-4">{t('home.featuredTours')}</h2>
+          <p className="text-base sm:text-lg text-neutral-dark/80 max-w-2xl mx-auto px-4">
             {t('home.subtitle')}
           </p>
         </div>
