@@ -102,14 +102,40 @@ app.use(passport.session());
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5001;
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+  
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      log('Process terminated');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+      log('Process terminated');
+      process.exit(0);
+    });
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`Port ${port} is already in use. Attempting to restart...`);
+      setTimeout(() => {
+        server.close();
+        server.listen({ port, host: "0.0.0.0" }, () => {
+          log(`serving on port ${port}`);
+        });
+      }, 1000);
+    } else {
+      log(`Server error: ${err.message}`);
+      throw err;
+    }
+  });
+
+  server.listen({ port, host: "0.0.0.0" }, () => {
+    log(`serving on port ${port}`);
+  });
 })();

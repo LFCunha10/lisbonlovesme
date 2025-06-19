@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
@@ -100,6 +101,9 @@ export default function GalleryPage() {
                 </DialogTrigger>
                 
                 <DialogContent className="max-w-4xl w-full p-0">
+                  <DialogDescription className="sr-only">
+                    Gallery image: {image.title || image.description || `Lisbon photo ${index + 1}`}
+                  </DialogDescription>
                   <div className="relative">
                     <img
                       src={image.imageUrl}
