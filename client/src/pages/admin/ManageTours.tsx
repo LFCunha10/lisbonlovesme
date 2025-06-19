@@ -19,8 +19,11 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Trash, Plus } from "lucide-react";
 import { InsertTour } from "@shared/schema";
+import { getLocalizedText } from "@/lib/tour-utils";
+import { useTranslation } from "react-i18next";
 
 export default function ManageTours() {
+  const { i18n } = useTranslation();
   const { tours, isLoading, error } = useTours();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -185,7 +188,7 @@ export default function ManageTours() {
           <Card key={tour.id}>
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle>{tour.name}</CardTitle>
+                <CardTitle>{getLocalizedText(tour.name, i18n.language)}</CardTitle>
                 <div className="flex space-x-2">
                   <Button size="sm" variant="outline" onClick={() => handleEdit(tour)}>
                     <Edit className="h-4 w-4" />

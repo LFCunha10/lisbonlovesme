@@ -54,8 +54,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon, XIcon, MinusIcon } from "lucide-react";
+import { getLocalizedText } from "@/lib/tour-utils";
+import { useTranslation } from "react-i18next";
 
 export default function BookingsCalendar() {
+  const { i18n } = useTranslation();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -278,7 +281,7 @@ export default function BookingsCalendar() {
                   <SelectItem value="all">All Tours</SelectItem>
                   {tours?.map((tour: any) => (
                     <SelectItem key={tour.id} value={tour.id.toString()}>
-                      {tour.name}
+                      {getLocalizedText(tour.name, i18n.language)}
                     </SelectItem>
                   ))}
                 </SelectGroup>

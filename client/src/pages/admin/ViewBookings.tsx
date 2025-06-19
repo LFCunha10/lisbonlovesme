@@ -21,15 +21,27 @@ import { Label } from "@/components/ui/label";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTours } from "@/hooks/use-tours";
-import { useBookings } from "@/hooks/use-bookings";
 import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
+import { getLocalizedText } from "@/lib/tour-utils";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { Search, Calendar, User, Mail, Phone, CheckCircle, XCircle } from "lucide-react";
 
 export default function ViewBookings() {
+  const { i18n } = useTranslation();
   const { tours } = useTours();
   const [filterTourId, setFilterTourId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
-  const { bookings, isLoading, error } = useBookings(filterTourId);
+  // Use query to fetch bookings directly instead of useBookings hook
+  const { data: bookings = [], isLoading, error } = useQuery({
+    queryKey: ["/api/admin/bookings", filterTourId],
+    queryFn: async () => {
+      const url = filterTourId ? `/api/admin/bookings?tourId=${filterTourId}` : "/api/admin/bookings";
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch bookings");
+      return response.json();
+    }
+  });
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -66,7 +78,7 @@ export default function ViewBookings() {
 
   const getTourName = (tourId: number) => {
     const tour = tours.find((t) => t.id === tourId);
-    return tour ? tour.name : "Unknown Tour";
+    return tour ? getLocalizedText(tour.name, i18n.language) : "Unknown Tour";
   };
 
   const handleSendReminder = async (bookingId: number) => {
@@ -131,7 +143,7 @@ export default function ViewBookings() {
               <SelectItem value="">All Tours</SelectItem>
               {tours.map((tour) => (
                 <SelectItem key={tour.id} value={tour.id.toString()}>
-                  {tour.name}
+                  {getLocalizedText(tour.name, i18n.language)}
                 </SelectItem>
               ))}
             </SelectContent>

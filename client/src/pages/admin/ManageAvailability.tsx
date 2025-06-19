@@ -24,8 +24,11 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash, Calendar as CalendarIcon } from "lucide-react";
 import { InsertAvailability } from "@shared/schema";
+import { getLocalizedText } from "@/lib/tour-utils";
+import { useTranslation } from "react-i18next";
 
 export default function ManageAvailability() {
+  const { i18n } = useTranslation();
   const { tours, isLoading: isLoadingTours } = useTours();
   const [selectedTourId, setSelectedTourId] = useState<number>(0);
   const { availabilities, isLoading: isLoadingAvailabilities, error } = useAvailabilities(
@@ -207,7 +210,7 @@ export default function ManageAvailability() {
             <SelectItem value="">All Tours</SelectItem>
             {tours.map((tour) => (
               <SelectItem key={tour.id} value={tour.id.toString()}>
-                {tour.name}
+                {getLocalizedText(tour.name, i18n.language)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -240,7 +243,7 @@ export default function ManageAvailability() {
             return (
               <Card key={availability.id}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{tour?.name}</CardTitle>
+                  <CardTitle className="text-base">{tour?.name ? getLocalizedText(tour.name, i18n.language) : 'Unknown Tour'}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center">
@@ -291,7 +294,7 @@ export default function ManageAvailability() {
                 <SelectContent>
                   {tours.map((tour) => (
                     <SelectItem key={tour.id} value={tour.id.toString()}>
-                      {tour.name}
+                      {getLocalizedText(tour.name, i18n.language)}
                     </SelectItem>
                   ))}
                 </SelectContent>
