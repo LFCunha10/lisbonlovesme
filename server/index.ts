@@ -59,6 +59,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.json());
+
 (async () => {
   // Migrate sample data to the database
   try {

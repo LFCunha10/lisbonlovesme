@@ -1,0 +1,891 @@
+openapi: 3.0.3
+info:
+  title: Lisbonlovesme
+  version: 1.0.0
+servers:
+  - url: https://localhost:5001
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+paths:
+  /api/admin/payments:
+    get:
+      summary: Get all bookings with payment info (admin only)
+      security:
+        - cookieAuth: []
+      tags:
+        - Admin
+        - Payments
+      responses:
+        '200':
+          description: List of enriched bookings with payment and tour info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    tourId:
+                      type: integer
+                    availabilityId:
+                      type: integer
+                    stripePaymentIntentId:
+                      type: string
+                    tourName:
+                      type: string
+                    date:
+                      type: string
+                      format: date
+                    time:
+                      type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error
+
+  /api/admin/refund/{id}:
+    post:
+      summary: Process refund for booking (admin only)
+      security:
+        - cookieAuth: []
+      tags:
+        - Admin
+        - Payments
+      parameters:
+        - name: id
+          in: path
+          description: Booking ID to refund
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Refund reason
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Refund processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  booking:
+                    type: object
+        '400':
+          description: No payment intent found or bad request
+        '404':
+          description: Booking not found
+        '500':
+          description: Server error
+
+  /api/send-email:
+    post:
+      summary: Send an email
+      tags:
+        - Email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - to
+                - subject
+                - html
+              properties:
+                to:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                html:
+                  type: string
+      responses:
+        '200':
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  messageId:
+                    type: string
+        '500':
+          description: Failed to send email
+
+  /api/admin/login:
+    post:
+      summary: Admin login
+      tags:
+        - Admin
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      isAdmin:
+                        type: boolean
+        '401':
+          description: Invalid username or password
+        '403':
+          description: No admin privileges
+        '500':
+          description: Server error
+
+  /api/admin/session:
+    get:
+      summary: Get admin session info
+      tags:
+        - Admin
+        - Auth
+      responses:
+        '200':
+          description: Session status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isAuthenticated:
+                    type: boolean
+                  isAdmin:
+                    type: boolean
+                  user:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+
+  /api/admin/logout:
+    post:
+      summary: Admin logout
+      tags:
+        - Admin
+        - Auth
+      responses:
+        '200':
+          description: Logout status message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Logout failed
+
+  /api/tours/{id}:
+    get:
+      summary: Get tour by ID with testimonials
+      tags:
+        - Tours
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tour data with testimonials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  duration:
+                    type: string
+                  testimonials:
+                    type: array
+                    items:
+                      type: object
+        '404':
+          description: Tour not found
+        '500':
+          description: Server error
+
+  /api/tours:
+    get:
+      summary: Get all tours
+      tags:
+        - Tours
+      responses:
+        '200':
+          description: List of tours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      summary: Create a new tour
+      tags:
+        - Tours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Tour created
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to create tour
+
+  /api/send-review-email/{bookingId}:
+    post:
+      summary: Send review request email for a booking
+      tags:
+        - Email
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review request email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Booking or Tour not found
+        '500':
+          description: Failed to send review email
+
+  /api/testimonials:
+    get:
+      summary: Get testimonials (optionally filtered by tour and approval)
+      tags:
+        - Testimonials
+      parameters:
+        - name: tourId
+          in: query
+          schema:
+            type: integer
+        - name: approvedOnly
+          in: query
+          schema:
+            type: boolean
+          description: Defaults to true
+      responses:
+        '200':
+          description: List of testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error
+    post:
+      summary: Submit new testimonial (requires approval)
+      tags:
+        - Testimonials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                author:
+                  type: string
+                text:
+                  type: string
+                rating:
+                  type: integer
+      responses:
+        '200':
+          description: Testimonial created
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to create testimonial
+
+  /api/testimonials/{id}/approve:
+    put:
+      summary: Approve a testimonial
+      tags:
+        - Testimonials
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Testimonial approved
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Testimonial not found
+        '500':
+          description: Failed to approve testimonial
+
+  /api/admin/bookings:
+    get:
+      summary: Get all bookings (admin only)
+      security:
+        - cookieAuth: []
+      tags:
+        - Admin
+        - Bookings
+      responses:
+        '200':
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error
+
+  /api/test-review-email:
+    post:
+      summary: Send test review email
+      tags:
+        - Email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                customerName:
+                  type: string
+      responses:
+        '200':
+          description: Test review email sent
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to send test email
+
+  /api/availabilities:
+    get:
+      summary: Get availabilities, optionally filtered by tour
+      tags:
+        - Availabilities
+      parameters:
+        - name: tourId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of availabilities (excluding closed days)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error
+    post:
+      summary: Create a new availability
+      tags:
+        - Availabilities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Availability created
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to create availability
+
+  /api/availabilities/{tourId}:
+    get:
+      summary: Get availabilities for a specific tour (excluding closed days)
+      tags:
+        - Availabilities
+      parameters:
+        - name: tourId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of availabilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error
+
+  /api/availabilities/{id}:
+    put:
+      summary: Update availability by ID
+      tags:
+        - Availabilities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated availability
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Availability not found
+        '500':
+          description: Failed to update availability
+    delete:
+      summary: Delete availability by ID
+      tags:
+        - Availabilities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Availability deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Availability not found
+        '500':
+          description: Failed to delete availability
+
+  /api/closed-days:
+    get:
+      summary: Get closed days
+      tags:
+        - Closed Days
+      responses:
+        '200':
+          description: List of closed days
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Server error
+    post:
+      summary: Add closed day
+      tags:
+        - Closed Days
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+              properties:
+                date:
+                  type: string
+                  format: date
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: Closed day added
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Missing date
+        '500':
+          description: Failed to add closed day
+
+  /api/closed-days/{date}:
+    delete:
+      summary: Remove closed day by date
+      tags:
+        - Closed Days
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Closed day removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Closed day not found
+        '500':
+          description: Failed to remove closed day
+
+  /api/admin/settings:
+    get:
+      summary: Get admin settings
+      security:
+        - cookieAuth: []
+      tags:
+        - Admin
+        - Settings
+      responses:
+        '200':
+          description: Admin settings
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Server error
+    put:
+      summary: Update admin settings
+      security:
+        - cookieAuth: []
+      tags:
+        - Admin
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to update settings
+
+  /api/bookings/reference/{reference}:
+    get:
+      summary: Get booking by reference
+      tags:
+        - Bookings
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking info
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Booking not found
+        '500':
+          description: Server error
+
+  /api/bookings:
+    post:
+      summary: Create a new booking
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '404':
+          description: Availability not found
+        '500':
+          description: Failed to create booking
+
+  /api/upload-image:
+    post:
+      summary: Upload an image
+      tags:
+        - Images
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  imageUrl:
+                    type: string
+        '400':
+          description: No image uploaded
+        '500':
+          description: Upload failed
+
+  /api/export-database:
+    get:
+      summary: Export full database SQL
+      tags:
+        - Export
+      responses:
+        '200':
+          description: SQL export file
+          content:
+            application/sql:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Export failed
+
+  /api/gallery:
+    get:
+      summary: Get gallery images
+      tags:
+        - Gallery
+      responses:
+        '200':
+          description: List of gallery images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '500':
+          description: Failed to retrieve gallery images
+    post:
+      summary: Add a new gallery image
+      tags:
+        - Gallery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Gallery image created
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to create gallery image
+
+  /api/gallery/{id}:
+    put:
+      summary: Update a gallery image
+      tags:
+        - Gallery
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Updated gallery image
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Gallery image not found
+        '500':
+          description: Failed to update gallery image
+    delete:
+      summary: Delete a gallery image
+      tags:
+        - Gallery
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Gallery image deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Gallery image not found
+        '500':
+          description: Failed to delete gallery image
+
+  /api/gallery/reorder:
+    post:
+      summary: Reorder gallery images
+      tags:
+        - Gallery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - imageIds
+              properties:
+                imageIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Gallery images reordered
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid input
+        '500':
+          description: Failed to reorder gallery images

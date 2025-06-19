@@ -1,13 +1,16 @@
+import { start } from "repl";
+
 interface ICSEvent {
   summary: string;
   description: string;
   location: string;
   start: string; // ISO string format YYYY-MM-DDThh:mm:ss
-  duration: number; // In hours
+  duration: string; 
   url?: string;
 }
 
 export function generateICSFile(event: ICSEvent): string {
+  console.log('start sent: ', event.start)
   // Generate a unique ID for the event
   const uid = `event-${Date.now()}@lisbonlovesme.com`;
   
@@ -15,9 +18,12 @@ export function generateICSFile(event: ICSEvent): string {
   const startDate = new Date(event.start);
   const formattedStart = formatDate(startDate);
   
+  const preDuration = event.duration.split(' ')[0]
+  const duration = parseInt(preDuration);
+
   // Calculate end time based on duration
   const endDate = new Date(startDate);
-  endDate.setHours(endDate.getHours() + event.duration);
+  endDate.setHours(endDate.getHours() + duration);
   const formattedEnd = formatDate(endDate);
   
   // Create timestamp for the file creation
@@ -46,5 +52,9 @@ END:VCALENDAR`;
 
 // Helper function to format date to ICS format
 function formatDate(date: Date): string {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    throw new Error(`Invalid Date passed to formatDate: ${date}`);
+  }
+
   return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }

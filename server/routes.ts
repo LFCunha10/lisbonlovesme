@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail, sendReviewRequestEmail } from "./email";
+import { sendBookingConfirmationEmail, sendReviewRequestEmail } from "./emailService.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
@@ -86,6 +86,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error processing refund:", error);
       res.status(500).json({ message: error.message || "Failed to process refund" });
+    }
+  });
+
+  //Email routes
+  app.post('/api/send-email', async (req, res) => {
+    const { to, name, bookingReference,  tourName, date, time, participants, totalAmount, meetingPoint, duration} = req.body;
+    
+    try {
+      await sendBookingConfirmationEmail({
+          to,
+          name,
+          bookingReference,
+          tourName,
+          date,
+          time,
+          participants,
+          totalAmount,
+          meetingPoint,
+          duration
+        });
+        console.log("Confirmation email sent successfully");
+        res.status(200).json({ success: true});
+    } catch (emailError) {
+      console.error('Email send error:', emailError);
+      const errorMessage =
+        emailError instanceof Error
+          ? emailError.message
+          : typeof emailError === 'string'
+            ? emailError
+            : JSON.stringify(emailError);
+
+      res.status(500).json({
+        success: false,
+        error: errorMessage,
+      });
+      // Non-blocking failure
     }
   });
 
@@ -533,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           participants: booking.numberOfParticipants,
           totalAmount: (booking.totalAmount / 100).toFixed(2),
           meetingPoint: booking.meetingPoint || "To be announced",
-          duration: parseInt(tour.duration)
+          duration: tour.duration
         });
         console.log("Confirmation email sent successfully");
       }

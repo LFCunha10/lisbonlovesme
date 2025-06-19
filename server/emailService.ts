@@ -1,12 +1,17 @@
-import sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 import { generateICSFile } from './utils/ics-generator';
+dotenv.config();
 
-// Initialize SendGrid with API key
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-  console.warn('SENDGRID_API_KEY not found. Email functionality will be limited to console logs.');
-}
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT ?? '587'),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 interface ConfirmationEmailOptions {
   to: string;
@@ -18,7 +23,7 @@ interface ConfirmationEmailOptions {
   participants: number;
   totalAmount: string;
   meetingPoint: string;
-  duration?: number; // Duration in hours
+  duration?: string; // Duration in hours
 }
 
 /**
@@ -31,64 +36,60 @@ export async function sendReviewRequestEmail(options: {
   tourName: string;
   baseUrl: string;
 }): Promise<void> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('SENDGRID_API_KEY not configured, review email not sent');
-    return;
-  }
-
+  
   const reviewUrl = `${options.baseUrl}/review/${options.bookingReference}`;
-
-  const msg = {
-    to: options.to,
-    from: 'lisbonlovesme@gmail.com',
-    subject: `How was your ${options.tourName} experience?`,
-    html: `
-      <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
-          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Share Your Experience</p>
-        </div>
-        
-        <div style="padding: 40px 30px; background: white;">
-          <h2 style="color: #333; margin: 0 0 20px 0;">Hello ${options.customerName}!</h2>
-          
-          <p style="color: #666; line-height: 1.6; margin: 0 0 20px 0;">
-            Thank you for joining us on the <strong>${options.tourName}</strong>! We hope you had an amazing time exploring Lisbon with us.
-          </p>
-          
-          <p style="color: #666; line-height: 1.6; margin: 0 0 25px 0;">
-            Your experience matters to us and helps other travelers discover the magic of Lisbon. Would you mind taking a few minutes to share your thoughts?
-          </p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${reviewUrl}" style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
-              Leave Your Review
-            </a>
-          </div>
-          
-          <p style="color: #888; font-size: 14px; margin: 25px 0 0 0;">
-            Booking Reference: <strong>${options.bookingReference}</strong>
-          </p>
-          
-          <p style="color: #666; line-height: 1.6; margin: 20px 0 0 0; font-size: 14px;">
-            Thank you for choosing Lisbonlovesme. We look forward to welcoming you back for another adventure!
-          </p>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 20px 30px; text-align: center; color: #888; font-size: 12px;">
-          <p style="margin: 0;">© 2024 Lisbonlovesme Tours. All rights reserved.</p>
-        </div>
+  const textHtml = `
+  <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Share Your Experience</p>
+    </div>
+    
+    <div style="padding: 40px 30px; background: white;">
+      <h2 style="color: #333; margin: 0 0 20px 0;">Hello ${options.customerName}!</h2>
+      
+      <p style="color: #666; line-height: 1.6; margin: 0 0 20px 0;">
+        Thank you for joining us on the <strong>${options.tourName}</strong>! We hope you had an amazing time exploring Lisbon with us.
+      </p>
+      
+      <p style="color: #666; line-height: 1.6; margin: 0 0 25px 0;">
+        Your experience matters to us and helps other travelers discover the magic of Lisbon. Would you mind taking a few minutes to share your thoughts?
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${reviewUrl}" style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+          Leave Your Review
+        </a>
       </div>
-    `,
-  };
-
+      
+      <p style="color: #888; font-size: 14px; margin: 25px 0 0 0;">
+        Booking Reference: <strong>${options.bookingReference}</strong>
+      </p>
+      
+      <p style="color: #666; line-height: 1.6; margin: 20px 0 0 0; font-size: 14px;">
+        Thank you for choosing Lisbonlovesme. We look forward to welcoming you back for another adventure!
+      </p>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 20px 30px; text-align: center; color: #888; font-size: 12px;">
+      <p style="margin: 0;">© 2024 Lisbonlovesme Tours. All rights reserved.</p>
+    </div>
+  </div>
+`;
+  const mailOptions = await transporter.sendMail({
+    from: `"No Reply" <${process.env.EMAIL_USER}>`,
+    to: options.to,
+    subject: `How was your ${options.tourName} experience?`,
+    html: textHtml,
+    
+  });
   try {
-    await sgMail.send(msg);
-    console.log(`Review request email sent to ${options.to} for booking ${options.bookingReference}`);
-  } catch (error) {
-    console.error('Error sending review request email:', error);
-    throw error;
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Message sent:', info.messageId);
+  } catch (err) {
+    console.error('Error occurred:', err);
   }
+  return Promise.resolve();
 }
 
 /**
@@ -105,16 +106,15 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     participants,
     totalAmount,
     meetingPoint,
-    duration = 2 // Default tour duration is 2 hours if not specified
+    duration = '3 hours' // Default tour duration is 2 hours if not specified
   } = options;
   
   // Format the date
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  const formattedDate = new Date(date).toLocaleDateString('pt-PT', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-
   // Create the event datetime for the ICS file
   const [hours, minutes] = time.split(':').map(Number);
   const eventDate = new Date(date);
@@ -246,41 +246,24 @@ Best regards,
 Lisbonlovesme Team
   `;
 
-  // Log the email for development purposes
-  console.log('=== BOOKING CONFIRMATION EMAIL ===');
-  console.log(`To: ${to}`);
-  console.log(`Subject: Lisbonlovesme - Booking Confirmation #${bookingReference}`);
-  console.log(textContent);
-  console.log('=== END OF EMAIL ===');
-
-  // Send the email if SendGrid API key is available
-  if (process.env.SENDGRID_API_KEY) {
-    try {
-      const msg = {
-        to,
-        from: 'noreply@replit.com', // Use the Replit verified sender email
-        subject: `Lisbonlovesme - Booking Confirmation #${bookingReference}`,
-        text: textContent,
-        html: htmlContent,
-        attachments: [
-          {
-            content: Buffer.from(icsContent).toString('base64'),
-            filename: 'tour-booking.ics',
-            type: 'text/calendar',
-            disposition: 'attachment'
-          }
-        ]
-      };
-
-      await sgMail.send(msg);
-      console.log(`Confirmation email sent to ${to}`);
-    } catch (error: any) {
-      console.error('Error sending email:', error);
-      if (error.response) {
-        console.error(error.response.body);
+  const mailOptions = await transporter.sendMail({
+    from: `"No Reply" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: `Lisbonlovesme - Booking Confirmation #${bookingReference}`,
+    text: textContent,
+    html: htmlContent,
+    attachments: [
+      {
+        content: Buffer.from(icsContent).toString('base64'),
+        filename: 'tour-booking.ics',
       }
-      throw new Error('Failed to send confirmation email');
-    }
+    ]
+  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Message sent:', info.messageId);
+  } catch (err) {
+    console.error('Error occurred:', err);
   }
   
   // For development without SendGrid API key, just log to console
