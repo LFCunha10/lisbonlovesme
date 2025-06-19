@@ -45,6 +45,7 @@ interface EmailTranslations {
       subject: string;
       header: string;
       greeting: string;
+      thankYou: string;
       requestReceived: string;
       reviewSoon: string;
       contactYou: string;
@@ -104,6 +105,7 @@ const emailTranslations: EmailTranslations = {
       subject: "Booking Request Received - Lisbonlovesme",
       header: "Booking Request Received",
       greeting: "Hello",
+      thankYou: "Thank you for choosing Lisbonlovesme!",
       requestReceived: "Thank you for your interest in our tour! We have received your booking request and will review it soon.",
       reviewSoon: "We will review your request and contact you within 24 hours to confirm availability and finalize the details.",
       contactYou: "Our team will contact you soon to discuss your tour and answer any questions you may have.",
@@ -160,6 +162,7 @@ const emailTranslations: EmailTranslations = {
       subject: "Pedido de Reserva Recebido - Lisbonlovesme",
       header: "Pedido de Reserva Recebido",
       greeting: "Olá",
+      thankYou: "Obrigado por escolher a Lisbonlovesme!",
       requestReceived: "Obrigado pelo seu interesse no nosso tour! Recebemos o seu pedido de reserva e iremos analisá-lo em breve.",
       reviewSoon: "Iremos analisar o seu pedido e contactá-lo dentro de 24 horas para confirmar disponibilidade e finalizar os detalhes.",
       contactYou: "A nossa equipa irá contactá-lo em breve para discutir o seu tour e responder a qualquer questão que possa ter.",
@@ -216,6 +219,7 @@ const emailTranslations: EmailTranslations = {
       subject: "Запрос на бронирование получен - Lisbonlovesme",
       header: "Запрос на бронирование получен",
       greeting: "Здравствуйте",
+      thankYou: "Спасибо, что выбрали Lisbonlovesme!",
       requestReceived: "Спасибо за ваш интерес к нашему туру! Мы получили ваш запрос на бронирование и скоро его рассмотрим.",
       reviewSoon: "Мы рассмотрим ваш запрос и свяжемся с вами в течение 24 часов для подтверждения доступности и уточнения деталей.",
       contactYou: "Наша команда скоро свяжется с вами, чтобы обсудить ваш тур и ответить на любые вопросы, которые у вас могут быть.",
@@ -646,7 +650,7 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
   <body>
     <div class="header">
       <h1 style="margin: 0;">${t.requestConfirmation.header}</h1>
-      <p style="margin: 5px 0 0 0;">Thank you for choosing Lisbonlovesme!</p>
+      <p style="margin: 5px 0 0 0;">${t.requestConfirmation.thankYou}</p>
     </div>
     <div class="content">
       <p>${t.requestConfirmation.greeting} ${name},</p>
