@@ -643,9 +643,9 @@ export default function AdminTours() {
               <>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <div>
-                    <CardTitle>{selectedTour.name}</CardTitle>
+                    <CardTitle>{getLocalizedText(selectedTour.name, i18n.language)}</CardTitle>
                     <CardDescription>
-                      {selectedTour.duration} • €
+                      {getLocalizedText(selectedTour.duration, i18n.language)} • €
                       {(selectedTour.price / 100).toFixed(2)}
                     </CardDescription>
                   </div>
@@ -963,7 +963,7 @@ export default function AdminTours() {
                           <div
                             className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{
-                              __html: marked.parse(selectedTour.description),
+                              __html: marked.parse(getLocalizedText(selectedTour.description, i18n.language)),
                             }}
                           />
                         </div>
@@ -972,7 +972,7 @@ export default function AdminTours() {
                           <div>
                             <h3 className="font-medium">Duration</h3>
                             <p className="text-sm text-gray-600 mt-1">
-                              {selectedTour.duration}
+                              {getLocalizedText(selectedTour.duration, i18n.language)}
                             </p>
                           </div>
                           <div>
@@ -984,7 +984,7 @@ export default function AdminTours() {
                           <div>
                             <h3 className="font-medium">Difficulty</h3>
                             <p className="text-sm text-gray-600 mt-1">
-                              {selectedTour.difficulty}
+                              {getLocalizedText(selectedTour.difficulty, i18n.language)}
                             </p>
                           </div>
                           <div>
@@ -1001,7 +1001,7 @@ export default function AdminTours() {
                             <div className="mt-2 relative rounded-md overflow-hidden aspect-video">
                               <img
                                 src={selectedTour.imageUrl}
-                                alt={selectedTour.name}
+                                alt={getLocalizedText(selectedTour.name, i18n.language)}
                                 className="w-full h-full object-cover"
                               />
                             </div>

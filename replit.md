@@ -117,6 +117,8 @@ Changelog:
 - June 19, 2025. Completed comprehensive multilingual tour system implementation with English, Portuguese, and Russian language support
 - June 19, 2025. Fixed React rendering errors and TypeScript issues throughout multilingual implementation
 - June 19, 2025. Implemented getLocalizedText utility function for proper multilingual content extraction across frontend and backend
+- June 19, 2025. Fixed marked() function error in admin interface by ensuring multilingual content is localized before parsing
+- June 19, 2025. Completed multilingual system deployment with all components properly handling language switching
 ```
 
 ## User Preferences
