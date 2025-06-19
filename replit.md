@@ -142,6 +142,7 @@ Changelog:
 - June 19, 2025. Successfully created sample articles demonstrating tree structure: parent category "Lisbon Neighborhoods" with child article "Alfama District Guide"
 - June 19, 2025. Articles system fully operational with hierarchical content organization, rich text editing, and complete multilingual support for English, Portuguese, and Russian
 - June 19, 2025. Completed articles navigation system - added Articles dropdown to navbar, created article display pages with /articles/:slug routing, fixed translation keys and Select.Item value errors
+- June 19, 2025. Verified and adapted application to use user's custom Neon database - all schemas aligned, 3 tours and 4 articles operational, email service configured with user's Gmail account
 ```
 
 ## User Preferences
