@@ -131,6 +131,8 @@ Changelog:
 - June 19, 2025. Enhanced admin booking calendar with color-coded slots: available slots (blue), pending bookings (yellow), confirmed bookings (green), cancelled/failed (red)
 - June 19, 2025. Added clickable functionality to calendar - available slots show tour details and availability, bookings show comprehensive customer and payment information
 - June 19, 2025. Implemented visual legend and enhanced dialogs with localized tour names for improved admin workflow
+- June 19, 2025. Fixed critical calendar booking display issue - corrected payment status filter values from 'paid'/'pending' to 'confirmed'/'requested' to match database schema
+- June 19, 2025. Created missing /api/bookings endpoint for calendar data access and resolved confirmed/pending booking cards not displaying properly
 ```
 
 ## User Preferences

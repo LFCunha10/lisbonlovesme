@@ -365,15 +365,7 @@ export default function BookingsCalendar() {
                 const hasDayBookings = dayBookings.length > 0;
                 const isClosed = isDayClosed(day);
                 
-                // Debug logging
-                const dayStr = format(day, 'yyyy-MM-dd');
-                if (dayBookings.length > 0) {
-                  console.log(`Day ${dayStr} has ${dayBookings.length} bookings:`, dayBookings.map(b => ({
-                    id: b.id,
-                    status: b.paymentStatus,
-                    name: b.customerLastName
-                  })));
-                }
+
                 
                 // Skip this day if we're only showing booked days and there are no bookings
                 if (showBookedOnly && !hasDayBookings) {
@@ -488,7 +480,7 @@ export default function BookingsCalendar() {
                       
                       {/* Confirmed Bookings */}
                       {!isClosed && dayBookings
-                        .filter((booking: any) => booking.paymentStatus === 'paid' || booking.paymentStatus === 'confirmed')
+                        .filter((booking: any) => booking.paymentStatus === 'confirmed')
                         .map((booking: any) => (
                           <Dialog key={booking.id}>
                             <DialogTrigger asChild>
@@ -551,7 +543,7 @@ export default function BookingsCalendar() {
 
                       {/* Pending Bookings */}
                       {!isClosed && dayBookings
-                        .filter((booking: any) => booking.paymentStatus === 'pending' || booking.paymentStatus === 'requires_payment_method')
+                        .filter((booking: any) => booking.paymentStatus === 'requested')
                         .map((booking: any) => (
                           <Dialog key={booking.id}>
                             <DialogTrigger asChild>
@@ -615,10 +607,8 @@ export default function BookingsCalendar() {
                       {/* Failed/Cancelled Bookings */}
                       {!isClosed && dayBookings
                         .filter((booking: any) => 
-                          booking.paymentStatus !== 'paid' && 
                           booking.paymentStatus !== 'confirmed' && 
-                          booking.paymentStatus !== 'pending' && 
-                          booking.paymentStatus !== 'requires_payment_method'
+                          booking.paymentStatus !== 'requested'
                         )
                         .map((booking: any) => (
                           <Dialog key={booking.id}>

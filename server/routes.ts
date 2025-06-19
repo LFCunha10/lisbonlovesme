@@ -472,6 +472,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all bookings (for calendar display)
+  app.get("/api/bookings", async (req: Request, res: Response) => {
+    try {
+      const bookings = await storage.getBookings();
+      res.json(bookings);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching bookings: " + error.message });
+    }
+  });
+
   // Get admin bookings (for review management)
   app.get("/api/admin/bookings", async (req: Request, res: Response) => {
     try {
