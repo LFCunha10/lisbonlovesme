@@ -51,7 +51,7 @@ export default function NavBar() {
                     onMouseEnter={() => setArticlesOpen(true)}
                     onMouseLeave={() => setArticlesOpen(false)}
                   >
-                    {t('nav.articles', 'Articles')}
+                    {t('navbar.articles')}
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                   {articlesOpen && (

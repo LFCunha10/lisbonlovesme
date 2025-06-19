@@ -245,6 +245,16 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/articles/:slug">
+        {() => {
+          const ArticlePage = React.lazy(() => import("@/pages/Article"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <ArticlePage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
