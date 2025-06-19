@@ -365,6 +365,16 @@ export default function BookingsCalendar() {
                 const hasDayBookings = dayBookings.length > 0;
                 const isClosed = isDayClosed(day);
                 
+                // Debug logging
+                const dayStr = format(day, 'yyyy-MM-dd');
+                if (dayBookings.length > 0) {
+                  console.log(`Day ${dayStr} has ${dayBookings.length} bookings:`, dayBookings.map(b => ({
+                    id: b.id,
+                    status: b.paymentStatus,
+                    name: b.customerLastName
+                  })));
+                }
+                
                 // Skip this day if we're only showing booked days and there are no bookings
                 if (showBookedOnly && !hasDayBookings) {
                   return (
