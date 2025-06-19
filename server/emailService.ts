@@ -637,38 +637,35 @@ ${t.requestConfirmation.teamName}
 export async function sendContactFormNotification(options: ContactFormNotificationOptions): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL || 'lisbonlovesme@gmail.com';
   
-  // Get translations for the specified language
-  const t = getEmailTranslations(options.language);
-  
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: adminEmail,
-    subject: `${t.adminNotification.contactForm.subject}`,
+    subject: `New Contact Form Message - Lisbonlovesme`,
     html: `
     <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">${t.adminNotification.contactForm.header}</p>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">New Contact Form Message</p>
       </div>
       
       <div style="padding: 40px 30px; background: white;">
-        <h2 style="color: #333; margin: 0 0 20px 0;">${t.adminNotification.contactForm.header}</h2>
-        <p>${t.adminNotification.contactForm.newMessage}</p>
+        <h2 style="color: #333; margin: 0 0 20px 0;">New Contact Form Message</h2>
+        <p>A new message has been received from the contact form:</p>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin: 0 0 15px 0;">${t.adminNotification.contactForm.messageDetails}</h3>
-          <p><strong>${t.adminNotification.contactForm.name}:</strong> ${options.name}</p>
-          <p><strong>${t.adminNotification.contactForm.email}:</strong> ${options.email}</p>
-          <p><strong>${t.adminNotification.contactForm.subject}:</strong> ${options.subject}</p>
+          <h3 style="color: #333; margin: 0 0 15px 0;">Message Details</h3>
+          <p><strong>Name:</strong> ${options.name}</p>
+          <p><strong>Email:</strong> ${options.email}</p>
+          <p><strong>Subject:</strong> ${options.subject}</p>
         </div>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin: 0 0 15px 0;">${t.adminNotification.contactForm.message}</h3>
+          <h3 style="color: #333; margin: 0 0 15px 0;">Message</h3>
           <p style="white-space: pre-wrap;">${options.message}</p>
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <p style="color: #666; margin: 0 0 20px 0;">${t.adminNotification.contactForm.respondSoon}</p>
+          <p style="color: #666; margin: 0 0 20px 0;">Please respond to this inquiry as soon as possible.</p>
           
           <div style="margin: 20px 0;">
             <a href="mailto:${options.email}?subject=Re: ${options.subject}&body=Hello ${options.name},%0D%0A%0D%0AThank you for contacting Lisbonlovesme.%0D%0A%0D%0ABest regards,%0D%0ALisbonlovesme Team" 
@@ -684,7 +681,7 @@ export async function sendContactFormNotification(options: ContactFormNotificati
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Contact form notification sent from: ${options.email}`);
+    console.log(`Contact form notification sent to ${adminEmail} from: ${options.email}`);
   } catch (error) {
     console.error('Error sending contact form notification:', error);
     throw error;

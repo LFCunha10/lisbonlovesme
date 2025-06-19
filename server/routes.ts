@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification } from "./emailService.js";
+import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification } from "./emailService.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
 import path from "path";
@@ -769,75 +769,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Name, email, and message are required" });
       }
       
-      // Send simple notification email to admin without complex translations
-      const adminEmail = process.env.ADMIN_EMAIL || 'lisbonlovesme@gmail.com';
-      
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: adminEmail,
-        subject: `New Contact Form Message - Lisbonlovesme`,
-        html: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Lisbonlovesme</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">New Contact Form Message</p>
-          </div>
-          
-          <div style="padding: 40px 30px; background: white;">
-            <h2 style="color: #333; margin: 0 0 20px 0;">New Contact Form Message</h2>
-            <p>A new message has been received from the contact form:</p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #333; margin: 0 0 15px 0;">Message Details</h3>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              <p><strong>Subject:</strong> ${subject || "General Inquiry"}</p>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #333; margin: 0 0 15px 0;">Message</h3>
-              <p style="white-space: pre-wrap;">${message}</p>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <p style="color: #666; margin: 0 0 20px 0;">Please respond to this inquiry as soon as possible.</p>
-              
-              <div style="margin: 20px 0;">
-                <a href="mailto:${email}?subject=Re: ${subject || "General Inquiry"}&body=Hello ${name},%0D%0A%0D%0AThank you for contacting Lisbonlovesme.%0D%0A%0D%0ABest regards,%0D%0ALisbonlovesme Team" 
-                   style="display: inline-block; background-color: #ea4335; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 0 5px;">
-                  Reply to Customer
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        `,
-      };
-
-      // Try to send email if credentials are available, but don't fail if not
-      try {
-        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-          const nodemailer = require('nodemailer');
-          const transporter = nodemailer.createTransporter({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
-            },
-          });
-
-          await transporter.sendMail(mailOptions);
-          console.log(`Contact form notification sent from: ${email}`);
-        } else {
-          console.log(`Contact form submission logged: ${name} (${email}) - ${subject || "General Inquiry"}`);
-          console.log(`Message: ${message}`);
-        }
-      } catch (emailError) {
-        console.error('Email sending failed, but form submission logged:', emailError);
-        console.log(`Contact form submission logged: ${name} (${email}) - ${subject || "General Inquiry"}`);
-      }
+      // Use the existing sendContactFormNotification function
+      await sendContactFormNotification({
+        name,
+        email,
+        subject: subject || "General Inquiry",
+        message,
+        language: language || 'en'
+      });
       
       res.status(200).json({
         success: true,
