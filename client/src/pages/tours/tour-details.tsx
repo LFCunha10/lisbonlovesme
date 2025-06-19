@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Users, MapPin, Star, Calendar, ArrowLeft, Euro } from "lucide-react";
+import { Clock, Users, MapPin, Star, Send, ArrowLeft, Euro } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Tour, Testimonial } from "@shared/schema";
 import { marked } from 'marked';
@@ -287,14 +287,11 @@ export default function TourDetailsPage() {
 
                 <Link href={`/book/${tour.id}`}>
                   <Button className="w-full text-lg py-6" size="lg">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    {t('tours.bookNow')}
+                    <Send className="w-5 h-5 mr-2" />
+                    {t('tours.sendYourRequest')}
                   </Button>
                 </Link>
 
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                  {t('tours.freeBooking')}
-                </p>
               </CardContent>
             </Card>
           </div>

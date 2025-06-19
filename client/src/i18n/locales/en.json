@@ -50,7 +50,8 @@
       "maxPeople": "Max People",
       "freeBooking": "Free booking & cancellation",
       "medium": "Moderate",
-      "hard": "Hard"
+      "hard": "Hard",
+      "sendYourRequest": "Request this tour"
     },
     "reviews": {
       "title": "Reviews",
@@ -174,6 +175,7 @@
     "booking": {
       "backToTour": "Back to Tour",
       "summary": "Booking Summary",
+      "requestSummary": "Request Summary",
       "steps": {
         "dateTime": "Date & Time",
         "participants": "Participants", 
@@ -259,7 +261,7 @@
       "sendRequest": "Send your request",
       "requestSent": "Your request was sent!",
       "requestSentDescription": "This was a first step for an incredible experience! Soon, we will contact you with more details.",
-      "requestTour": "Request your Tour",
+      "requestTour": "Request Your Tour",
       "requestDetails": "Request Details",
       "requestStep1": "Soon, our team will contact you via email or whatsapp, to set everything up!",
       "requestStep2": "Note that this is not a confirmation of the booking. It's just your request that's been made!",

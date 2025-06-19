@@ -241,7 +241,7 @@ export default function Booking() {
               <Card className="sticky top-8">
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    {t('booking.summary')}
+                    {t('booking.requestSummary')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
