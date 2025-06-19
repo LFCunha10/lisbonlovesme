@@ -119,6 +119,7 @@ Changelog:
 - June 19, 2025. Implemented getLocalizedText utility function for proper multilingual content extraction across frontend and backend
 - June 19, 2025. Fixed marked() function error in admin interface by ensuring multilingual content is localized before parsing
 - June 19, 2025. Completed multilingual system deployment with all components properly handling language switching
+- June 19, 2025. Fixed placeholder translations with proper Portuguese and Russian translations for all existing tours
 ```
 
 ## User Preferences
