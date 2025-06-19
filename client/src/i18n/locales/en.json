@@ -265,7 +265,17 @@
       "requestDetails": "Request Details",
       "requestStep1": "Soon, our team will contact you via email or whatsapp, to set everything up!",
       "requestStep2": "Note that this is not a confirmation of the booking. It's just your request that's been made!",
-      "valueToPay": "Value to pay"
+      "valueToPay": "Value to pay",
+      "selectDateTime": "Select Date & Time",
+      "failedToLoadAvailability": "Failed to load availability",
+      "tryAgain": "Try Again",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "availableTimeSlots": "Available Time Slots",
+      "noAvailableTimeSlots": "No available time slots for selected date",
+      "selectDateToSeeAvailableTimes": "Please select a date to see available times",
+      "spots": "spots",
+      "nextStep": "Next Step"
 
     },
     "whyChooseUs": {

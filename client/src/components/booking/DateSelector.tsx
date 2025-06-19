@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useCalendar } from "@/hooks/use-calendar";
@@ -29,6 +30,7 @@ export default function DateSelector({
   selectedTime = "",
   selectedAvailabilityId = 0
 }: DateSelectorProps) {
+  const { t } = useTranslation();
   const [date, setDate] = useState<Date | undefined>(
     selectedDate ? new Date(selectedDate) : undefined
   );
@@ -116,7 +118,7 @@ export default function DateSelector({
 
   return (
     <div>
-      <h4 className="text-xl font-semibold mb-4">Select Date & Time</h4>
+      <h4 className="text-xl font-semibold mb-4">{t('booking.selectDateTime')}</h4>
       
       <div className="mb-6">
         {isLoading ? (
@@ -125,13 +127,13 @@ export default function DateSelector({
           </div>
         ) : error ? (
           <div className="text-center py-8 text-error">
-            <p>Failed to load availability: {error.message}</p>
+            <p>{t('booking.failedToLoadAvailability')}: {error.message}</p>
             <Button 
               variant="outline" 
               className="mt-4"
               onClick={() => window.location.reload()}
             >
-              Try Again
+              {t('booking.tryAgain')}
             </Button>
           </div>
         ) : (
@@ -165,20 +167,20 @@ export default function DateSelector({
             <div className="flex items-center text-sm mb-6">
               <div className="flex items-center mr-4">
                 <div className="w-4 h-4 bg-primary mr-2 rounded-sm"></div>
-                <span>Available</span>
+                <span>{t('booking.available')}</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-neutral-light/70 mr-2 rounded-sm"></div>
-                <span>Unavailable</span>
+                <span>{t('booking.unavailable')}</span>
               </div>
             </div>
             
             <h5 className="font-semibold mb-2">
               {date ? (
                 availableTimeSlots.length > 0 
-                  ? "Available Time Slots" 
-                  : "No available time slots for selected date"
-              ) : "Please select a date to see available times"}
+                  ? t('booking.availableTimeSlots')
+                  : t('booking.noAvailableTimeSlots')
+              ) : t('booking.selectDateToSeeAvailableTimes')}
             </h5>
             
             {date && (
@@ -195,7 +197,7 @@ export default function DateSelector({
                   >
                     <div className="text-center">
                       <div className="font-semibold">{formatTime(slot.time)}</div>
-                      <div className="text-xs opacity-75">({slot.spotsLeft} spots)</div>
+                      <div className="text-xs opacity-75">({slot.spotsLeft} {t('booking.spots')})</div>
                     </div>
                   </button>
                 ))}
@@ -207,13 +209,13 @@ export default function DateSelector({
       
       <div className="flex justify-between">
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button 
           onClick={handleNext}
           disabled={!date || !time || !availabilityId || isLoading}
         >
-          Next Step
+          {t('booking.nextStep')}
         </Button>
       </div>
     </div>

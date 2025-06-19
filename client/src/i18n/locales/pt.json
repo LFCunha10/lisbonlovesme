@@ -265,7 +265,17 @@
       "requestDetails": "Detalhes da Solicitação",
       "requestStep1": "Em breve nossa equipe entrará em contato por e-mail ou whatsapp para acertar tudo!",
       "requestStep2": "Atenção: essa não é uma confirmação da reserva, apenas o envio da sua solicitação!",
-      "valueToPay": "Valor a pagar"
+      "valueToPay": "Valor a pagar",
+      "selectDateTime": "Selecionar Data e Hora",
+      "failedToLoadAvailability": "Falha ao carregar disponibilidade",
+      "tryAgain": "Tentar Novamente",
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "availableTimeSlots": "Horários Disponíveis",
+      "noAvailableTimeSlots": "Nenhum horário disponível para a data selecionada",
+      "selectDateToSeeAvailableTimes": "Selecione uma data para ver os horários disponíveis",
+      "spots": "vagas",
+      "nextStep": "Próximo Passo"
     },
     "whyChooseUs": {
       "title": "Por Que Escolher Lisboa Tours",

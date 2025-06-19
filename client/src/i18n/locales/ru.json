@@ -265,7 +265,17 @@
       "requestDetails": "Детали запроса",
       "requestStep1": "Мы скоро свяжемся с вами по email или WhatsApp",
       "requestStep2": "Это ещё не подтверждение бронирования — только ваш запрос",
-      "valueToPay": "Сумма к оплате"
+      "valueToPay": "Сумма к оплате",
+      "selectDateTime": "Выберите дату и время",
+      "failedToLoadAvailability": "Не удалось загрузить доступность",
+      "tryAgain": "Попробовать снова",
+      "available": "Доступно",
+      "unavailable": "Недоступно",
+      "availableTimeSlots": "Доступные слоты времени",
+      "noAvailableTimeSlots": "Нет доступных слотов времени для выбранной даты",
+      "selectDateToSeeAvailableTimes": "Выберите дату, чтобы увидеть доступное время",
+      "spots": "мест",
+      "nextStep": "Следующий шаг"
     },
     "whyChooseUs": {
       "title": "Почему выбирают Lisboa Tours",
