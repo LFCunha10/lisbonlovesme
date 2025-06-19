@@ -428,6 +428,8 @@
         "specialRequests": "Особые требования",
         "reviewRequest": "Пожалуйста, рассмотрите этот запрос в административной панели и свяжитесь с клиентом для обсуждения деталей.",
         "reviewButton": "Рассмотреть запрос",
+        "whatsappButton": "WhatsApp клиенту",
+        "emailButton": "Отправить Email",
         "thankYouChoosing": "Спасибо, что выбрали Lisbonlovesme!",
         "lookingForward": "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
         "questionsContact": "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com"

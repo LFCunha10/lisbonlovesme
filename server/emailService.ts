@@ -441,10 +441,25 @@ export async function sendBookingRequestNotification(options: BookingRequestNoti
 
         <div style="text-align: center; margin: 30px 0;">
           <p style="color: #666; margin: 0 0 20px 0;">${t.adminNotification.reviewRequest}</p>
-          <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}/admin/requests` : 'https://your-domain.com/admin/requests'}" 
-             style="display: inline-block; background-color: #3b82f6; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px;">
-            ${t.adminNotification.reviewButton}
-          </a>
+          
+          <div style="margin: 20px 0;">
+            <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}/admin/requests` : 'https://your-domain.com/admin/requests'}" 
+               style="display: inline-block; background-color: #3b82f6; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 0 5px;">
+              ${t.adminNotification.reviewButton}
+            </a>
+          </div>
+          
+          <div style="margin: 20px 0;">
+            <a href="https://wa.me/${options.customerPhone.replace(/[^\d]/g, '')}" 
+               style="display: inline-block; background-color: #25d366; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 0 5px;">
+              ${t.adminNotification.whatsappButton}
+            </a>
+            
+            <a href="mailto:${options.customerEmail}?subject=Regarding your tour booking - ${options.tourName}&body=Hello ${options.customerName},%0D%0A%0D%0AThank you for your interest in our ${options.tourName} tour.%0D%0A%0D%0ABooking Reference: ${options.bookingReference}%0D%0ARequested Date: ${options.date}%0D%0ARequested Time: ${options.time}%0D%0AParticipants: ${options.participants}%0D%0A%0D%0ABest regards,%0D%0ALisbonlovesme Team" 
+               style="display: inline-block; background-color: #ea4335; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 0 5px;">
+              ${t.adminNotification.emailButton}
+            </a>
+          </div>
         </div>
       </div>
     </div>

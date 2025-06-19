@@ -429,6 +429,8 @@
         "specialRequests": "Special Requests",
         "reviewRequest": "Please review this request in your admin dashboard and contact the customer to discuss details.",
         "reviewButton": "Review Request",
+        "whatsappButton": "WhatsApp Customer",
+        "emailButton": "Email Customer",
         "thankYouChoosing": "Thank you for choosing Lisbonlovesme!",
         "lookingForward": "We look forward to showing you the best of Lisbon!",
         "questionsContact": "If you have any questions, please contact us at info@lisbonlovesme.com"
