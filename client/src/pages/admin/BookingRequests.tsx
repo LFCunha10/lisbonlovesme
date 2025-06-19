@@ -338,18 +338,26 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
     },
   });
 
-  const handleSaveAndConfirm = () => {
+  const handleSaveAndConfirm = async () => {
     console.log("Confirming booking with data:", formData);
-    updateRequestMutation.mutate({
-      id: request.id,
-      updates: {
-        paymentStatus: "confirmed",
-        confirmedDate: formData.confirmedDate,
-        confirmedTime: formData.confirmedTime,
-        confirmedMeetingPoint: formData.confirmedMeetingPoint,
-        adminNotes: formData.adminNotes,
-      },
-    });
+    try {
+      // First update the booking
+      await updateRequestMutation.mutateAsync({
+        id: request.id,
+        updates: {
+          paymentStatus: "confirmed",
+          confirmedDate: formData.confirmedDate,
+          confirmedTime: formData.confirmedTime,
+          confirmedMeetingPoint: formData.confirmedMeetingPoint,
+          adminNotes: formData.adminNotes,
+        },
+      });
+      
+      // Then send confirmation email
+      await sendConfirmationMutation.mutateAsync(request.id);
+    } catch (error) {
+      console.error("Error in confirm and send:", error);
+    }
   };
 
   const handleSendConfirmation = () => {
