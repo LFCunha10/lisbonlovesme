@@ -269,3 +269,146 @@ Lisbonlovesme Team
   // For development without SendGrid API key, just log to console
   return Promise.resolve();
 }
+
+export async function sendRequestConfirmationEmail(options: ConfirmationEmailOptions): Promise<void> {
+  const {
+    to,
+    name,
+    bookingReference,
+    tourName,
+    date,
+    time,
+    participants,
+    totalAmount,
+    meetingPoint,
+    duration = '3 hours' // Default tour duration is 2 hours if not specified
+  } = options;
+  
+  // Format the date
+  const formattedDate = new Date(date).toLocaleDateString('pt-PT', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  // Create the event datetime for the ICS file
+  const [hours, minutes] = time.split(':').map(Number);
+  const eventDate = new Date(date);
+  eventDate.setHours(hours, minutes, 0, 0);
+  
+  // Create HTML email content
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We received your request!</title>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+      .content { background-color: #f9fafb; padding: 20px; border-radius: 0 0 5px 5px; }
+      .booking-details { background-color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #3b82f6; }
+      .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+      .detail-label { font-weight: bold; color: #555; }
+      .detail-value { text-align: right; }
+      .note-box { background-color: #fffbeb; border-left: 4px solid #fbbf24; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+      .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #6b7280; }
+      .btn { display: inline-block; background-color: #3b82f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-top: 15px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1 style="margin: 0;">We received your request!</h1>
+      <p style="margin: 5px 0 0 0;">Thank you for choosing Lisbonlovesme!</p>
+    </div>
+    <div class="content">
+      <p>Hello ${name},</p>
+      <p>We received your request! Soon we will get in touch and finish the details for your tour!</p>
+      
+      <div class="booking-details">
+        <h2 style="margin-top: 0; color: #3b82f6;">Tour Details</h2>
+        <div class="detail-row">
+          <span class="detail-label">Booking Reference:</span>
+          <span class="detail-value">${bookingReference}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tour:</span>
+          <span class="detail-value">${tourName}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value">${formattedDate}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Time:</span>
+          <span class="detail-value">${time}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Participants:</span>
+          <span class="detail-value">${participants}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total Amount:</span>
+          <span class="detail-value">€${totalAmount}</span>
+        </div>
+      </div>
+       
+      <div class="note-box">
+        <h3 style="margin-top: 0; color: #92400e;">Important Information</h3>
+        <ul>
+          <li>This is not a confirmation of your tour. Our team will contact you shortly.</li>
+        </ul>
+      </div>
+      
+      <p>If you have any questions, please contact us at <a href="mailto:lisbonlovesme@gmail.com">lisbonlovesme@gmail.com</a> or +351 938 607 585.</p>
+      
+      <p>We look forward to showing you the best of Lisbon!</p>
+      <p>Best regards,<br>Lisbonlovesme Team</p>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} Lisbonlovesme. All rights reserved.</p>
+    </div>
+  </body>
+  </html>
+  `;
+
+  // Create plain text version as fallback
+  const textContent = `
+Hello ${name},
+
+Thank you for choosing Lisbonlovesme!
+
+WE RECEIVED YOUR REQUEST. OUR TEAM WILL CONTACT YOU SHORTLY:
+
+Booking Reference: ${bookingReference}
+Tour: ${tourName}
+Date: ${formattedDate}
+Time: ${time}
+Number of Participants: ${participants}
+Total Amount: €${totalAmount}
+
+If you have any questions, please contact us at lisbonlovesme@gmail.com or +351 938 607 585.
+
+We look forward to showing you the best of Lisbon!
+
+Best regards,
+Lisbonlovesme Team
+  `;
+
+  const mailOptions = await transporter.sendMail({
+    from: `"No Reply" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: `Lisbonlovesme - We received your request!`,
+    text: textContent,
+    html: htmlContent,
+  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Message sent:', info.messageId);
+  } catch (err) {
+    console.error('Error occurred:', err);
+  }
+  
+  // For development without SendGrid API key, just log to console
+  return Promise.resolve();
+}

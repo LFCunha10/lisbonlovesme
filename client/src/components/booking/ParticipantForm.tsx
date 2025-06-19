@@ -33,7 +33,7 @@ const participantSchema = z.object({
   customerLastName: z.string().min(2, "Last name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email address"),
   customerPhone: z.string().min(6, "Please enter a valid phone number"),
-  specialRequests: z.string().optional()
+  specialRequests: z.string().min(6, "it's important for us to know what you expect. This way, we can make a perfect tour for you."),
 });
 
 type ParticipantFormData = z.infer<typeof participantSchema>;
@@ -210,7 +210,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              {t('booking.specialRequests')}
+              {t('booking.specialRequests')} *
             </h3>
             <div>
               <Label htmlFor="requests">{t('booking.specialRequestsLabel')}</Label>
@@ -221,9 +221,11 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                 className="mt-1"
                 rows={3}
               />
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {t('booking.specialRequestsHint')}
-              </p>
+              {form.formState.errors.specialRequests && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {form.formState.errors.specialRequests.message}
+                  </p>
+                )}
             </div>
           </CardContent>
         </Card>

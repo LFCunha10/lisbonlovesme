@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Calendar, Users, Euro, Mail, Phone, Home } from "lucide-react";
+import { Calendar, Users, Euro, Mail, Phone, Home, Clock } from "lucide-react";
 import { Link } from "wouter";
 import type { Tour } from "@shared/schema";
 
@@ -19,14 +19,14 @@ interface BookingData {
   specialRequests: string;
 }
 
-interface BookingConfirmationProps {
+interface RequestSentProps {
   tour: Tour;
   bookingData: BookingData;
   bookingReference: string;
   totalAmount: number;
 }
 
-export default function BookingConfirmation({ tour, bookingData, bookingReference, totalAmount }: BookingConfirmationProps) {
+export default function RequestSent({ tour, bookingData, bookingReference, totalAmount }: RequestSentProps) {
   const { t } = useTranslation();
 
   return (
@@ -34,13 +34,13 @@ export default function BookingConfirmation({ tour, bookingData, bookingReferenc
       {/* Success Header */}
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <CheckCircle className="w-16 h-16 text-green-500" />
+          <Clock className="w-16 h-16 text-yellow-400" />
         </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {t('booking.confirmationSentRequest')}
+          {t('booking.requestSent')}
         </h2>
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          {t('booking.confirmationSentRequestSubtitle')}
+          {t('booking.requestSentDescription')}
         </p>
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 inline-block">
           <p className="text-sm text-green-700 dark:text-green-300 font-medium">
@@ -53,7 +53,7 @@ export default function BookingConfirmation({ tour, bookingData, bookingReferenc
       <Card>
         <CardContent className="p-6">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-            {t('booking.bookingDetails')}
+            {t('booking.requestDetails')}
           </h3>
           
           <div className="flex space-x-4 mb-6">
@@ -105,7 +105,7 @@ export default function BookingConfirmation({ tour, bookingData, bookingReferenc
                 <Euro className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.valueToPay')}</p>
-                  <p className="font-medium text-gray-900 dark:text-white">€{totalAmount}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">€{(totalAmount / 100).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -164,21 +164,16 @@ export default function BookingConfirmation({ tour, bookingData, bookingReferenc
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
               <p className="text-gray-600 dark:text-gray-400">
-                {t('booking.nextStep1')}
+                {t('booking.requestStep1')}
               </p>
             </div>
             <div className="flex items-start space-x-3">
               <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
               <p className="text-gray-600 dark:text-gray-400">
-                {t('booking.nextStep2')}
+                {t('booking.requestStep2')}
               </p>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t('booking.nextStep3')}
-              </p>
-            </div>
+           
           </div>
         </CardContent>
       </Card>

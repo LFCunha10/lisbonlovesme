@@ -48,8 +48,8 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     onSuccess: (bookingData) => {
       console.log("Booking successful:", bookingData);
       toast({
-        title: t('booking.success'),
-        description: t('booking.successMessage'),
+        title: t('booking.requestSent'),
+        description: t('booking.requestSentDescription'),
       });
       
       if (bookingData && bookingData.bookingReference) {
@@ -126,8 +126,8 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         
         // Show success message
         toast({
-          title: t('booking.success'),
-          description: t('booking.successMessage'),
+          title: t('booking.requestSent'),
+          description: t('booking.requestSentDescription'),
         });
         
         if (data && data.bookingReference) {
@@ -167,11 +167,8 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-          {t('booking.payment')}
+          {t('booking.reviewRequest')}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('booking.paymentSubtitle')}
-        </p>
       </div>
 
       {/* Booking Summary */}
@@ -211,7 +208,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
                 <span className="text-gray-600 dark:text-gray-400">{t('booking.dateTime')}</span>
               </div>
               <span className="font-medium text-gray-900 dark:text-white">
-                {new Date(bookingData.date).toLocaleDateString()} {bookingData.time}
+                {new Date(bookingData.date).toLocaleDateString("pt-PT")} - {bookingData.time}
               </span>
             </div>
             
@@ -289,33 +286,14 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
       <Card>
         <CardContent className="p-6">
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center space-x-2 text-green-600">
-              <Lock className="w-5 h-5" />
-              <span className="text-sm font-medium">{t('booking.securePayment')}</span>
-            </div>
-            
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                {t('booking.demoNotice')}
-              </h4>
-              <p className="text-sm text-green-700 dark:text-green-300">
-                {t('booking.demoDescription')}
-              </p>
-            </div>
-
             <Button
               onClick={handlePayment}
               disabled={isProcessing}
               className="w-full text-lg py-6"
               size="lg"
             >
-              <CreditCard className="w-5 h-5 mr-2" />
-              {isProcessing ? t('booking.processing') : `${t('booking.payNow')} €${(totalAmount / 100).toFixed(2)}`}
+              {isProcessing ? t('booking.processing') : `${t('booking.sendRequest')}`}
             </Button>
-
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {t('booking.paymentNotice')}
-            </p>
           </div>
         </CardContent>
       </Card>

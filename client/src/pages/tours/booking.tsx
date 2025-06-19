@@ -8,11 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, Calendar, Users, Euro, CreditCard, Check } from "lucide-react";
+import { ChevronLeft, Calendar, Users, Euro, CreditCard, Check, CalendarSearch } from "lucide-react";
 import DateSelector from "@/components/booking/DateSelector";
 import ParticipantForm from "@/components/booking/ParticipantForm";
 import PaymentForm from "@/components/booking/PaymentForm";
-import BookingConfirmation from "@/components/booking/BookingConfirmation";
+import RequestSent from "@/components/booking/RequestSent";
 import { Link } from "wouter";
 import { json } from "stream/consumers";
 
@@ -31,8 +31,8 @@ interface BookingData {
 const steps = [
   { id: 1, name: 'dateTime', icon: Calendar },
   { id: 2, name: 'participants', icon: Users },
-  { id: 3, name: 'payment', icon: CreditCard },
-  { id: 4, name: 'confirmation', icon: Check }
+  { id: 3, name: 'review', icon: CalendarSearch },
+  { id: 4, name: 'requestSent', icon: Check }
 ];
 
 export default function Booking() {
@@ -140,8 +140,7 @@ export default function Booking() {
             
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {t('booking.title')}
-                Test
+                {t('booking.requestTour')}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 {tour.name}
@@ -224,7 +223,7 @@ export default function Booking() {
                   )}
                   
                   {currentStep === 4 && bookingReference && (
-                    <BookingConfirmation
+                    <RequestSent
                       tour={tour}
                       bookingData={bookingData as BookingData}
                       bookingReference={bookingReference}
@@ -278,7 +277,7 @@ export default function Booking() {
                           {t('booking.dateTime')}
                         </span>
                         <span className="font-medium text-gray-900 dark:text-white">
-                          {new Date(bookingData.date).toLocaleDateString()} {bookingData.time}
+                          {new Date(bookingData.date).toLocaleDateString("pt-PT")} {bookingData.time}
                         </span>
                       </div>
                     )}
@@ -314,11 +313,6 @@ export default function Booking() {
                       €{(calculateTotal() / 100).toFixed(2)}
                     </span>
                   </div>
-
-                  {/* Free Booking Notice */}
-                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    {t('booking.freeBooking')}
-                  </p>
                 </CardContent>
               </Card>
             </div>
