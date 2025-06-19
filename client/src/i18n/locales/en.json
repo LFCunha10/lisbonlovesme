@@ -445,8 +445,8 @@
           "subject": "Subject",
           "message": "Message",
           "respondSoon": "Please respond to this inquiry as soon as possible."
-        }
-        "lookingForward": "We look forward to showing you the best of Lisbon!",
+      },
+      "lookingForward": "We look forward to showing you the best of Lisbon!",
         "questionsContact": "If you have any questions, please contact us at info@lisbonlovesme.com"
       }
     }

@@ -109,6 +109,7 @@ Changelog:
 - June 19, 2025. Added direct review button to admin notification emails that links to /admin/requests page for quick access
 - June 19, 2025. Added WhatsApp and email contact buttons to admin notification emails for direct customer communication
 - June 19, 2025. Integrated contact form on main page with email service - admin receives notifications for all form submissions
+- June 19, 2025. Fixed critical JSON syntax errors in all translation files (en.json, pt.json, ru.json) - resolved missing commas that were preventing application startup
 ```
 
 ## User Preferences
