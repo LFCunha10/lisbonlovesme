@@ -34,8 +34,8 @@ export default function TourDetailsPage() {
 
   if (tourLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+        <div className="container mx-auto px-4 py-4">
           <Skeleton className="h-8 w-32 mb-6" />
           <Skeleton className="h-96 w-full mb-8 rounded-lg" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -55,7 +55,7 @@ export default function TourDetailsPage() {
 
   if (!tour) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center pt-16">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             {t('common.tourNotFound')}
@@ -77,9 +77,9 @@ export default function TourDetailsPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
       {/* Navigation */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-2">
         <Link href="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />

@@ -101,6 +101,8 @@ Lisbonlovesme is a full-stack tour booking application for Lisbon tourism, built
 Changelog:
 - June 19, 2025. Initial setup
 - June 19, 2025. Added pricing type feature: tours can now be priced "per person" or "per group"
+- June 19, 2025. Implemented Google Fonts (Fraunces 120 Light, Montserrat) with language-aware typography system
+- June 19, 2025. Fixed navbar overlap issue on tour detail pages by adjusting top padding
 ```
 
 ## User Preferences
