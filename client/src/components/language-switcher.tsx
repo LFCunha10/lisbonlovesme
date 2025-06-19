@@ -8,21 +8,38 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export default function LanguageSwitcher() {
-  const { i18n, t } = useTranslation();
+const languageNames = {
+  'en': 'English',
+  'pt': 'Português', 
+  'ru': 'Русский',
+  'en-US': 'English',
+  'pt-PT': 'Português',
+  'pt-BR': 'Português'
+};
+
+interface LanguageSwitcherProps {
+  className?: string;
+}
+
+export default function LanguageSwitcher({ className }: LanguageSwitcherProps) {
+  const { i18n } = useTranslation();
 
   const changeLanguage = (value: string) => {
     i18n.changeLanguage(value);
   };
 
+  // Get current language, handle variations like en-US -> en
+  const currentLang = i18n.language?.split('-')[0] || 'en';
+  const displayValue = languageNames[currentLang as keyof typeof languageNames] || languageNames['en'];
+
   return (
-    <div className="relative z-10">
+    <div className={`relative z-10 ${className || ''}`}>
       <Select
-        value={i18n.language}
+        value={currentLang}
         onValueChange={changeLanguage}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder={t('common.language')} />
+          <SelectValue>{displayValue}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="en">English</SelectItem>

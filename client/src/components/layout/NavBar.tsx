@@ -57,11 +57,14 @@ export default function NavBar() {
         </div>
 
         {isOpen && !isAdminPage && (
-          <div className="md:hidden mt-4 pb-4">
+          <div className="md:hidden mt-4 pb-4 space-y-2">
             <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
             <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('nav.about')}</MobileNavLink>
             <MobileNavLink href="/#reviews" onClick={() => setIsOpen(false)}>{t('reviews.title')}</MobileNavLink>
             <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>{t('nav.contact')}</MobileNavLink>
+            <div className="pt-2 border-t border-gray-200">
+              <LanguageSwitcher className="w-full" />
+            </div>
           </div>
         )}
       </div>
