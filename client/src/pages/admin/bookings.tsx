@@ -476,29 +476,21 @@ export default function BookingsCalendar() {
                         );
                       })}
                       
-                      {/* Bookings - clickable, color-coded by status */}
-                      {!isClosed && dayBookings.map((booking: any) => {
-                        const isPaid = booking.paymentStatus === 'paid' || booking.paymentStatus === 'confirmed';
-                        const isPending = booking.paymentStatus === 'pending' || booking.paymentStatus === 'requires_payment_method';
-                        
-                        return (
+                      {/* Confirmed Bookings */}
+                      {!isClosed && dayBookings
+                        .filter((booking: any) => booking.paymentStatus === 'paid' || booking.paymentStatus === 'confirmed')
+                        .map((booking: any) => (
                           <Dialog key={booking.id}>
                             <DialogTrigger asChild>
                               <div 
-                                className={`text-xs px-1 py-0.5 rounded cursor-pointer transition-colors ${
-                                  isPaid 
-                                    ? 'bg-green-200 hover:bg-green-300 text-green-800' 
-                                    : isPending 
-                                      ? 'bg-yellow-200 hover:bg-yellow-300 text-yellow-800'
-                                      : 'bg-red-200 hover:bg-red-300 text-red-800'
-                                }`}
+                                className="text-xs px-1 py-0.5 rounded cursor-pointer transition-colors bg-green-200 hover:bg-green-300 text-green-800"
                               >
-                                {booking.customerLastName}, {booking.numberOfParticipants} ppl
+                                ✓ {booking.customerLastName}, {booking.numberOfParticipants} ppl
                               </div>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Booking Details</DialogTitle>
+                                <DialogTitle>Confirmed Booking</DialogTitle>
                                 <DialogDescription>
                                   Booking reference: {booking.bookingReference}
                                 </DialogDescription>
@@ -531,11 +523,7 @@ export default function BookingsCalendar() {
                                     Total Amount: €{(booking.totalAmount / 100).toFixed(2)}
                                   </p>
                                   <p className="text-sm">
-                                    Payment Status: <Badge variant={
-                                      isPaid ? 'default' : 
-                                      isPending ? 'secondary' : 
-                                      'destructive'
-                                    }>{booking.paymentStatus}</Badge>
+                                    Payment Status: <Badge variant="default">Confirmed</Badge>
                                   </p>
                                 </div>
                                 {booking.specialRequests && (
@@ -549,8 +537,138 @@ export default function BookingsCalendar() {
                               </div>
                             </DialogContent>
                           </Dialog>
-                        );
-                      })}
+                        ))}
+
+                      {/* Pending Bookings */}
+                      {!isClosed && dayBookings
+                        .filter((booking: any) => booking.paymentStatus === 'pending' || booking.paymentStatus === 'requires_payment_method')
+                        .map((booking: any) => (
+                          <Dialog key={booking.id}>
+                            <DialogTrigger asChild>
+                              <div 
+                                className="text-xs px-1 py-0.5 rounded cursor-pointer transition-colors bg-yellow-200 hover:bg-yellow-300 text-yellow-800"
+                              >
+                                ⏳ {booking.customerLastName}, {booking.numberOfParticipants} ppl
+                              </div>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Pending Booking</DialogTitle>
+                                <DialogDescription>
+                                  Booking reference: {booking.bookingReference}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <div>
+                                  <h3 className="font-medium">Tour Information</h3>
+                                  <p className="text-sm text-gray-700">
+                                    {getTourById(booking.tourId) ? getLocalizedText(getTourById(booking.tourId)?.name, i18n.language) : 'Unknown Tour'} 
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {getAvailabilityById(booking.availabilityId)?.date} at {getAvailabilityById(booking.availabilityId)?.time}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h3 className="font-medium">Customer Information</h3>
+                                  <p className="text-sm">
+                                    {booking.customerFirstName} {booking.customerLastName}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {booking.customerEmail} | {booking.customerPhone}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h3 className="font-medium">Booking Details</h3>
+                                  <p className="text-sm">
+                                    Participants: {booking.numberOfParticipants}
+                                  </p>
+                                  <p className="text-sm">
+                                    Total Amount: €{(booking.totalAmount / 100).toFixed(2)}
+                                  </p>
+                                  <p className="text-sm">
+                                    Payment Status: <Badge variant="secondary">Pending</Badge>
+                                  </p>
+                                </div>
+                                {booking.specialRequests && (
+                                  <div>
+                                    <h3 className="font-medium">Special Requests</h3>
+                                    <p className="text-sm text-gray-500">
+                                      {booking.specialRequests}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        ))}
+
+                      {/* Failed/Cancelled Bookings */}
+                      {!isClosed && dayBookings
+                        .filter((booking: any) => 
+                          booking.paymentStatus !== 'paid' && 
+                          booking.paymentStatus !== 'confirmed' && 
+                          booking.paymentStatus !== 'pending' && 
+                          booking.paymentStatus !== 'requires_payment_method'
+                        )
+                        .map((booking: any) => (
+                          <Dialog key={booking.id}>
+                            <DialogTrigger asChild>
+                              <div 
+                                className="text-xs px-1 py-0.5 rounded cursor-pointer transition-colors bg-red-200 hover:bg-red-300 text-red-800"
+                              >
+                                ✗ {booking.customerLastName}, {booking.numberOfParticipants} ppl
+                              </div>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Failed/Cancelled Booking</DialogTitle>
+                                <DialogDescription>
+                                  Booking reference: {booking.bookingReference}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <div>
+                                  <h3 className="font-medium">Tour Information</h3>
+                                  <p className="text-sm text-gray-700">
+                                    {getTourById(booking.tourId) ? getLocalizedText(getTourById(booking.tourId)?.name, i18n.language) : 'Unknown Tour'} 
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {getAvailabilityById(booking.availabilityId)?.date} at {getAvailabilityById(booking.availabilityId)?.time}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h3 className="font-medium">Customer Information</h3>
+                                  <p className="text-sm">
+                                    {booking.customerFirstName} {booking.customerLastName}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {booking.customerEmail} | {booking.customerPhone}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h3 className="font-medium">Booking Details</h3>
+                                  <p className="text-sm">
+                                    Participants: {booking.numberOfParticipants}
+                                  </p>
+                                  <p className="text-sm">
+                                    Total Amount: €{(booking.totalAmount / 100).toFixed(2)}
+                                  </p>
+                                  <p className="text-sm">
+                                    Payment Status: <Badge variant="destructive">{booking.paymentStatus}</Badge>
+                                  </p>
+                                </div>
+                                {booking.specialRequests && (
+                                  <div>
+                                    <h3 className="font-medium">Special Requests</h3>
+                                    <p className="text-sm text-gray-500">
+                                      {booking.specialRequests}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        ))}
                     </div>
                   </div>
                 );
