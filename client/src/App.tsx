@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
 import ToursPage from "@/pages/tours";
-import TourDetailPage from "@/pages/tours/[tourId]";
+import TourDetailPage from "@/pages/tours/tour-details";
 import AdminPage from "@/pages/admin";
 import NavBar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";

@@ -26,7 +26,7 @@ export default function TourCard({ tour }: TourCardProps) {
 
   return (
     <div className="tour-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
-      <Link href={`/tours/${tour.id}`}>
+      <Link href={`/tour/${tour.id}`}>
         <img 
           src={tour.imageUrl} 
           alt={tour.name} 
