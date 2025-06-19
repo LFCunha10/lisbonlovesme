@@ -50,7 +50,7 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">{t('common.ourTours')}</h4>
             <ul className="space-y-2">
               {tours?.map((tour: any) => (
-                <FooterLink href={`/tours/${tour.id}`}>{tour.name}</FooterLink>
+                <FooterLink key={tour.id} href={`/tours/${tour.id}`}>{tour.name}</FooterLink>
               ))} 
             </ul>
           </div>
