@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
-import ToursPage from "@/pages/tours";
 import TourDetailPage from "@/pages/tours/tour-details";
 import AdminPage from "@/pages/admin";
 import NavBar from "@/components/layout/NavBar";
@@ -17,7 +16,16 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route path="/tours" component={ToursPage} />
+      <Route path="/tours">
+        {() => {
+          const ToursPage = React.lazy(() => import("@/pages/tours"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <ToursPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/gallery">
         {() => {
           const GalleryPage = React.lazy(() => import("@/pages/gallery"));
