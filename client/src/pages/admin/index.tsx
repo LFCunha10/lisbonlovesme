@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon } from "lucide-react";
+import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon, ShoppingCart, Newspaper, Image } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminIndexPage() {
@@ -38,7 +38,7 @@ export default function AdminIndexPage() {
           <DashboardCard 
             title="Booking Requests" 
             description="Manage customer booking requests"
-            icon={<MessageSquareIcon className="w-8 h-8" />}
+            icon={<ShoppingCart className="w-8 h-8" />}
             linkTo="/admin/requests"
             linkText="View Requests"
           />
@@ -48,6 +48,20 @@ export default function AdminIndexPage() {
             icon={<CalendarIcon className="w-8 h-8" />}
             linkTo="/admin/bookings"
             linkText="View Calendar"
+          />
+          <DashboardCard 
+            title="Articles" 
+            description="Create and edit articles"
+            icon={<Newspaper className="w-8 h-8" />}
+            linkTo="/admin/articles"
+            linkText="Manage Articles"
+          />
+          <DashboardCard 
+            title="Gallery" 
+            description="Add and change images"
+            icon={<Image className="w-8 h-8" />}
+            linkTo="/admin/gallery"
+            linkText="Manage Images"
           />
           <DashboardCard 
             title="Reviews" 

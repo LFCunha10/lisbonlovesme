@@ -47,13 +47,9 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       <Helmet>
         <title>{title ? `${title} - Lisbonlovesme Admin` : "Lisbonlovesme Admin"}</title>
       </Helmet>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      <div className="min-h-screen bg-gray-50 md:pt-16 dark:bg-gray-900 flex">
         {/* Sidebar */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow-md hidden md:block">
-          <div className="p-4 border-b dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Lisbonlovesme</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Admin Portal</p>
-          </div>
           <nav className="mt-4">
             <ul>
               {navItems.map((item) => (
@@ -87,17 +83,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-white dark:bg-gray-800 shadow-sm">
-            <div className="p-4 flex items-center justify-between">
-              <h1 className="text-xl font-medium text-gray-800 dark:text-white">
-                {title || "Admin"}
-              </h1>
-              <div className="md:hidden">
-                {/* Mobile menu button would go here */}
-              </div>
-            </div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-900">
+          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6 md:p-10">
             {children}
           </main>
         </div>

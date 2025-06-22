@@ -103,7 +103,7 @@ function Router() {
       </Route>
       <Route path="/admin/dashboard">
         {() => {
-          const AdminDashboardPage = React.lazy(() => import("@/pages/admin/dashboard"));
+          const AdminDashboardPage = React.lazy(() => import("@/pages/admin/index"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>

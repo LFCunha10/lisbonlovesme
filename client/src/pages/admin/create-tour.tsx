@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { Badge } from "lucide-react";
 
 // Extended schema for our form with proper validation

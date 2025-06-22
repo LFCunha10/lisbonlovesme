@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { getLocalizedText } from "@/lib/tour-utils";
 import { PlusIcon, EditIcon, TrashIcon, FolderIcon, FileTextIcon } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 interface Article {
   id: number;
@@ -41,6 +42,7 @@ export default function ManageArticles() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [selectedParent, setSelectedParent] = useState<number | undefined>();
+  const [html, setHtml] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -398,14 +400,17 @@ export default function ManageArticles() {
                           
                           <div>
                             <Label>Content ({lang.toUpperCase()})</Label>
-                            <Textarea
+                            <RichTextEditor
                               value={formData.content[lang as keyof typeof formData.content]}
-                              onChange={(e) => setFormData({ 
-                                ...formData, 
-                                content: { ...formData.content, [lang]: e.target.value }
-                              })}
-                              rows={10}
-                              className="font-mono"
+                              onChange={(html) =>
+                                setFormData({
+                                  ...formData,
+                                  content: {
+                                    ...formData.content,
+                                    [lang]: html
+                                  }
+                                })
+                              }
                             />
                             <p className="text-sm text-gray-500 mt-1">
                               You can use HTML tags for formatting
