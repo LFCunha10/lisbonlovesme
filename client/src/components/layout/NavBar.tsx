@@ -11,6 +11,7 @@ import LanguageSwitcher from "@/components/language-switcher";
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [articlesOpen, setArticlesOpen] = useState(false);
+  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
   const [location] = useLocation();
   const { t, i18n } = useTranslation();
   
@@ -44,12 +45,21 @@ export default function NavBar() {
           {!isAdminPage && (
             <div className="hidden md:flex items-center space-x-6">
               <NavLink href="/tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
+              
               {publishedArticles.length > 0 && (
                 <div className="relative">
                   <button
                     className="flex items-center text-neutral-dark hover:text-primary transition-all font-medium"
-                    onMouseEnter={() => setArticlesOpen(true)}
-                    onMouseLeave={() => setArticlesOpen(false)}
+                    onMouseEnter={() => {
+                      if (closeTimeout) clearTimeout(closeTimeout);
+                      setArticlesOpen(true);
+                    }}
+                    onMouseLeave={() => {
+                      const timeout = setTimeout(() => {
+                        setArticlesOpen(false);
+                      }, 100);
+                      setCloseTimeout(timeout);
+                    }}
                   >
                     {"Articles"}
                     <ChevronDown className="ml-1 h-4 w-4" />
@@ -57,8 +67,16 @@ export default function NavBar() {
                   {articlesOpen && (
                     <div 
                       className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-2 z-50"
-                      onMouseEnter={() => setArticlesOpen(true)}
-                      onMouseLeave={() => setArticlesOpen(false)}
+                      onMouseEnter={() => {
+                        if (closeTimeout) clearTimeout(closeTimeout);
+                        setArticlesOpen(true);
+                      }}
+                      onMouseLeave={() => {
+                        const timeout = setTimeout(() => {
+                          setArticlesOpen(false);
+                        }, 100);
+                        setCloseTimeout(timeout);
+                      }}
                     >
                       {publishedArticles.slice(0, 8).map((article) => (
                         <Link
@@ -73,6 +91,7 @@ export default function NavBar() {
                   )}
                 </div>
               )}
+              
               <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
               <NavLink href="/#reviews" isActive={location === "/"}>{t('reviews.title')}</NavLink>
               <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
