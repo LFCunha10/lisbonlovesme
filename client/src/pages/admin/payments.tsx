@@ -107,11 +107,16 @@ export default function AdminPaymentsPage() {
 
   // Filter bookings based on search term and status filter
   const filteredBookings = bookings?.filter((booking: any) => {
-    const matchesSearch = 
-      booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.bookingReference.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const name = typeof booking.customerName === 'string' ? booking.customerName.toLowerCase() : '';
+    const email = typeof booking.customerEmail === 'string' ? booking.customerEmail.toLowerCase() : '';
+    const reference = typeof booking.bookingReference === 'string' ? booking.bookingReference.toLowerCase() : '';
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      name.includes(search) ||
+      email.includes(search) ||
+      reference.includes(search);
+
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && booking.paymentStatus === statusFilter;
   });
@@ -240,7 +245,11 @@ export default function AdminPaymentsPage() {
                             {booking.bookingReference}
                           </code>
                         </TableCell>
-                        <TableCell>{booking.tourName}</TableCell>
+                        <TableCell>
+                          {typeof booking.tourName === 'object' && booking.tourName !== null
+                            ? booking.tourName.en ?? booking.tourName.pt ?? booking.tourName.ru ?? 'N/A'
+                            : booking.tourName ?? 'N/A'}
+                        </TableCell>
                         <TableCell>
                           <div className="font-medium">
                             {formatCurrency(booking.totalAmount)}

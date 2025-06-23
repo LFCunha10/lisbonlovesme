@@ -1,4 +1,8 @@
-import express, { type Request, Response, NextFunction } from "express";
+import dotenv from "dotenv";
+dotenv.config();
+
+import express, { type Request, Response, NextFunction, type RequestHandler } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import migrateData from "./migrate-data";
@@ -6,30 +10,67 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import passport from "passport";
 import { createAdminUserIfNotExists } from "./auth";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import csurf from "csurf";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(
+  cors({
+    origin: "http://localhost:3000", // or wherever your frontend runs
+    credentials: true,
+  })
+);
+
 // Serve static files from public directory
 app.use("/uploads", express.static("public/uploads"));
 
-// Set up session management
+app.use(cookieParser());
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      scriptSrc: ["'self'", "https://replit.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      connectSrc: ["'self'", "https:"],
+      frameSrc: ["'self'", "https://replit.com"]
+    }
+  })
+);
+
 const MemoryStoreSession = MemoryStore(session);
 app.use(
   session({
-    secret: "lisbonlovesme-session-secret",
+    secret: process.env.SESSION_SECRET || "lisbonlovesme-session-secret",
     resave: false,
     saveUninitialized: false,
     store: new MemoryStoreSession({
       checkPeriod: 86400000, // 24 hours
     }),
     cookie: {
-      secure: false, // set to true if using https
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      secure: false, // false for development
+      maxAge: 1000 * 60 * 60 * 2, // 2 hours
+      sameSite: "lax",
     },
   }),
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+const csrfProtection = csurf({ cookie: true }) as express.RequestHandler;
+app.use(csrfProtection);
+
+app.get("/api/csrf-token", (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -60,8 +101,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-app.use(express.json());
 
 // Initialize Passport
 app.use(passport.initialize());

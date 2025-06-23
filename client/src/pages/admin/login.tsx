@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { apiRequest } from "@/lib/queryClient";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function AdminLoginPage() {
@@ -21,14 +20,35 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      if (username === "admin" && password === "lisbonlovesme123") {
-        // Set admin token in localStorage - simple client-side auth
-        localStorage.setItem("adminToken", "admin-authenticated");
-        localStorage.setItem("adminUsername", "admin");
-        setLocation("/admin");
-      } else {
-        setError("Invalid username or password");
+      const csrfRes = await fetch("/api/csrf-token", {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfRes.json();
+
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "CSRF-Token": csrfToken,
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Invalid credentials");
       }
+
+      setLocation("/admin");
+      const meResponse = await fetch("/api/admin/me", {
+        credentials: "include",
+      });
+      const userData = await meResponse.json();
+      if (!userData || !userData.username || !userData.isAdmin) {
+        throw new Error("Invalid user data");
+      }
+      console.log("Login successful, user:", userData);
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error("Login error:", err);

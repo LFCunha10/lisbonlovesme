@@ -33,7 +33,7 @@ const participantSchema = z.object({
   customerLastName: z.string().min(2, "Last name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email address"),
   customerPhone: z.string().min(6, "Please enter a valid phone number"),
-  specialRequests: z.string().min(6, "it's important for us to know what you expect. This way, we can make a perfect tour for you."),
+  specialRequests: z.string().min(6, "It's important for us to know what you expect. This way, we can make a perfect tour for you."),
 });
 
 type ParticipantFormData = z.infer<typeof participantSchema>;
@@ -68,7 +68,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
       customerLastName: data.customerLastName,
       customerEmail: data.customerEmail,
       customerPhone: data.customerPhone,
-      specialRequests: data.specialRequests || ""
+      specialRequests: data.specialRequests
     }, true);
   };
 
@@ -110,7 +110,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                     customerLastName: form.getValues('customerLastName'),
                     customerEmail: form.getValues('customerEmail'),
                     customerPhone: form.getValues('customerPhone'),
-                    specialRequests: form.getValues('specialRequests') || ""
+                    specialRequests: form.getValues('specialRequests')
                   }, false);
                 }}
               >

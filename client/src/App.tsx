@@ -255,7 +255,7 @@ function Router() {
       </Route>
       <Route path="/articles/:slug">
         {() => {
-          const ArticlePage = React.lazy(() => import("@/pages/Article"));
+          const ArticlePage = React.lazy(() => import("@/pages/admin/Article"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <ArticlePage />

@@ -5,6 +5,24 @@ import bcrypt from 'bcrypt';
 import { storage } from './storage';
 import { User } from '@shared/schema';
 
+interface SerializedUser {
+  id: number;
+  username: string;
+  isAdmin: boolean;
+}
+// Session augmentation for custom session properties
+declare module "express-session" {
+  interface SessionData {
+    isAuthenticated: boolean;
+    isAdmin: boolean;
+    user?: {
+      id: number;
+      username: string;
+      isAdmin: boolean;
+    };
+  }
+}
+
 // Configure local strategy for use by Passport
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -26,7 +44,11 @@ passport.use(
         return done(null, false, { message: 'You do not have admin privileges' });
       }
 
-      return done(null, user);
+      return done(null, {
+        id: user.id,
+        username: user.username,
+        isAdmin: user.isAdmin
+      });
     } catch (error) {
       return done(error);
     }
@@ -34,22 +56,17 @@ passport.use(
 );
 
 // Configure Passport authenticated session persistence
-passport.serializeUser((user: User, done) => {
-  done(null, user.id);
+passport.serializeUser((user: any, done) => {
+  done(null, user);
 });
 
-passport.deserializeUser(async (id: number, done) => {
-  try {
-    const user = await storage.getUser(id);
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
+passport.deserializeUser((user: SerializedUser, done) => {
+  done(null, user);
 });
 
 // Middleware to check if user is authenticated
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated()) {
+  if (req.session?.isAuthenticated) {
     return next();
   }
   res.status(401).json({ message: 'Unauthorized' });
@@ -57,7 +74,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 // Middleware to check if user is an admin
 export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated() && req.user && (req.user as User).isAdmin) {
+  if (req.session?.isAuthenticated && req.session.user?.isAdmin) {
     return next();
   }
   res.status(403).json({ message: 'Forbidden - Admin access required' });

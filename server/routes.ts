@@ -10,6 +10,21 @@ import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
 import { getLocalizedText } from "./utils/tour-utils.js";
+import csrf from "csurf";
+import bcrypt from "bcrypt";
+
+// Session augmentation for custom session properties
+declare module "express-session" {
+  interface SessionData {
+    isAuthenticated: boolean;
+    isAdmin: boolean;
+    user?: {
+      id: number;
+      username: string;
+      isAdmin: boolean;
+    };
+  }
+}
 
 // Create a new Stripe instance with your secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -25,8 +40,54 @@ function generateRandomString(x: number): string {
   }
   return result;
 }
+const csrfProtection = csrf({ cookie: true });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Expose authenticated admin user route
+  app.get("/api/admin/me", async (req: Request, res: Response) => {
+    if (!req.session?.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await storage.getUser(req.session.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      username: user.username,
+      isAdmin: user.isAdmin
+    });
+  });
+
+  app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+app.post("/api/admin/create-user", async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await storage.createUser({
+      username,
+      password: hashedPassword,
+      isAdmin: true
+    });
+
+    res.status(201).json({ message: "Admin user created", user: { id: newUser.id, username: newUser.username } });
+  } catch (err: any) {
+    console.error("Create user error:", err);
+    res.status(500).json({ message: err.message || "Failed to create user" });
+  }
+});
+
   // Payment management routes
   app.get("/api/admin/payments", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
@@ -186,7 +247,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if password matches
-      const bcrypt = require('bcrypt');
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(401).json({ message: "Invalid username or password" });
@@ -197,17 +257,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You do not have admin privileges" });
       }
       
-      // Set session data
+      // Set session data with regeneration
       if (req.session) {
-        req.session.isAuthenticated = true;
-        req.session.isAdmin = user.isAdmin;
-        req.session.user = { id: user.id, username: user.username };
+        req.session.regenerate((err) => {
+          if (err) {
+            console.error("Session regeneration error:", err);
+            return res.status(500).json({ message: "Failed to regenerate session" });
+          }
+
+          console.log("Session after regenerate:", req.sessionID);
+
+          req.session.isAuthenticated = true;
+          req.session.isAdmin = !!user.isAdmin;
+          req.session.user = {
+            id: user.id,
+            username: user.username,
+            isAdmin: !!user.isAdmin
+          };
+
+          console.log("Session set:", req.session);
+          console.log("Session user now:", req.session.user);
+
+          res.json({
+            message: "Login successful"
+          });
+        });
+        return;
       }
-      
-      res.json({ 
-        message: "Login successful",
-        user: { id: user.id, username: user.username, isAdmin: user.isAdmin }
-      });
+      return res.status(500).json({ message: "Session not available" });
     } catch (error: any) {
       console.error("Login error:", error);
       res.status(500).json({ message: error.message || "An error occurred during login" });
@@ -229,17 +306,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post("/api/admin/logout", (req: Request, res: Response) => {
+  app.post("/api/admin/logout", csrfProtection, (req: Request, res: Response) => {
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
+          console.error("Logout error:", err);
           return res.status(500).json({ message: "Failed to logout" });
         }
-        
+
+        res.clearCookie("connect.sid", {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax"
+        });
+
         res.json({ message: "Logged out successfully" });
       });
     } else {
-      res.json({ message: "Not logged in" });
+      res.status(200).json({ message: "No session to destroy" });
     }
   });
 
@@ -273,7 +358,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/tours", async (req: Request, res: Response) => {
     try {
-      const tour = await storage.createTour(req.body);
+      const tour = await storage.createTour({
+        ...req.body,
+        shortDescription: req.body.shortDescription ?? null,
+        isActive: req.body.isActive ?? null,
+      });
       res.status(201).json(tour);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to create tour" });
@@ -424,7 +513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: booking.customerEmail,
         customerName: booking.customerFirstName,
         bookingReference: booking.bookingReference,
-        tourName: tour.name,
+        tourName: getLocalizedText(tour.name, booking.language || 'en'),
         baseUrl: baseUrl
       });
       
@@ -451,7 +540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const testimonial = await storage.createTestimonial({
         ...req.body,
-        isApproved: false // New reviews need approval
+        isApproved: false,
       });
       res.json(testimonial);
     } catch (error: any) {
@@ -683,7 +772,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .filter(booking => booking.paymentStatus === "requested" || booking.paymentStatus === "confirmed" || booking.paymentStatus === "cancelled")
         .map(booking => ({
           ...booking,
-          additionalInfo: booking.additionalInfo ? JSON.parse(booking.additionalInfo) : null
+          additionalInfo: typeof booking.additionalInfo === "string"
+            ? JSON.parse(booking.additionalInfo)
+            : booking.additionalInfo ?? null
         }));
       
       // Get tour details for each request
@@ -720,9 +811,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Booking request updated successfully:", updatedBooking);
       res.json(updatedBooking);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating booking request:", error);
-      res.status(500).json({ message: "Failed to update booking request", error: error.message });
+      res.status(500).json({ message: "Failed to update booking request", error: error?.message || String(error) });
     }
   });
 
@@ -741,9 +832,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Tour not found" });
       }
       
+      const additionalInfo = typeof booking.additionalInfo === 'string'
+        ? JSON.parse(booking.additionalInfo)
+        : booking.additionalInfo ?? {};
+
       // Use confirmed details if available, otherwise use original request details
-      const confirmationDate = booking.confirmedDate || booking.additionalInfo?.date || 'TBD';
-      const confirmationTime = booking.confirmedTime || booking.additionalInfo?.time || 'TBD';
+      const confirmationDate = booking.confirmedDate || additionalInfo?.date || 'TBD';
+      const confirmationTime = booking.confirmedTime || additionalInfo?.time || 'TBD';
       const meetingPoint = booking.confirmedMeetingPoint || booking.meetingPoint || 'TBD';
       const adminNotes = booking.adminNotes || '-';
       
@@ -751,13 +846,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: booking.customerEmail,
         name: `${booking.customerFirstName} ${booking.customerLastName}`,
         bookingReference: booking.bookingReference,
-        tourName: tour.name,
+        tourName: getLocalizedText(tour.name, booking.language || 'en'),
         date: confirmationDate,
         time: confirmationTime,
         participants: booking.numberOfParticipants,
         totalAmount: `€${(booking.totalAmount / 100).toFixed(2)}`,
         meetingPoint: meetingPoint,
-        duration: tour.duration,
+        duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
         adminNotes: adminNotes,
         language: booking.language || 'en'
       });
@@ -819,13 +914,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           to: booking.customerEmail,
           name: `${booking.customerFirstName} ${booking.customerLastName}`,
           bookingReference: booking.bookingReference,
-          tourName: tour.name,
+          tourName: getLocalizedText(tour.name, booking.language || 'en'),
           date: availability.date,
           time: availability.time,
           participants: booking.numberOfParticipants,
           totalAmount: (booking.totalAmount / 100).toFixed(2),
           meetingPoint: booking.meetingPoint || "To be announced",
-          duration: tour.duration,
+          duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
           language: booking.language || 'en'
         });
         
@@ -838,7 +933,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           date: availability.date,
           time: availability.time,
           participants: booking.numberOfParticipants,
-          specialRequests: booking.specialRequests,
+          specialRequests: booking.specialRequests ?? undefined,
           bookingReference: booking.bookingReference,
           language: booking.language || 'en'
         });
@@ -896,17 +991,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === ARTICLE MANAGEMENT ROUTES ===
   // Articles routes
   app.get("/api/articles", async (req: Request, res: Response) => {
     try {
       const parentId = req.query.parentId ? parseInt(req.query.parentId as string) : undefined;
       const published = req.query.published === 'true';
       
-      let articles;
+      let articles = await storage.getArticles();
       if (published) {
-        articles = await storage.getPublishedArticles(parentId);
-      } else {
-        articles = await storage.getArticles(parentId);
+        articles = articles.filter(a => a.isPublished);
+      }
+      if (parentId !== undefined) {
+        articles = articles.filter(a => a.parentId === parentId);
       }
       
       res.json(articles);
@@ -919,13 +1016,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const published = req.query.published === 'true';
       let articles;
-      
       if (published) {
-        articles = await storage.getPublishedArticles();
+        const allArticles = await storage.getArticles();
+        articles = allArticles.filter(a => a.isPublished);
       } else {
         articles = await storage.getArticleTree();
       }
-      
       res.json(articles);
     } catch (error: any) {
       res.status(500).json({ message: "Error fetching article tree: " + error.message });
@@ -1073,7 +1169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/gallery", async (req: Request, res: Response) => {
     try {
-      const image = await storage.createGalleryImage(req.body);
+      const image = await storage.createGalleryImage({
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
       res.status(201).json(image);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to create gallery image" });

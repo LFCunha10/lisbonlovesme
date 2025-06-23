@@ -1,0 +1,33 @@
+### Check session status
+GET http://localhost:5001/api/admin/session
+Cookie: connect.sid=YOUR_SESSION_COOKIE_HERE
+
+
+### Create article
+POST http://localhost:3000/api/articles
+Content-Type: application/json
+Cookie: connect.sid=YOUR_SESSION_COOKIE_HERE
+
+{
+  "title": { "en": "Test", "pt": "", "ru": "" },
+  "slug": "test-article",
+  "content": { "en": "<p>Test content</p>", "pt": "", "ru": "" },
+  "excerpt": { "en": "", "pt": "", "ru": "" },
+  "featuredImage": "",
+  "sortOrder": 0,
+  "isPublished": true
+}
+
+### get token
+GET http://localhost:5001/api/csrf-token
+
+### Create Admin User
+POST http://localhost:5001/api/admin/create-user
+Content-Type: application/json
+Cookie: _csrf=STSIV6Av-tbuy1eXvSDxma6x1FMQ67sxsINw
+CSRF-Token: STSIV6Av-tbuy1eXvSDxma6x1FMQ67sxsINw
+
+{
+  "username": "newadmin",
+  "password": "securepass123"
+}

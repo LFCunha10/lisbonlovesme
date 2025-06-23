@@ -232,9 +232,9 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     time,
     participants,
     totalAmount,
-    meetingPoint,
+    meetingPoint = 'To be announced',
     duration = '3 hours', // Default tour duration is 3 hours if not specified
-    adminNotes,
+    adminNotes = '',
     language
   } = options;
   
@@ -493,8 +493,9 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
     time,
     participants,
     totalAmount,
-    meetingPoint,
+    meetingPoint = 'To be announced',
     duration = '3 hours',
+    adminNotes = '',
     language
   } = options;
   

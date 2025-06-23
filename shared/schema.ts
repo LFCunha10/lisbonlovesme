@@ -1,9 +1,17 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, primaryKey, foreignKey } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  json,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// User model (imported from the existing schema)
+// User model
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -14,36 +22,32 @@ export const users = pgTable("users", {
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  isAdmin: true,
 });
 
-// Tour model - now stores translations as JSON
+// Tour model
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
-  name: json("name").$type<{en: string; pt: string; ru: string}>().notNull(),
-  shortDescription: json("short_description").$type<{en: string; pt: string; ru: string}>().default({en: "", pt: "", ru: ""}),
-  description: json("description").$type<{en: string; pt: string; ru: string}>().notNull(),
+  name: json("name").$type<{ en: string; pt: string; ru: string }>().notNull(),
+  shortDescription: json("short_description")
+    .$type<{ en: string; pt: string; ru: string }>()
+    .default({ en: "", pt: "", ru: "" }),
+  description: json("description").$type<{ en: string; pt: string; ru: string }>().notNull(),
   imageUrl: text("image_url").notNull(),
-  duration: json("duration").$type<{en: string; pt: string; ru: string}>().notNull(),
+  duration: json("duration").$type<{ en: string; pt: string; ru: string }>().notNull(),
   maxGroupSize: integer("max_group_size").notNull(),
-  difficulty: json("difficulty").$type<{en: string; pt: string; ru: string}>().notNull(),
-  price: integer("price").notNull(), // Price in cents
-  priceType: text("price_type").notNull().default("per_person"), // "per_person" or "per_group"
-  badge: json("badge").$type<{en: string; pt: string; ru: string}>().default({en: "", pt: "", ru: ""}),
-  badgeColor: text("badge_color"), // For styling
+  difficulty: json("difficulty").$type<{ en: string; pt: string; ru: string }>().notNull(),
+  price: integer("price").notNull(),
+  priceType: text("price_type").default("per_person"),
+  badge: json("badge").$type<{ en: string; pt: string; ru: string }>().default({ en: "", pt: "", ru: "" }),
+  badgeColor: text("badge_color"),
   isActive: boolean("is_active").default(true),
 });
-
-export const toursRelations = relations(tours, ({ many }) => ({
-  availabilities: many(availabilities),
-  bookings: many(bookings),
-  testimonials: many(testimonials),
-}));
 
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
 });
 
-// Helper types for multilingual content
 export type MultilingualText = {
   en: string;
   pt: string;
@@ -59,33 +63,29 @@ export type TourTranslations = {
   badge: MultilingualText;
 };
 
-// Availability model
 export const availabilities = pgTable("availabilities", {
   id: serial("id").primaryKey(),
-  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
-  date: text("date").notNull(), // Format: YYYY-MM-DD
-  time: text("time").notNull(), // Format: HH:MM
+  tourId: integer("tour_id")
+    .notNull()
+    .references(() => tours.id, { onDelete: "cascade" }),
+  date: text("date").notNull(),
+  time: text("time").notNull(),
   maxSpots: integer("max_spots").notNull(),
   spotsLeft: integer("spots_left").notNull(),
 });
-
-export const availabilitiesRelations = relations(availabilities, ({ one, many }) => ({
-  tour: one(tours, {
-    fields: [availabilities.tourId],
-    references: [tours.id],
-  }),
-  bookings: many(bookings),
-}));
 
 export const insertAvailabilitySchema = createInsertSchema(availabilities).omit({
   id: true,
 });
 
-// Booking model
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
-  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
-  availabilityId: integer("availability_id").notNull().references(() => availabilities.id, { onDelete: "cascade" }),
+  tourId: integer("tour_id")
+    .notNull()
+    .references(() => tours.id, { onDelete: "cascade" }),
+  availabilityId: integer("availability_id")
+    .notNull()
+    .references(() => availabilities.id, { onDelete: "cascade" }),
   customerFirstName: text("customer_first_name").notNull(),
   customerLastName: text("customer_last_name").notNull(),
   customerEmail: text("customer_email").notNull(),
@@ -93,39 +93,38 @@ export const bookings = pgTable("bookings", {
   numberOfParticipants: integer("number_of_participants").notNull(),
   specialRequests: text("special_requests"),
   bookingReference: text("booking_reference").notNull().unique(),
-  totalAmount: integer("total_amount").notNull(), // In cents
-  paymentStatus: text("payment_status").default("requested"), // "requested", "confirmed", "cancelled"
+  totalAmount: integer("total_amount").notNull(),
+  paymentStatus: text("payment_status").default("requested"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   createdAt: timestamp("created_at").defaultNow(),
   additionalInfo: json("additional_info"),
   meetingPoint: text("meeting_point"),
   remindersSent: boolean("reminders_sent").default(false),
-  confirmedDate: text("confirmed_date"), // Final confirmed date (may differ from original request)
-  confirmedTime: text("confirmed_time"), // Final confirmed time
-  confirmedMeetingPoint: text("confirmed_meeting_point"), // Final meeting point
-  adminNotes: text("admin_notes"), // Internal notes for admin
-  language: text("language").default("en") // User's preferred language for emails
+  confirmedDate: text("confirmed_date"),
+  confirmedTime: text("confirmed_time"),
+  confirmedMeetingPoint: text("confirmed_meeting_point"),
+  adminNotes: text("admin_notes"),
+  language: text("language").default("en"),
 });
 
-export const bookingsRelations = relations(bookings, ({ one }) => ({
-  tour: one(tours, {
-    fields: [bookings.tourId],
-    references: [tours.id],
-  }),
-  availability: one(availabilities, {
-    fields: [bookings.availabilityId],
-    references: [availabilities.id],
-  }),
-}));
-
-export const insertBookingSchema = createInsertSchema(bookings).omit({
+export const insertBookingSchema = createInsertSchema(bookings, {
+  specialRequests: z.string().nullable().default(null),
+  paymentStatus: z.string().nullable().default("requested"),
+  stripePaymentIntentId: z.string().nullable().default(null),
+  additionalInfo: z.any().nullable().default(null),
+  meetingPoint: z.string().nullable().default(null),
+  confirmedDate: z.string().nullable().default(null),
+  confirmedTime: z.string().nullable().default(null),
+  confirmedMeetingPoint: z.string().nullable().default(null),
+  adminNotes: z.string().nullable().default(null),
+  language: z.string().nullable().default("en"),
+}).omit({
   id: true,
   bookingReference: true,
   createdAt: true,
   remindersSent: true,
 });
 
-// Testimonial model
 export const testimonials = pgTable("testimonials", {
   id: serial("id").primaryKey(),
   customerName: text("customer_name").notNull(),
@@ -133,25 +132,19 @@ export const testimonials = pgTable("testimonials", {
   rating: integer("rating").notNull(),
   text: text("text").notNull(),
   isApproved: boolean("is_approved").default(false),
-  tourId: integer("tour_id").notNull().references(() => tours.id, { onDelete: "cascade" }),
+  tourId: integer("tour_id")
+    .notNull()
+    .references(() => tours.id, { onDelete: "cascade" }),
 });
-
-export const testimonialsRelations = relations(testimonials, ({ one }) => ({
-  tour: one(tours, {
-    fields: [testimonials.tourId],
-    references: [tours.id],
-  }),
-}));
 
 export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   id: true,
   isApproved: true,
 });
 
-// Closed Days model
 export const closedDays = pgTable("closed_days", {
   id: serial("id").primaryKey(),
-  date: text("date").notNull().unique(), // Format: YYYY-MM-DD
+  date: text("date").notNull().unique(),
   reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -161,7 +154,6 @@ export const insertClosedDaySchema = createInsertSchema(closedDays).omit({
   createdAt: true,
 });
 
-// Admin Settings model
 export const adminSettings = pgTable("admin_settings", {
   id: serial("id").primaryKey(),
   autoCloseDay: boolean("auto_close_day").default(false),
@@ -173,14 +165,13 @@ export const insertAdminSettingsSchema = createInsertSchema(adminSettings).omit(
   lastUpdated: true,
 });
 
-// Gallery table for photo management
 export const gallery = pgTable("gallery", {
   id: serial("id").primaryKey(),
   imageUrl: text("image_url").notNull(),
   title: text("title"),
   description: text("description"),
-  displayOrder: integer("display_order").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: integer("display_order").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -191,57 +182,20 @@ export const insertGallerySchema = createInsertSchema(gallery).omit({
   updatedAt: true,
 });
 
-// Types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type Tour = typeof tours.$inferSelect;
-export type InsertTour = z.infer<typeof insertTourSchema>;
-
-export type Availability = typeof availabilities.$inferSelect;
-export type InsertAvailability = z.infer<typeof insertAvailabilitySchema>;
-
-export type Booking = typeof bookings.$inferSelect;
-export type InsertBooking = z.infer<typeof insertBookingSchema>;
-
-export type Testimonial = typeof testimonials.$inferSelect;
-export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
-
-export type ClosedDay = typeof closedDays.$inferSelect;
-export type InsertClosedDay = z.infer<typeof insertClosedDaySchema>;
-
-export type AdminSetting = typeof adminSettings.$inferSelect;
-export type InsertAdminSetting = z.infer<typeof insertAdminSettingsSchema>;
-
-export type Gallery = typeof gallery.$inferSelect;
-export type InsertGallery = z.infer<typeof insertGallerySchema>;
-
-// Articles model - tree structure for blog-like content
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),
-  title: json("title").notNull(), // Multilingual: { en: "", pt: "", ru: "" }
-  slug: text("slug").notNull().unique(), // URL-friendly identifier
-  content: json("content").notNull(), // Multilingual: { en: "", pt: "", ru: "" }
-  excerpt: json("excerpt"), // Optional short description, multilingual
-  featuredImage: text("featured_image"), // Main image for the article
-  parentId: integer("parent_id").references(() => articles.id, { onDelete: "cascade" }), // For tree structure
-  sortOrder: integer("sort_order").default(0), // For manual ordering within same parent
+  title: json("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: json("content").notNull(),
+  excerpt: json("excerpt"),
+  featuredImage: text("featured_image"),
+  parentId: integer("parent_id"),
+  sortOrder: integer("sort_order").default(0),
   isPublished: boolean("is_published").default(false),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export const articlesRelations = relations(articles, ({ one, many }) => ({
-  parent: one(articles, {
-    fields: [articles.parentId],
-    references: [articles.id],
-    relationName: "article_parent",
-  }),
-  children: many(articles, {
-    relationName: "article_parent",
-  }),
-}));
 
 export const insertArticleSchema = createInsertSchema(articles).omit({
   id: true,
@@ -249,5 +203,22 @@ export const insertArticleSchema = createInsertSchema(articles).omit({
   updatedAt: true,
 });
 
+// Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Tour = typeof tours.$inferSelect;
+export type InsertTour = z.infer<typeof insertTourSchema>;
+export type Availability = typeof availabilities.$inferSelect;
+export type InsertAvailability = z.infer<typeof insertAvailabilitySchema>;
+export type Booking = typeof bookings.$inferSelect;
+export type InsertBooking = z.infer<typeof insertBookingSchema>;
+export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type ClosedDay = typeof closedDays.$inferSelect;
+export type InsertClosedDay = z.infer<typeof insertClosedDaySchema>;
+export type AdminSetting = typeof adminSettings.$inferSelect;
+export type InsertAdminSetting = z.infer<typeof insertAdminSettingsSchema>;
+export type Gallery = typeof gallery.$inferSelect;
+export type InsertGallery = z.infer<typeof insertGallerySchema>;
 export type Article = typeof articles.$inferSelect;
 export type InsertArticle = z.infer<typeof insertArticleSchema>;

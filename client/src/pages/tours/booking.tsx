@@ -26,6 +26,15 @@ interface BookingData {
   customerEmail: string;
   customerPhone: string;
   specialRequests: string;
+  paymentStatus?: string | null;
+  stripePaymentIntentId?: string | null;
+  additionalInfo?: any;
+  meetingPoint?: string | null;
+  confirmedDate?: string | null;
+  confirmedTime?: string | null;
+  confirmedMeetingPoint?: string | null;
+  adminNotes?: string | null;
+  language?: string | null;
 }
 
 const steps = [

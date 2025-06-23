@@ -17,7 +17,7 @@ interface BookingData {
   customerLastName: string;
   customerEmail: string;
   customerPhone: string;
-  specialRequests: string;
+  specialRequests: string | null;
 }
 
 interface BookingConfirmationProps {

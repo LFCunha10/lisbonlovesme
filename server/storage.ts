@@ -6,7 +6,8 @@ import {
   testimonials, type Testimonial, type InsertTestimonial,
   closedDays, type ClosedDay, type InsertClosedDay,
   adminSettings, type AdminSetting, type InsertAdminSetting,
-  gallery, type Gallery, type InsertGallery
+  gallery, type Gallery, type InsertGallery,
+  articles, type Article, type InsertArticle
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 
@@ -67,9 +68,90 @@ export interface IStorage {
   updateGalleryImage(id: number, image: Partial<InsertGallery>): Promise<Gallery | undefined>;
   deleteGalleryImage(id: number): Promise<boolean>;
   reorderGalleryImages(imageIds: number[]): Promise<boolean>;
+
+  // Article operations
+  getArticles(): Promise<Article[]>;
+  getArticle(id: number): Promise<Article | undefined>;
+  getArticleBySlug(slug: string): Promise<Article | undefined>;
+  getArticleTree(): Promise<Article[]>;
+  createArticle(article: InsertArticle): Promise<Article>;
+  updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
+  deleteArticle(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
+  // Closed Days operations
+  async getClosedDays(): Promise<ClosedDay[]> {
+    return [];
+  }
+
+  async getClosedDay(date: string): Promise<ClosedDay | undefined> {
+    return undefined;
+  }
+
+  async addClosedDay(date: string, reason?: string): Promise<ClosedDay> {
+    return { id: 0, date, reason: reason ?? null, createdAt: null };
+  }
+
+  async removeClosedDay(date: string): Promise<boolean> {
+    return true;
+  }
+
+  async isDateClosed(date: string): Promise<boolean> {
+    return false;
+  }
+
+  // Admin Settings operations
+  async getAdminSettings(): Promise<AdminSetting | undefined> {
+    return undefined;
+  }
+
+  async updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting> {
+    return { 
+      id: 0, 
+      ...settings,
+      lastUpdated: null,
+      autoCloseDay: null
+    };
+  }
+
+  async getAutoCloseDaySetting(): Promise<boolean> {
+    return false;
+  }
+
+  // Gallery operations
+  async getGalleryImages(): Promise<Gallery[]> {
+    return [];
+  }
+
+  async getGalleryImage(id: number): Promise<Gallery | undefined> {
+    return undefined;
+  }
+
+  async createGalleryImage(image: InsertGallery): Promise<Gallery> {
+    return {
+      id: 0,
+      ...image,
+      createdAt: null,
+      updatedAt: null,
+      title: null,
+      description: null,
+      displayOrder: 0,
+      isActive: false,
+    };
+  }
+
+  async updateGalleryImage(id: number, image: Partial<InsertGallery>): Promise<Gallery | undefined> {
+    return undefined;
+  }
+
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    return true;
+  }
+
+  async reorderGalleryImages(imageIds: number[]): Promise<boolean> {
+    return true;
+  }
   private users: Map<number, User>;
   private tours: Map<number, Tour>;
   private availabilities: Map<number, Availability>;
@@ -81,6 +163,9 @@ export class MemStorage implements IStorage {
   private availabilityCurrentId: number;
   private bookingCurrentId: number;
   private testimonialCurrentId: number;
+
+  private articles: Map<number, Article> = new Map();
+  private articleCurrentId = 1;
 
   constructor() {
     this.users = new Map();
@@ -99,13 +184,15 @@ export class MemStorage implements IStorage {
 
   // User operations (existing)
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const user = this.users.get(id);
+    return user ? { ...user, isAdmin: !!user.isAdmin } : undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+    const user = Array.from(this.users.values()).find(
+      (user) => user.username === username
     );
+    return user ? { ...user, isAdmin: !!user.isAdmin } : undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -135,7 +222,15 @@ export class MemStorage implements IStorage {
 
   async createTour(tour: InsertTour): Promise<Tour> {
     const id = this.tourCurrentId++;
-    const newTour: Tour = { ...tour, id };
+    const newTour: Tour = {
+      ...tour,
+      id,
+      shortDescription: tour.shortDescription ?? null,
+      isActive: tour.isActive ?? null,
+      priceType: tour.priceType ?? null,
+      badge: tour.badge ?? null,
+      badgeColor: tour.badgeColor ?? null,
+    };
     this.tours.set(id, newTour);
     return newTour;
   }
@@ -216,12 +311,22 @@ export class MemStorage implements IStorage {
     // Generate a unique booking reference
     const bookingReference = `LT-${nanoid(8).toUpperCase()}`;
     
-    const newBooking: Booking = { 
-      ...booking, 
-      id, 
+    const newBooking: Booking = {
+      ...booking,
+      id,
       bookingReference,
       createdAt: new Date(),
       remindersSent: false,
+      specialRequests: booking.specialRequests ?? null,
+      language: booking.language ?? null,
+      paymentStatus: booking.paymentStatus ?? null,
+      stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
+      additionalInfo: booking.additionalInfo ?? null,
+      meetingPoint: booking.meetingPoint ?? null,
+      confirmedDate: booking.confirmedDate ?? null,
+      confirmedTime: booking.confirmedTime ?? null,
+      confirmedMeetingPoint: booking.confirmedMeetingPoint ?? null,
+      adminNotes: booking.adminNotes ?? null,
     };
     
     this.bookings.set(id, newBooking);
@@ -276,7 +381,11 @@ export class MemStorage implements IStorage {
 
   async createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial> {
     const id = this.testimonialCurrentId++;
-    const newTestimonial: Testimonial = { ...testimonial, id };
+    const newTestimonial: Testimonial = {
+      ...testimonial,
+      id,
+      isApproved: null,
+    };
     this.testimonials.set(id, newTestimonial);
     return newTestimonial;
   }
@@ -288,6 +397,75 @@ export class MemStorage implements IStorage {
     const updatedTestimonial: Testimonial = { ...testimonial, isApproved: true };
     this.testimonials.set(id, updatedTestimonial);
     return updatedTestimonial;
+  }
+
+  async getArticles(): Promise<Article[]> {
+    return Array.from(this.articles.values());
+  }
+
+  async getArticle(id: number): Promise<Article | undefined> {
+    return this.articles.get(id);
+  }
+
+  async getArticleBySlug(slug: string): Promise<Article | undefined> {
+    return Array.from(this.articles.values()).find(a => a.slug === slug);
+  }
+
+  async getArticleTree(): Promise<Article[]> {
+    const articles = Array.from(this.articles.values());
+    const map = new Map<number, Article & { children: Article[] }>();
+    articles.forEach(article => {
+      map.set(article.id, { ...article, children: [] });
+    });
+
+    const tree: (Article & { children: Article[] })[] = [];
+    map.forEach(article => {
+      if (article.parentId && map.has(article.parentId)) {
+        map.get(article.parentId)!.children.push(article);
+      } else {
+        tree.push(article);
+      }
+    });
+
+    return tree;
+  }
+
+  async createArticle(insertArticle: InsertArticle): Promise<Article> {
+    const id = this.articleCurrentId++;
+    const now = new Date();
+    const article: Article = {
+      id,
+      title: insertArticle.title,
+      slug: insertArticle.slug,
+      content: insertArticle.content,
+      excerpt: insertArticle.excerpt ?? {},
+      featuredImage: insertArticle.featuredImage ?? null,
+      parentId: insertArticle.parentId ?? null,
+      sortOrder: insertArticle.sortOrder ?? null,
+      isPublished: insertArticle.isPublished ?? null,
+      publishedAt: insertArticle.publishedAt ?? null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.articles.set(id, article);
+    return article;
+  }
+
+  async updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined> {
+    const existing = this.articles.get(id);
+    if (!existing) return undefined;
+
+    const updated: Article = {
+      ...existing,
+      ...article,
+      updatedAt: new Date(),
+    };
+    this.articles.set(id, updated);
+    return updated;
+  }
+
+  async deleteArticle(id: number): Promise<boolean> {
+    return this.articles.delete(id);
   }
 }
 

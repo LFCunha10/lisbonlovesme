@@ -1,11 +1,46 @@
 import React from "react";
+import { useLocation } from "wouter";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon, ShoppingCart, Newspaper, Image } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useEffect, useState } from "react";
 
 export default function AdminIndexPage() {
+  const [location, setLocation] = useLocation();
+  const [authenticated, setAuthenticated] = React.useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log("Checking authentication...");
+      try {
+        const res = await fetch("/api/admin/me", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        console.log("Auth check response:", data);
+
+        if (data && typeof data.username === "string" && typeof data.isAdmin === "boolean") {
+          setAuthenticated(true);
+        } else {
+          throw new Error("Invalid user data");
+        }
+      } catch (err) {
+        console.error("Auth check failed", err);
+        console.log("Redirecting to login", err);
+        setAuthenticated(false);
+        setLocation("/admin/login");
+      }
+    };
+
+    checkAuth();
+  }, [setLocation]);
+
+  if (authenticated === null) {
+    return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  }
+
   return (
     <AdminLayout title="Dashboard">
       <header className="bg-white shadow-sm mb-6 rounded-lg">

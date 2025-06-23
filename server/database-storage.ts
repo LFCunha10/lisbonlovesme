@@ -99,7 +99,11 @@ export class DatabaseStorage implements IStorage {
   async createGalleryImage(image: InsertGallery): Promise<Gallery> {
     const [newImage] = await db
       .insert(gallery)
-      .values(image)
+      .values({
+        ...image,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
       .returning();
     return newImage;
   }
@@ -115,7 +119,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteGalleryImage(id: number): Promise<boolean> {
     const result = await db.delete(gallery).where(eq(gallery.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   async reorderGalleryImages(imageIds: number[]): Promise<boolean> {
@@ -168,7 +172,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTour(tour: InsertTour): Promise<Tour> {
-    const [newTour] = await db.insert(tours).values(tour).returning();
+    const [newTour] = await db.insert(tours).values({
+      ...tour,
+      shortDescription: tour.shortDescription ?? null,
+      isActive: tour.isActive ?? null,
+    }).returning();
     return newTour;
   }
 
@@ -183,7 +191,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTour(id: number): Promise<boolean> {
     const result = await db.delete(tours).where(eq(tours.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Availability operations
@@ -239,7 +247,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAvailability(id: number): Promise<boolean> {
     const result = await db.delete(availabilities).where(eq(availabilities.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Booking operations
@@ -275,7 +283,20 @@ export class DatabaseStorage implements IStorage {
   try {
     const [newBooking] = await db
       .insert(bookings)
-      .values({ ...booking, bookingReference })
+      .values({
+        ...booking,
+        bookingReference,
+        specialRequests: booking.specialRequests ?? null,
+        paymentStatus: booking.paymentStatus ?? null,
+        stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
+        additionalInfo: booking.additionalInfo ?? null,
+        meetingPoint: booking.meetingPoint ?? null,
+        confirmedDate: booking.confirmedDate ?? null,
+        confirmedTime: booking.confirmedTime ?? null,
+        confirmedMeetingPoint: booking.confirmedMeetingPoint ?? null,
+        adminNotes: booking.adminNotes ?? null,
+        language: booking.language ?? null,
+      })
       .returning();
 
     console.log("Booking inserted successfully:", newBooking);
@@ -319,23 +340,25 @@ export class DatabaseStorage implements IStorage {
 
   // Testimonial operations
   async getTestimonials(tourId?: number, approvedOnly = true): Promise<Testimonial[]> {
-    let query = db.select().from(testimonials);
-    
-    if (tourId) {
-      query = query.where(eq(testimonials.tourId, tourId));
-    }
-    
-    if (approvedOnly) {
-      query = query.where(eq(testimonials.isApproved, true));
-    }
-    
-    return query.orderBy(desc(testimonials.id));
+    return db
+      .select()
+      .from(testimonials)
+      .where(
+        and(
+          ...(tourId ? [eq(testimonials.tourId, tourId)] : []),
+          ...(approvedOnly ? [eq(testimonials.isApproved, true)] : [])
+        )
+      )
+      .orderBy(desc(testimonials.id));
   }
 
   async createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial> {
     const [newTestimonial] = await db
       .insert(testimonials)
-      .values(testimonial)
+      .values({
+        ...testimonial,
+        isApproved: null,
+      })
       .returning();
     return newTestimonial;
   }
@@ -350,15 +373,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Article operations
-  async getArticles(parentId?: number): Promise<Article[]> {
-    if (parentId !== undefined) {
-      return db
-        .select()
-        .from(articles)
-        .where(eq(articles.parentId, parentId))
-        .orderBy(asc(articles.id));
-    }
-    return db.select().from(articles).orderBy(asc(articles.id));
+  async getArticles(): Promise<Article[]> {
+    return db.select().from(articles).orderBy(asc(articles.sortOrder));
   }
 
   async getArticle(id: number): Promise<Article | undefined> {
@@ -409,17 +425,4 @@ export class DatabaseStorage implements IStorage {
     return allArticles;
   }
 
-  async getPublishedArticles(parentId?: number): Promise<Article[]> {
-    let query = db
-      .select()
-      .from(articles)
-      .where(eq(articles.isPublished, true));
-    
-    if (parentId !== undefined) {
-      query = query.where(eq(articles.parentId, parentId));
-    }
-    
-    const result = await query.orderBy(asc(articles.id));
-    return result;
-  }
 }

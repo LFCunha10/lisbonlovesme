@@ -14,12 +14,18 @@ export function generateICSFile(event: ICSEvent): string {
   // Generate a unique ID for the event
   const uid = `event-${Date.now()}@lisbonlovesme.com`;
   
-  // Format the start date
+  // Validate and format the start date
+  if (!event.start || isNaN(new Date(event.start).getTime())) {
+    throw new Error(`Invalid start date: ${event.start}`);
+  }
   const startDate = new Date(event.start);
   const formattedStart = formatDate(startDate);
   
-  const preDuration = event.duration.split(' ')[0]
+  const preDuration = event.duration?.split(' ')[0] || '3';
   const duration = parseInt(preDuration);
+  if (isNaN(duration)) {
+    throw new Error(`Invalid duration format: ${event.duration}`);
+  }
 
   // Calculate end time based on duration
   const endDate = new Date(startDate);

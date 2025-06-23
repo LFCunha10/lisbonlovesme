@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard,
@@ -14,19 +15,39 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 
+
 interface AdminLayoutProps {
   children: React.ReactNode;
   title?: string;
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const [location] = useLocation();
 
-  // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
-    window.location.href = "/admin/login";
-  };
+  const [location, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/admin/me", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Not authenticated");
+
+        const user = await res.json();
+        if (user && user.isAdmin) {
+          setIsAuthenticated(true);
+        } else {
+          throw new Error("Invalid user");
+        }
+      } catch (error) {
+        console.error("Sidebar auth check failed", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Navigation items
   const navItems = [
@@ -50,35 +71,57 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       <div className="min-h-screen bg-gray-50 md:pt-16 dark:bg-gray-900 flex">
         {/* Sidebar */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow-md hidden md:block">
-          <nav className="mt-4">
-            <ul>
-              {navItems.map((item) => (
-                <li key={item.href} className="mb-1">
-                  <Link href={item.href}>
-                    <div
-                      className={`flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                        location === item.href
-                          ? "bg-gray-100 dark:bg-gray-700 border-l-4 border-blue-500 dark:border-blue-400"
-                          : ""
-                      }`}
-                    >
-                      {item.icon}
-                      <span className="ml-3">{item.label}</span>
-                    </div>
-                  </Link>
+          {isAuthenticated && (
+            <nav className="mt-4">
+              <ul>
+                {navItems.map((item) => (
+                  <li key={item.href} className="mb-1">
+                    <Link href={item.href}>
+                      <div
+                        className={`flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          location === item.href
+                            ? "bg-gray-100 dark:bg-gray-700 border-l-4 border-blue-500 dark:border-blue-400"
+                            : ""
+                        }`}
+                      >
+                        {item.icon}
+                        <span className="ml-3">{item.label}</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+                <li className="mt-6">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/csrf-token", {
+                          credentials: "include",
+                        });
+                        const data = await res.json();
+
+                        await fetch("/api/admin/logout", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "CSRF-Token": data.csrfToken,
+                          },
+                          credentials: "include",
+                        });
+
+                        setLocation("/admin/login");
+                      } catch (error) {
+                        console.error("Logout failed", error);
+                      }
+                    }}
+                    className="flex items-center w-full px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="ml-3">Logout</span>
+                  </button>
                 </li>
-              ))}
-              <li className="mt-6">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="ml-3">Logout</span>
-                </button>
-              </li>
-            </ul>
-          </nav>
+              </ul>
+            </nav>
+          )}
         </div>
 
         {/* Main Content */}

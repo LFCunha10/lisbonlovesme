@@ -34,15 +34,15 @@ interface BookingRequest {
   customerEmail: string;
   customerPhone: string;
   numberOfParticipants: number;
-  specialRequests?: string;
+  specialRequests?: string | null;
   bookingReference: string;
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
-  confirmedDate?: string;
-  confirmedTime?: string;
-  confirmedMeetingPoint?: string;
-  adminNotes?: string;
+  confirmedDate?: string | null;
+  confirmedTime?: string | null;
+  confirmedMeetingPoint?: string | null;
+  adminNotes?: string | null;
   additionalInfo?: {
     date?: string;
     time?: string;
