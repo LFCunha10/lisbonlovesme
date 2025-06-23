@@ -63,8 +63,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+    res.cookie("csrfToken", req.csrfToken(), {
+      httpOnly: false,
+      secure: true,
+      sameSite: "lax"
+    });
+    res.json({ csrfToken: req.csrfToken() });
+  });
 
 app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   try {

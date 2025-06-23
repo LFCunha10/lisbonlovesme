@@ -203,19 +203,21 @@ export default function ManageTours() {
               <div className="flex items-center gap-2 mb-2">
                 {tour.badge && (
                   <Badge variant={tour.badgeColor === "secondary" ? "secondary" : "default"}>
-                    {tour.badge}
+                    {getLocalizedText(tour.badge, i18n.language)}
                   </Badge>
                 )}
-                <Badge variant="outline">{tour.duration}</Badge>
+                <Badge variant="outline">{getLocalizedText(tour.duration, i18n.language)}</Badge>
                 <Badge variant="outline">Max {tour.maxGroupSize} people</Badge>
-                <Badge variant="outline">{tour.difficulty}</Badge>
+                <Badge variant="outline">{getLocalizedText(tour.difficulty, i18n.language)}</Badge>
               </div>
-              <p className="text-neutral-dark/70 text-sm mb-2 line-clamp-2">{tour.description}</p>
+              <p className="text-neutral-dark/70 text-sm mb-2 line-clamp-2">
+                {getLocalizedText(tour.description, i18n.language)}
+              </p>
               <div className="flex justify-between items-center mt-4">
                 <div className="font-semibold">{formatCurrency(tour.price)}</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-neutral-dark/70">Active:</span>
-                  <Switch checked={tour.isActive} disabled />
+                  <Switch checked={tour.isActive ?? false} disabled />
                 </div>
               </div>
             </CardContent>

@@ -120,12 +120,35 @@ export default function AdminTours() {
   const { i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [isCreateTourOpen, setIsCreateTourOpen] = useState(false);
-  const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] =
-    useState(false);
+  const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] = useState(false);
   const [isEditTourOpen, setIsEditTourOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("tours");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  React.useEffect(() => {
+      const checkAuth = async () => {
+        try {
+          const res = await fetch("/api/admin/me", {
+            credentials: "include",
+          });
+          if (!res.ok) throw new Error("Not authenticated");
+  
+          const user = await res.json();
+          if (user && user.isAdmin) {
+            setIsAuthenticated(true);
+          } else {
+            throw new Error("Invalid user");
+          }
+        } catch (error) {
+          console.error("Tours auth check failed", error);
+          setIsAuthenticated(false);
+          navigate("/admin/login");
+        }
+      };
+  
+      checkAuth();
+    }, []);
 
   // Fetch tours
   const { data: tours, isLoading: isLoadingTours } = useQuery({
@@ -148,7 +171,6 @@ export default function AdminTours() {
     },
   );
 
-  // Selected tour data
 
   // Form for creating/editing tours
   const tourForm = useForm<TourFormValues>({
@@ -178,6 +200,8 @@ export default function AdminTours() {
       spotsLeft: 10,
     },
   });
+
+  
 
   // Update form values when selected tour changes
   React.useEffect(() => {
@@ -349,941 +373,945 @@ export default function AdminTours() {
   return (
     <AdminLayout title="Tour Management">
       <div>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        {isAuthenticated && (
           <div>
-            <h1 className="text-2xl font-bold">Tour Management</h1>
-            <p className="text-gray-500">Create, edit, and manage tours</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button onClick={() => navigate("/admin/tours/create")}>
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add New Tour
-            </Button>
-
-            {/* Keep the dialog for backward compatibility but hidden */}
-            <Dialog open={isCreateTourOpen} onOpenChange={setIsCreateTourOpen}>
-              <DialogTrigger asChild>
-                <span className="hidden">Old Tour Form</span>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Create New Tour</DialogTitle>
-                  <DialogDescription>
-                    Fill out the form below to create a new tour.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...tourForm}>
-                  <form
-                    onSubmit={tourForm.handleSubmit(onCreateTourSubmit)}
-                    className="space-y-4 py-4"
-                  >
-                    <FormField
-                      control={tourForm.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tour Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Historic Belém Tour"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={tourForm.control}
-                      name="shortDescription"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Short Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="A brief description that will appear on tour cards (max 150 characters)"
-                              rows={2}
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                          <div className="text-xs text-gray-500 mt-1">
-                            {field.value?.length || 0}/150 characters
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={tourForm.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Explore the historic Belém district..."
-                              rows={4}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={tourForm.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="https://example.com/image.jpg"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={tourForm.control}
-                        name="duration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Duration</FormLabel>
-                            <FormControl>
-                              <Input placeholder="3 hours" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={tourForm.control}
-                        name="maxGroupSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Max Group Size</FormLabel>
-                            <FormControl>
-                              <Input type="number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={tourForm.control}
-                        name="difficulty"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Difficulty</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Easy, Moderate, Challenging"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={tourForm.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Price (in cents)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(parseInt(e.target.value))
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                            <p className="text-xs text-gray-500">
-                              Example: 4500 for €45.00
-                            </p>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={tourForm.control}
-                        name="isActive"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-8">
-                            <div className="space-y-0.5">
-                              <FormLabel>Active</FormLabel>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={tourForm.control}
-                        name="badge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge (optional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Most Popular, Evening Tour, etc."
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={tourForm.control}
-                        name="badgeColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Color (optional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="primary, secondary, accent"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        type="submit"
-                        disabled={createTourMutation.isPending}
-                      >
-                        {createTourMutation.isPending
-                          ? "Creating..."
-                          : "Create Tour"}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-
-            <Button
-              variant="outline"
-              onClick={() => navigate("/admin/dashboard")}
-            >
-              Back to Dashboard
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle>Tours</CardTitle>
-              <CardDescription>Select a tour to manage</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {tours?.map((tour: any) => (
-                  <div
-                    key={tour.id}
-                    className={`p-3 rounded-md cursor-pointer transition-colors hover:bg-primary/10 flex justify-between items-center ${selectedTourId === tour.id ? "bg-primary/10 border-l-4 border-primary" : ""}`}
-                    onClick={() => handleTourSelect(tour)}
-                  >
-                    <div>
-                      <div className="font-medium">{getLocalizedText(tour.name, i18n.language)}</div>
-                      <div className="text-xs text-gray-500">
-                        {getLocalizedText(tour.duration, i18n.language)} • €{(tour.price / 100).toFixed(2)}
-                      </div>
-                    </div>
-                    {!tour.isActive && (
-                      <Badge variant="outline" className="ml-2">
-                        Inactive
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-
-                {tours?.length === 0 && (
-                  <div className="text-center p-4">
-                    <p className="text-gray-500">No tours found</p>
-                    <Button
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => setIsCreateTourOpen(true)}
-                    >
-                      Create your first tour
-                    </Button>
-                  </div>
-                )}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <div>
+                <h1 className="text-2xl font-bold">Tour Management</h1>
+                <p className="text-gray-500">Create, edit, and manage tours</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={() => navigate("/admin/tours/create")}>
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Add New Tour
+                </Button>
 
-          <Card className="md:col-span-2">
-            {selectedTour ? (
-              <>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div>
-                    <CardTitle>{getLocalizedText(selectedTour.name, i18n.language)}</CardTitle>
-                    <CardDescription>
-                      {getLocalizedText(selectedTour.duration, i18n.language)} • €
-                      {(selectedTour.price / 100).toFixed(2)}
-                    </CardDescription>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        navigate(`/admin/tours/edit/${selectedTour.id}`)
-                      }
-                    >
-                      <PencilIcon className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-
-                    {/* Keep dialog hidden for backward compatibility */}
-                    <Dialog
-                      open={isEditTourOpen}
-                      onOpenChange={setIsEditTourOpen}
-                    >
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto hidden">
-                        <DialogHeader>
-                          <DialogTitle>Edit Tour</DialogTitle>
-                          <DialogDescription>
-                            Make changes to the tour information.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Form {...tourForm}>
-                          <form
-                            onSubmit={tourForm.handleSubmit(onUpdateTourSubmit)}
-                            className="space-y-4 py-4"
-                          >
-                            <FormField
-                              control={tourForm.control}
-                              name="name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Tour Name</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Historic Belém Tour"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={tourForm.control}
-                              name="shortDescription"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Short Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      placeholder="A brief description that will appear on tour cards (max 150 characters)"
-                                      rows={2}
-                                      {...field}
-                                      value={field.value || ""}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                  <div className="text-xs text-gray-500 mt-1">
-                                    {field.value?.length || 0}/150 characters
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={tourForm.control}
-                              name="description"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Full Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      placeholder="Explore the historic Belém district..."
-                                      rows={4}
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <FormField
-                                control={tourForm.control}
-                                name="imageUrl"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Image URL</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="https://example.com/image.jpg"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={tourForm.control}
-                                name="duration"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Duration</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="3 hours" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <FormField
-                                control={tourForm.control}
-                                name="maxGroupSize"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Max Group Size</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseInt(e.target.value),
-                                          )
-                                        }
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={tourForm.control}
-                                name="difficulty"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Difficulty</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Easy, Moderate, Challenging"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <FormField
-                                control={tourForm.control}
-                                name="price"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Price (in cents)</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseInt(e.target.value),
-                                          )
-                                        }
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                    <p className="text-xs text-gray-500">
-                                      Example: 4500 for €45.00
-                                    </p>
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={tourForm.control}
-                                name="isActive"
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-8">
-                                    <div className="space-y-0.5">
-                                      <FormLabel>Active</FormLabel>
-                                    </div>
-                                    <FormControl>
-                                      <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </FormControl>
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <FormField
-                                control={tourForm.control}
-                                name="badge"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Badge (optional)</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Most Popular, Evening Tour, etc."
-                                        {...field}
-                                        value={field.value || ""}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={tourForm.control}
-                                name="badgeColor"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Badge Color (optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="primary, secondary, accent"
-                                        {...field}
-                                        value={field.value || ""}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <DialogFooter>
-                              <Button
-                                type="submit"
-                                disabled={updateTourMutation.isPending}
-                              >
-                                {updateTourMutation.isPending
-                                  ? "Saving..."
-                                  : "Save Changes"}
-                              </Button>
-                            </DialogFooter>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
-
-                    <Dialog
-                      open={isDeleteDialogOpen}
-                      onOpenChange={setIsDeleteDialogOpen}
-                    >
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="destructive">
-                          <TrashIcon className="h-4 w-4 mr-2" />
-                          Delete
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Delete Tour</DialogTitle>
-                          <DialogDescription>
-                            Are you sure you want to delete this tour? This
-                            action cannot be undone.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="py-4">
-                          <Alert>
-                            <AlertTriangleIcon className="h-4 w-4" />
-                            <AlertDescription>
-                              Deleting this tour will also remove all associated
-                              availabilities and may affect bookings.
-                            </AlertDescription>
-                          </Alert>
+                {/* Keep the dialog for backward compatibility but hidden */}
+                <Dialog open={isCreateTourOpen} onOpenChange={setIsCreateTourOpen}>
+                  <DialogTrigger asChild>
+                    <span className="hidden">Old Tour Form</span>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Create New Tour</DialogTitle>
+                      <DialogDescription>
+                        Fill out the form below to create a new tour.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...tourForm}>
+                      <form
+                        onSubmit={tourForm.handleSubmit(onCreateTourSubmit)}
+                        className="space-y-4 py-4"
+                      >
+                        <FormField
+                          control={tourForm.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tour Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Historic Belém Tour"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={tourForm.control}
+                          name="shortDescription"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Short Description</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="A brief description that will appear on tour cards (max 150 characters)"
+                                  rows={2}
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                              <div className="text-xs text-gray-500 mt-1">
+                                {field.value?.length || 0}/150 characters
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={tourForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Description</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Explore the historic Belém district..."
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={tourForm.control}
+                            name="imageUrl"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Image URL</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="https://example.com/image.jpg"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={tourForm.control}
+                            name="duration"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Duration</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="3 hours" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={tourForm.control}
+                            name="maxGroupSize"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Max Group Size</FormLabel>
+                                <FormControl>
+                                  <Input type="number" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={tourForm.control}
+                            name="difficulty"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Difficulty</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Easy, Moderate, Challenging"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={tourForm.control}
+                            name="price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Price (in cents)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(parseInt(e.target.value))
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                                <p className="text-xs text-gray-500">
+                                  Example: 4500 for €45.00
+                                </p>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={tourForm.control}
+                            name="isActive"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-8">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Active</FormLabel>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={tourForm.control}
+                            name="badge"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Badge (optional)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Most Popular, Evening Tour, etc."
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={tourForm.control}
+                            name="badgeColor"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Badge Color (optional)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="primary, secondary, accent"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                         <DialogFooter>
                           <Button
-                            variant="outline"
-                            onClick={() => setIsDeleteDialogOpen(false)}
+                            type="submit"
+                            disabled={createTourMutation.isPending}
                           >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={handleDeleteTour}
-                            disabled={deleteTourMutation.isPending}
-                          >
-                            {deleteTourMutation.isPending
-                              ? "Deleting..."
-                              : "Delete Tour"}
+                            {createTourMutation.isPending
+                              ? "Creating..."
+                              : "Create Tour"}
                           </Button>
                         </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/admin/dashboard")}
+                >
+                  Back to Dashboard
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="md:col-span-1">
+                <CardHeader>
+                  <CardTitle>Tours</CardTitle>
+                  <CardDescription>Select a tour to manage</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                    <TabsList className="grid w-full grid-cols-3 mb-6">
-                      <TabsTrigger value="details">Details</TabsTrigger>
-                      <TabsTrigger value="availabilities">
-                        Availabilities
-                      </TabsTrigger>
-                      <TabsTrigger value="bookings">Bookings</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="details">
-                      <div className="space-y-4">
+                  <div className="space-y-2">
+                    {tours?.map((tour: any) => (
+                      <div
+                        key={tour.id}
+                        className={`p-3 rounded-md cursor-pointer transition-colors hover:bg-primary/10 flex justify-between items-center ${selectedTourId === tour.id ? "bg-primary/10 border-l-4 border-primary" : ""}`}
+                        onClick={() => handleTourSelect(tour)}
+                      >
                         <div>
-                          <h3 className="font-medium">Description</h3>
-                          <div
-                            className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{
-                              __html: marked.parse(getLocalizedText(selectedTour.description, i18n.language)),
-                            }}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <h3 className="font-medium">Duration</h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {getLocalizedText(selectedTour.duration, i18n.language)}
-                            </p>
-                          </div>
-                          <div>
-                            <h3 className="font-medium">Max Group Size</h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {selectedTour.maxGroupSize} participants
-                            </p>
-                          </div>
-                          <div>
-                            <h3 className="font-medium">Difficulty</h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {getLocalizedText(selectedTour.difficulty, i18n.language)}
-                            </p>
-                          </div>
-                          <div>
-                            <h3 className="font-medium">Price</h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              €{(selectedTour.price / 100).toFixed(2)}
-                            </p>
+                          <div className="font-medium">{getLocalizedText(tour.name, i18n.language)}</div>
+                          <div className="text-xs text-gray-500">
+                            {getLocalizedText(tour.duration, i18n.language)} • €{(tour.price / 100).toFixed(2)}
                           </div>
                         </div>
+                        {!tour.isActive && (
+                          <Badge variant="outline" className="ml-2">
+                            Inactive
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
 
-                        {selectedTour.imageUrl && (
-                          <div>
-                            <h3 className="font-medium">Image</h3>
-                            <div className="mt-2 relative rounded-md overflow-hidden aspect-video">
-                              <img
-                                src={selectedTour.imageUrl}
-                                alt={getLocalizedText(selectedTour.name, i18n.language)}
-                                className="w-full h-full object-cover"
+                    {tours?.length === 0 && (
+                      <div className="text-center p-4">
+                        <p className="text-gray-500">No tours found</p>
+                        <Button
+                          variant="outline"
+                          className="mt-2"
+                          onClick={() => setIsCreateTourOpen(true)}
+                        >
+                          Create your first tour
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2">
+                {selectedTour ? (
+                  <>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <div>
+                        <CardTitle>{getLocalizedText(selectedTour.name, i18n.language)}</CardTitle>
+                        <CardDescription>
+                          {getLocalizedText(selectedTour.duration, i18n.language)} • €
+                          {(selectedTour.price / 100).toFixed(2)}
+                        </CardDescription>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            navigate(`/admin/tours/edit/${selectedTour.id}`)
+                          }
+                        >
+                          <PencilIcon className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+
+                        {/* Keep dialog hidden for backward compatibility */}
+                        <Dialog
+                          open={isEditTourOpen}
+                          onOpenChange={setIsEditTourOpen}
+                        >
+                          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto hidden">
+                            <DialogHeader>
+                              <DialogTitle>Edit Tour</DialogTitle>
+                              <DialogDescription>
+                                Make changes to the tour information.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <Form {...tourForm}>
+                              <form
+                                onSubmit={tourForm.handleSubmit(onUpdateTourSubmit)}
+                                className="space-y-4 py-4"
+                              >
+                                <FormField
+                                  control={tourForm.control}
+                                  name="name"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Tour Name</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Historic Belém Tour"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={tourForm.control}
+                                  name="shortDescription"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Short Description</FormLabel>
+                                      <FormControl>
+                                        <Textarea
+                                          placeholder="A brief description that will appear on tour cards (max 150 characters)"
+                                          rows={2}
+                                          {...field}
+                                          value={field.value || ""}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {field.value?.length || 0}/150 characters
+                                      </div>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={tourForm.control}
+                                  name="description"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Full Description</FormLabel>
+                                      <FormControl>
+                                        <Textarea
+                                          placeholder="Explore the historic Belém district..."
+                                          rows={4}
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="imageUrl"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Image URL</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="https://example.com/image.jpg"
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="duration"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Duration</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="3 hours" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="maxGroupSize"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Max Group Size</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            {...field}
+                                            onChange={(e) =>
+                                              field.onChange(
+                                                parseInt(e.target.value),
+                                              )
+                                            }
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="difficulty"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Difficulty</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="Easy, Moderate, Challenging"
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Price (in cents)</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            {...field}
+                                            onChange={(e) =>
+                                              field.onChange(
+                                                parseInt(e.target.value),
+                                              )
+                                            }
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                        <p className="text-xs text-gray-500">
+                                          Example: 4500 for €45.00
+                                        </p>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="isActive"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-8">
+                                        <div className="space-y-0.5">
+                                          <FormLabel>Active</FormLabel>
+                                        </div>
+                                        <FormControl>
+                                          <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                          />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="badge"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Badge (optional)</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="Most Popular, Evening Tour, etc."
+                                            {...field}
+                                            value={field.value || ""}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={tourForm.control}
+                                    name="badgeColor"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          Badge Color (optional)
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="primary, secondary, accent"
+                                            {...field}
+                                            value={field.value || ""}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <DialogFooter>
+                                  <Button
+                                    type="submit"
+                                    disabled={updateTourMutation.isPending}
+                                  >
+                                    {updateTourMutation.isPending
+                                      ? "Saving..."
+                                      : "Save Changes"}
+                                  </Button>
+                                </DialogFooter>
+                              </form>
+                            </Form>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Dialog
+                          open={isDeleteDialogOpen}
+                          onOpenChange={setIsDeleteDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="destructive">
+                              <TrashIcon className="h-4 w-4 mr-2" />
+                              Delete
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delete Tour</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to delete this tour? This
+                                action cannot be undone.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4">
+                              <Alert>
+                                <AlertTriangleIcon className="h-4 w-4" />
+                                <AlertDescription>
+                                  Deleting this tour will also remove all associated
+                                  availabilities and may affect bookings.
+                                </AlertDescription>
+                              </Alert>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteDialogOpen(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={handleDeleteTour}
+                                disabled={deleteTourMutation.isPending}
+                              >
+                                {deleteTourMutation.isPending
+                                  ? "Deleting..."
+                                  : "Delete Tour"}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+                        <TabsList className="grid w-full grid-cols-3 mb-6">
+                          <TabsTrigger value="details">Details</TabsTrigger>
+                          <TabsTrigger value="availabilities">
+                            Availabilities
+                          </TabsTrigger>
+                          <TabsTrigger value="bookings">Bookings</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="details">
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="font-medium">Description</h3>
+                              <div
+                                className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{
+                                  __html: marked.parse(getLocalizedText(selectedTour.description, i18n.language)),
+                                }}
                               />
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    </TabsContent>
 
-                    <TabsContent value="availabilities">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">Availabilities</h3>
-                          <Dialog
-                            open={isCreateAvailabilityOpen}
-                            onOpenChange={setIsCreateAvailabilityOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button size="sm">
-                                <PlusIcon className="h-4 w-4 mr-2" />
-                                Add Availability
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Add Availability</DialogTitle>
-                                <DialogDescription>
-                                  Select multiple dates and set the time and
-                                  capacity for this tour.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <Form {...availabilityForm}>
-                                <form
-                                  onSubmit={availabilityForm.handleSubmit(
-                                    onCreateAvailabilitySubmit,
-                                  )}
-                                  className="space-y-4 py-4"
-                                >
-                                  <FormField
-                                    control={availabilityForm.control}
-                                    name="selectedDates"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Select Dates</FormLabel>
-                                        <FormControl>
-                                          <div className="w-[450px] h-[360px] border rounded-md p-3 flex flex-col items-center justify-center">
-                                            <div className="flex flex-1 items-center justify-center">
-                                              <Calendar
-                                                mode="multiple"
-                                                selected={field.value || []}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                  date <
-                                                  new Date(
-                                                    new Date().setHours(
-                                                      0,
-                                                      0,
-                                                      0,
-                                                      0,
-                                                    ),
-                                                  )
-                                                }
-                                                className="w-full h-auto max-w-full"
-                                              />
-                                            </div>
-                                            <div className="mt-2 text-sm text-gray-600 text-center">
-                                              {field.value?.length > 0 ? (
-                                                <span>
-                                                  {field.value.length} date
-                                                  {field.value.length !== 1
-                                                    ? "s"
-                                                    : ""}{" "}
-                                                  selected
-                                                </span>
-                                              ) : (
-                                                <span>
-                                                  Click dates to select multiple
-                                                  days
-                                                </span>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={availabilityForm.control}
-                                    name="time"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Time</FormLabel>
-                                        <FormControl>
-                                          <Input type="time" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <FormField
-                                      control={availabilityForm.control}
-                                      name="maxSpots"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Max Spots</FormLabel>
-                                          <FormControl>
-                                            <Input
-                                              type="number"
-                                              {...field}
-                                              onChange={(e) => {
-                                                field.onChange(
-                                                  parseInt(e.target.value),
-                                                );
-                                                // Also update spotsLeft to match maxSpots when initially setting
-                                                availabilityForm.setValue(
-                                                  "spotsLeft",
-                                                  parseInt(e.target.value),
-                                                );
-                                              }}
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <FormField
-                                      control={availabilityForm.control}
-                                      name="spotsLeft"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Spots Left</FormLabel>
-                                          <FormControl>
-                                            <Input
-                                              type="number"
-                                              {...field}
-                                              onChange={(e) =>
-                                                field.onChange(
-                                                  parseInt(e.target.value),
-                                                )
-                                              }
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                  </div>
-                                  <DialogFooter>
-                                    <Button
-                                      type="submit"
-                                      disabled={
-                                        createAvailabilityMutation.isPending
-                                      }
-                                    >
-                                      {createAvailabilityMutation.isPending
-                                        ? "Adding..."
-                                        : "Add Availability"}
-                                    </Button>
-                                  </DialogFooter>
-                                </form>
-                              </Form>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-
-                        {isLoadingAvailabilities ? (
-                          <div className="flex justify-center py-4">
-                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                          </div>
-                        ) : (
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Time</TableHead>
-                                <TableHead>Capacity</TableHead>
-                                <TableHead>Status</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {Array.isArray(availabilities) &&
-                                availabilities.length === 0 && (
-                                  <TableRow>
-                                    <TableCell
-                                      colSpan={4}
-                                      className="text-center py-6 text-gray-500"
-                                    >
-                                      No availabilities found. Add some to make
-                                      this tour bookable.
-                                    </TableCell>
-                                  </TableRow>
-                                )}
-                              {Array.isArray(availabilities) &&
-                                availabilities.map((availability: any) => (
-                                  <TableRow key={availability.id}>
-                                    <TableCell>{availability.date}</TableCell>
-                                    <TableCell>{availability.time}</TableCell>
-                                    <TableCell>
-                                      {availability.spotsLeft}/
-                                      {availability.maxSpots} available
-                                    </TableCell>
-                                    <TableCell>
-                                      {availability.spotsLeft === 0 ? (
-                                        <Badge variant="destructive">
-                                          Sold Out
-                                        </Badge>
-                                      ) : availability.spotsLeft < 3 ? (
-                                        <Badge variant="outline">Limited</Badge>
-                                      ) : (
-                                        <Badge variant="default">
-                                          Available
-                                        </Badge>
-                                      )}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                            </TableBody>
-                          </Table>
-                        )}
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="bookings">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">Bookings</h3>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              navigate(
-                                `/admin/bookings?tourId=${selectedTourId}`,
-                              )
-                            }
-                          >
-                            View in Calendar
-                          </Button>
-                        </div>
-                        <div className="flex items-center justify-center py-8">
-                          <div className="text-center space-y-3">
-                            <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
-                            <div>
-                              <h3 className="font-medium">
-                                Bookings are shown in the Calendar View
-                              </h3>
-                              <p className="text-sm text-gray-500 mt-1">
-                                Visit the Booking Calendar to see all bookings
-                                for this tour.
-                              </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <h3 className="font-medium">Duration</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {getLocalizedText(selectedTour.duration, i18n.language)}
+                                </p>
+                              </div>
+                              <div>
+                                <h3 className="font-medium">Max Group Size</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {selectedTour.maxGroupSize} participants
+                                </p>
+                              </div>
+                              <div>
+                                <h3 className="font-medium">Difficulty</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {getLocalizedText(selectedTour.difficulty, i18n.language)}
+                                </p>
+                              </div>
+                              <div>
+                                <h3 className="font-medium">Price</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  €{(selectedTour.price / 100).toFixed(2)}
+                                </p>
+                              </div>
                             </div>
-                            <Button
-                              variant="default"
-                              onClick={() =>
-                                navigate(
-                                  `/admin/bookings?tourId=${selectedTourId}`,
-                                )
-                              }
-                            >
-                              Go to Calendar
-                            </Button>
+
+                            {selectedTour.imageUrl && (
+                              <div>
+                                <h3 className="font-medium">Image</h3>
+                                <div className="mt-2 relative rounded-md overflow-hidden aspect-video">
+                                  <img
+                                    src={selectedTour.imageUrl}
+                                    alt={getLocalizedText(selectedTour.name, i18n.language)}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </>
-            ) : (
-              <CardContent className="flex items-center justify-center h-[400px]">
-                <div className="text-center space-y-3">
-                  <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="font-medium">Select a tour</h3>
-                  <p className="text-sm text-gray-500 max-w-md">
-                    Select a tour from the list to view and manage its details,
-                    or create a new tour to get started.
-                  </p>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        </div>
+                        </TabsContent>
+
+                        <TabsContent value="availabilities">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <h3 className="font-medium">Availabilities</h3>
+                              <Dialog
+                                open={isCreateAvailabilityOpen}
+                                onOpenChange={setIsCreateAvailabilityOpen}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button size="sm">
+                                    <PlusIcon className="h-4 w-4 mr-2" />
+                                    Add Availability
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Add Availability</DialogTitle>
+                                    <DialogDescription>
+                                      Select multiple dates and set the time and
+                                      capacity for this tour.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <Form {...availabilityForm}>
+                                    <form
+                                      onSubmit={availabilityForm.handleSubmit(
+                                        onCreateAvailabilitySubmit,
+                                      )}
+                                      className="space-y-4 py-4"
+                                    >
+                                      <FormField
+                                        control={availabilityForm.control}
+                                        name="selectedDates"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Select Dates</FormLabel>
+                                            <FormControl>
+                                              <div className="w-[450px] h-[360px] border rounded-md p-3 flex flex-col items-center justify-center">
+                                                <div className="flex flex-1 items-center justify-center">
+                                                  <Calendar
+                                                    mode="multiple"
+                                                    selected={field.value || []}
+                                                    onSelect={field.onChange}
+                                                    disabled={(date) =>
+                                                      date <
+                                                      new Date(
+                                                        new Date().setHours(
+                                                          0,
+                                                          0,
+                                                          0,
+                                                          0,
+                                                        ),
+                                                      )
+                                                    }
+                                                    className="w-full h-auto max-w-full"
+                                                  />
+                                                </div>
+                                                <div className="mt-2 text-sm text-gray-600 text-center">
+                                                  {field.value?.length > 0 ? (
+                                                    <span>
+                                                      {field.value.length} date
+                                                      {field.value.length !== 1
+                                                        ? "s"
+                                                        : ""}{" "}
+                                                      selected
+                                                    </span>
+                                                  ) : (
+                                                    <span>
+                                                      Click dates to select multiple
+                                                      days
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                      <FormField
+                                        control={availabilityForm.control}
+                                        name="time"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Time</FormLabel>
+                                            <FormControl>
+                                              <Input type="time" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                          control={availabilityForm.control}
+                                          name="maxSpots"
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Max Spots</FormLabel>
+                                              <FormControl>
+                                                <Input
+                                                  type="number"
+                                                  {...field}
+                                                  onChange={(e) => {
+                                                    field.onChange(
+                                                      parseInt(e.target.value),
+                                                    );
+                                                    // Also update spotsLeft to match maxSpots when initially setting
+                                                    availabilityForm.setValue(
+                                                      "spotsLeft",
+                                                      parseInt(e.target.value),
+                                                    );
+                                                  }}
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                        <FormField
+                                          control={availabilityForm.control}
+                                          name="spotsLeft"
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Spots Left</FormLabel>
+                                              <FormControl>
+                                                <Input
+                                                  type="number"
+                                                  {...field}
+                                                  onChange={(e) =>
+                                                    field.onChange(
+                                                      parseInt(e.target.value),
+                                                    )
+                                                  }
+                                                />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </div>
+                                      <DialogFooter>
+                                        <Button
+                                          type="submit"
+                                          disabled={
+                                            createAvailabilityMutation.isPending
+                                          }
+                                        >
+                                          {createAvailabilityMutation.isPending
+                                            ? "Adding..."
+                                            : "Add Availability"}
+                                        </Button>
+                                      </DialogFooter>
+                                    </form>
+                                  </Form>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+
+                            {isLoadingAvailabilities ? (
+                              <div className="flex justify-center py-4">
+                                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                              </div>
+                            ) : (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Time</TableHead>
+                                    <TableHead>Capacity</TableHead>
+                                    <TableHead>Status</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {Array.isArray(availabilities) &&
+                                    availabilities.length === 0 && (
+                                      <TableRow>
+                                        <TableCell
+                                          colSpan={4}
+                                          className="text-center py-6 text-gray-500"
+                                        >
+                                          No availabilities found. Add some to make
+                                          this tour bookable.
+                                        </TableCell>
+                                      </TableRow>
+                                    )}
+                                  {Array.isArray(availabilities) &&
+                                    availabilities.map((availability: any) => (
+                                      <TableRow key={availability.id}>
+                                        <TableCell>{availability.date}</TableCell>
+                                        <TableCell>{availability.time}</TableCell>
+                                        <TableCell>
+                                          {availability.spotsLeft}/
+                                          {availability.maxSpots} available
+                                        </TableCell>
+                                        <TableCell>
+                                          {availability.spotsLeft === 0 ? (
+                                            <Badge variant="destructive">
+                                              Sold Out
+                                            </Badge>
+                                          ) : availability.spotsLeft < 3 ? (
+                                            <Badge variant="outline">Limited</Badge>
+                                          ) : (
+                                            <Badge variant="default">
+                                              Available
+                                            </Badge>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                </TableBody>
+                              </Table>
+                            )}
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="bookings">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <h3 className="font-medium">Bookings</h3>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/bookings?tourId=${selectedTourId}`,
+                                  )
+                                }
+                              >
+                                View in Calendar
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-center py-8">
+                              <div className="text-center space-y-3">
+                                <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
+                                <div>
+                                  <h3 className="font-medium">
+                                    Bookings are shown in the Calendar View
+                                  </h3>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    Visit the Booking Calendar to see all bookings
+                                    for this tour.
+                                  </p>
+                                </div>
+                                <Button
+                                  variant="default"
+                                  onClick={() =>
+                                    navigate(
+                                      `/admin/bookings?tourId=${selectedTourId}`,
+                                    )
+                                  }
+                                >
+                                  Go to Calendar
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </>
+                ) : (
+                  <CardContent className="flex items-center justify-center h-[400px]">
+                    <div className="text-center space-y-3">
+                      <InfoIcon className="mx-auto h-12 w-12 text-gray-400" />
+                      <h3 className="font-medium">Select a tour</h3>
+                      <p className="text-sm text-gray-500 max-w-md">
+                        Select a tour from the list to view and manage its details,
+                        or create a new tour to get started.
+                      </p>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

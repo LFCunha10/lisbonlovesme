@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // or wherever your frontend runs
+    origin: "http://localhost:5001", // or wherever your frontend runs
     credentials: true,
   })
 );
@@ -67,10 +67,17 @@ app.use(passport.session());
 
 const csrfProtection = csurf({ cookie: true }) as express.RequestHandler;
 app.use(csrfProtection);
-
-app.get("/api/csrf-token", (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+app.use(cookieParser());
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true, // set false for localhost with HTTP
+    httpOnly: true,
+    sameSite: "lax"
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

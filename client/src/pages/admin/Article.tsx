@@ -21,6 +21,7 @@ interface Article {
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;
+  children?: Article[];
 }
 
 export default function Article() {
@@ -134,7 +135,31 @@ export default function Article() {
             </Button>
           </Link>
         </div>
+
+        {article.children && article.children.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Sub-Articles</h2>
+            <ArticleTree articles={article.children} language={i18n.language} />
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+function ArticleTree({ articles, language }: { articles: Article[]; language: string }) {
+  return (
+    <ul className="space-y-2 pl-4 border-l border-gray-300">
+      {articles.map(article => (
+        <li key={article.id}>
+          <div className="mb-1 font-medium text-gray-800">
+            {getLocalizedText(article.title, language)}
+          </div>
+          {article.children && article.children.length > 0 && (
+            <ArticleTree articles={article.children} language={language} />
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

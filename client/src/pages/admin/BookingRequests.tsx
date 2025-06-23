@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import {
   MessageSquare,
   StickyNote
 } from "lucide-react";
+import { navigate } from "wouter/use-browser-location";
 
 interface BookingRequest {
   id: number;
@@ -59,6 +60,31 @@ export default function BookingRequests() {
   const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState<BookingRequest | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  React.useEffect(() => {
+        const checkAuth = async () => {
+          try {
+            const res = await fetch("/api/admin/me", {
+              credentials: "include",
+            });
+            if (!res.ok) throw new Error("Not authenticated");
+    
+            const user = await res.json();
+            if (user && user.isAdmin) {
+              setIsAuthenticated(true);
+            } else {
+              throw new Error("Invalid user");
+            }
+          } catch (error) {
+            console.error("Booking Request auth check failed", error);
+            setIsAuthenticated(false);
+            navigate("/admin/login");
+          }
+        };
+    
+        checkAuth();
+      }, []);
 
   const { data: requests, isLoading } = useQuery({
     queryKey: ['/api/admin/requests'],
@@ -182,95 +208,99 @@ export default function BookingRequests() {
 
   return (
     <AdminLayout title={t('admin.requests.title')}>
-      <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">{t('admin.requests.title')}</h2>
-            <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
-          </div>
-        </div>
+      <div>
+        {isAuthenticated && (
+          <div className="flex-1 space-y-4 p-8 pt-6">
+            <div className="flex items-center justify-between space-y-2">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">{t('admin.requests.title')}</h2>
+                <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
+              </div>
+            </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="pending">{t('admin.requests.pending')} ({requests?.filter(r => r.paymentStatus === "requested").length || 0})</TabsTrigger>
-            <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({requests?.filter(r => r.paymentStatus === "confirmed").length || 0})</TabsTrigger>
-            <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({requests?.filter(r => r.paymentStatus === "cancelled").length || 0})</TabsTrigger>
-          </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="pending">{t('admin.requests.pending')} ({requests?.filter(r => r.paymentStatus === "requested").length || 0})</TabsTrigger>
+                <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({requests?.filter(r => r.paymentStatus === "confirmed").length || 0})</TabsTrigger>
+                <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({requests?.filter(r => r.paymentStatus === "cancelled").length || 0})</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value={activeTab} className="space-y-4">
-            {filteredRequests.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {filteredRequests.map((request) => (
-                  <Card key={request.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            {request.customerFirstName} {request.customerLastName}
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground">
-                            {t('booking.referenceNumber')}: {request.bookingReference}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(request.paymentStatus)}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => setSelectedRequest(request)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                {t('admin.requests.viewDetails')}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                              {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.customerEmail}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.customerPhone}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
-                              ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}` 
-                              : request.additionalInfo?.date 
-                                ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}` 
-                                : 'TBD'
-                            }
-                          </span>
-                        </div>
-                      </div>
+              <TabsContent value={activeTab} className="space-y-4">
+                {filteredRequests.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-8 text-center">
+                      <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                ) : (
+                  <div className="grid gap-4">
+                    {filteredRequests.map((request) => (
+                      <Card key={request.id} className="hover:shadow-md transition-shadow">
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">
+                                {request.customerFirstName} {request.customerLastName}
+                              </CardTitle>
+                              <p className="text-sm text-muted-foreground">
+                                {t('booking.referenceNumber')}: {request.bookingReference}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getStatusBadge(request.paymentStatus)}
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => setSelectedRequest(request)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    {t('admin.requests.viewDetails')}
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                  {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              <span>{request.customerEmail}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4 text-muted-foreground" />
+                              <span>{request.customerPhone}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
+                              <span>
+                                {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
+                                  ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}` 
+                                  : request.additionalInfo?.date 
+                                    ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}` 
+                                    : 'TBD'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
