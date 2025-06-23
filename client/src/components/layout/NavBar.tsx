@@ -51,7 +51,7 @@ export default function NavBar() {
                     onMouseEnter={() => setArticlesOpen(true)}
                     onMouseLeave={() => setArticlesOpen(false)}
                   >
-                    {t('navbar.articles')}
+                    {"Articles"}
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                   {articlesOpen && (
@@ -102,7 +102,7 @@ export default function NavBar() {
             <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
             {publishedArticles.length > 0 && (
               <div className="border-l-2 border-gray-200 pl-4 ml-2">
-                <div className="text-sm font-medium text-gray-500 mb-2">{t('nav.articles', 'Articles')}</div>
+                <div className="text-sm font-medium text-gray-500 mb-2">Articles</div>
                 {publishedArticles.slice(0, 5).map((article) => (
                   <MobileNavLink 
                     key={article.id}
