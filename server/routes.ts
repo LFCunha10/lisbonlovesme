@@ -11,7 +11,7 @@ import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
 import { getLocalizedText } from "./utils/tour-utils.js";
 import csrf from "csurf";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
