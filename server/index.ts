@@ -7,12 +7,13 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import migrateData from "./migrate-data";
 import session from "express-session";
-import MemoryStore from "memorystore";
+import connectPgSimple from "connect-pg-simple";
 import passport from "passport";
 import { createAdminUserIfNotExists } from "./auth";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import csurf from "csurf";
+import { pool } from "./db";
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -46,14 +47,16 @@ app.use(
   })
 );
 
-const MemoryStoreSession = MemoryStore(session);
+const PgSession = connectPgSimple(session);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "lisbonlovesme-session-secret",
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStoreSession({
-      checkPeriod: 86400000, // 24 hours
+    store: new PgSession({
+      pool: pool,
+      tableName: 'session',
+      createTableIfMissing: true,
     }),
     cookie: {
       httpOnly: true,
