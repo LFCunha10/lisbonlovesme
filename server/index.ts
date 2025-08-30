@@ -21,9 +21,7 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" 
-      ? ["https://lfcunha10-lisbonlove-tivp.bolt.host", "https://jolly-stroopwafel-1e831e.netlify.app"]
-      : "http://localhost:5001",
+    origin: true, // Allow all origins in development and production
     credentials: true,
   })
 );
