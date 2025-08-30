@@ -15,8 +15,8 @@ import helmet from "helmet";
 import csurf from "csurf";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use(
   cors({
@@ -57,7 +57,7 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: false, // Allow cookies over HTTP for external deployment
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 2, // 2 hours
       sameSite: "lax",
     },
@@ -67,16 +67,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-const csrfProtection = csurf({ cookie: true }) as express.RequestHandler;
-
-// Apply CSRF protection only to state-modifying requests
-app.use((req, res, next) => {
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-    csrfProtection(req, res, next);
-  } else {
-    next();
+const csrfProtection = csurf({ 
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
   }
-});
+}) as express.RequestHandler;
+
+// Apply CSRF protection globally to ensure req.csrfToken() is always available
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
   const start = Date.now();

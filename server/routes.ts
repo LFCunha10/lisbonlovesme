@@ -62,10 +62,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
+  app.get("/api/csrf-token", (req: Request, res: Response) => {
     res.cookie("csrfToken", req.csrfToken(), {
       httpOnly: false,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: "lax"
     });
     res.json({ csrfToken: req.csrfToken() });
@@ -311,7 +311,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     }
   });
   
-  app.post("/api/admin/logout", csrfProtection, (req: Request, res: Response) => {
+  app.post("/api/admin/logout", (req: Request, res: Response) => {
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
@@ -322,7 +322,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         res.clearCookie("connect.sid", {
           path: "/",
           httpOnly: true,
-          secure: false,
+          secure: process.env.NODE_ENV === 'production',
           sameSite: "lax"
         });
 
