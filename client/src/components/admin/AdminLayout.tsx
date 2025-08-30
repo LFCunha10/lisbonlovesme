@@ -24,30 +24,6 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const [location, setLocation] = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/admin/me", {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Not authenticated");
-
-        const user = await res.json();
-        if (user && user.isAdmin) {
-          setIsAuthenticated(true);
-        } else {
-          throw new Error("Invalid user");
-        }
-      } catch (error) {
-        console.error("Sidebar auth check failed", error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   // Navigation items
   const navItems = [
@@ -71,8 +47,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       <div className="min-h-screen bg-gray-50 md:pt-16 dark:bg-gray-900 flex">
         {/* Sidebar */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow-md hidden md:block">
-          {isAuthenticated && (
-            <nav className="mt-4">
+          <nav className="mt-4">
               <ul>
                 {navItems.map((item) => (
                   <li key={item.href} className="mb-1">
@@ -120,8 +95,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                   </button>
                 </li>
               </ul>
-            </nav>
-          )}
+          </nav>
         </div>
 
         {/* Main Content */}

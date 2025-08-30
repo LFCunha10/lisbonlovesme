@@ -284,7 +284,12 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           console.log("Session user now:", req.session.user);
 
           res.json({
-            message: "Login successful"
+            message: "Login successful",
+            user: {
+              id: user.id,
+              username: user.username,
+              isAdmin: !!user.isAdmin
+            }
           });
         });
         return;

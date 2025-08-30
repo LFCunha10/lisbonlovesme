@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import AdminLayout from "@/components/admin/AdminLayout";
+import { Helmet } from "react-helmet";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -40,15 +40,13 @@ export default function AdminLoginPage() {
         throw new Error(data.message || "Invalid credentials");
       }
 
-      setLocation("/admin");
-      const meResponse = await fetch("/api/admin/me", {
-        credentials: "include",
-      });
-      const userData = await meResponse.json();
-      if (!userData || !userData.username || !userData.isAdmin) {
+      const userData = await response.json();
+      if (!userData || !userData.user || !userData.user.isAdmin) {
         throw new Error("Invalid user data");
       }
-      console.log("Login successful, user:", userData);
+
+      setLocation("/admin");
+      console.log("Login successful, user:", userData.user);
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error("Login error:", err);
@@ -58,8 +56,11 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <AdminLayout title="Login">
-      <div className="flex items-center justify-center">
+    <>
+      <Helmet>
+        <title>Login - Lisbonlovesme Admin</title>
+      </Helmet>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
@@ -107,6 +108,6 @@ export default function AdminLoginPage() {
           </CardFooter>
         </Card>
       </div>
-    </AdminLayout>
+    </>
   );
 }
