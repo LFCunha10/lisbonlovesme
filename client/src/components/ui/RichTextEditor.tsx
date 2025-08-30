@@ -102,22 +102,37 @@ export function RichTextEditor({ value, onChange }: Props) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (f && editor) {
-      // First show image immediately with base64 for instant feedback
       const reader = new FileReader()
       reader.onload = () => {
         if (reader.result && editor) {
-          // Insert image immediately with base64 for instant display
           editor.chain().focus().setImage({ src: reader.result as string }).run()
           
-          // Then upload to server and replace with server URL
           const formData = new FormData()
           formData.append('image', f)
           
+          // Add CSRF token for image upload
+          const csrfToken = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrfToken='))
+            ?.split('=')[1];
+          
+          const headers: Record<string, string> = {};
+          if (csrfToken) {
+            headers['CSRF-Token'] = csrfToken;
+          }
+          
           fetch('/api/upload-image', {
             method: 'POST',
+            headers,
             body: formData,
           })
-          .then(response => response.json())
+          .then(async response => {
+            if (!response.ok) {
+              const errorText = await response.text()
+              throw new Error(`Upload failed: ${errorText}`)
+            }
+            return response.json()
+          })
           .then(data => {
             if (data.imageUrl || data.url) {
               const imageUrl = data.imageUrl || data.url

@@ -15,6 +15,18 @@ export async function apiRequest(
 ): Promise<Response> {
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   
+  // Add CSRF token for non-GET requests
+  if (method !== 'GET') {
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrfToken='))
+      ?.split('=')[1];
+    
+    if (csrfToken) {
+      headers['CSRF-Token'] = csrfToken;
+    }
+  }
+  
   const res = await fetch(url, {
     ...getAuthFetchOptions(),
     method,
