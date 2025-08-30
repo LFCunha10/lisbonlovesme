@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 
 // Multilingual form schema
 const multilingualTourSchema = z.object({
@@ -270,12 +271,14 @@ export default function EditTourPage() {
                           <FormItem>
                             <FormLabel>Full Description</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder={`Detailed description in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                                rows={6}
-                                {...field}
+                              <RichTextEditor
+                                value={field.value || ""}
+                                onChange={field.onChange}
                               />
                             </FormControl>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Use the toolbar to format text, add images, links, and more. Content will be displayed with formatting on the website.
+                            </p>
                             <FormMessage />
                           </FormItem>
                         )}
