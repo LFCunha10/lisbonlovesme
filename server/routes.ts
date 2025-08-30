@@ -322,7 +322,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         res.clearCookie("connect.sid", {
           path: "/",
           httpOnly: true,
-          secure: true,
+          secure: false,
           sameSite: "lax"
         });
 

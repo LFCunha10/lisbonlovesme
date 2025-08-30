@@ -57,7 +57,7 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true for production
+      secure: false, // Allow cookies over HTTP for external deployment
       maxAge: 1000 * 60 * 60 * 2, // 2 hours
       sameSite: "lax",
     },
