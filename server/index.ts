@@ -69,17 +69,6 @@ app.use(passport.session());
 
 const csrfProtection = csurf({ cookie: true }) as express.RequestHandler;
 app.use(csrfProtection);
-app.use(cookieParser());
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true, // set false for localhost with HTTP
-    httpOnly: true,
-    sameSite: "lax"
-  }
-}));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -112,8 +101,6 @@ app.use((req, res, next) => {
 });
 
 // Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
 
 (async () => {
   // Create admin user if not exists
