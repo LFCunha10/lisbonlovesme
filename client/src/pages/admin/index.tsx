@@ -15,13 +15,13 @@ export default function AdminIndexPage() {
     const checkAuth = async () => {
       console.log("Checking authentication...");
       try {
-        const res = await fetch("/api/admin/me", {
+        const res = await fetch("/api/admin/session", {
           credentials: "include",
         });
         const data = await res.json();
         console.log("Auth check response:", data);
 
-        if (data && typeof data.username === "string" && typeof data.isAdmin === "boolean") {
+        if (data && data.isAuthenticated && data.isAdmin) {
           setAuthenticated(true);
         } else {
           throw new Error("Invalid user data");
