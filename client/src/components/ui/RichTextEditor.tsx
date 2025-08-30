@@ -102,55 +102,22 @@ export function RichTextEditor({ value, onChange }: Props) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (f && editor) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (reader.result && editor) {
-          // Insert image immediately with base64 for instant display
-          const base64Src = reader.result as string
-          editor.chain().focus().setImage({ src: base64Src }).run()
-          
-          const formData = new FormData()
-          formData.append('image', f)
-          
-          // Add CSRF token for image upload
-          const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrfToken='))
-            ?.split('=')[1];
-          
-          const headers: Record<string, string> = {};
-          if (csrfToken) {
-            headers['CSRF-Token'] = csrfToken;
-          }
-          
-          fetch('/api/upload-image', {
-            method: 'POST',
-            headers,
-            body: formData,
-          })
-          .then(async response => {
-            if (!response.ok) {
-              const errorText = await response.text()
-              throw new Error(`Upload failed: ${errorText}`)
-            }
-            return response.json()
-          })
-          .then(data => {
-            if (data.imageUrl || data.url) {
-              const imageUrl = data.imageUrl || data.url
-              // Replace base64 with server URL in the editor content
-              const currentContent = editor.getHTML()
-              const updatedContent = currentContent.replace(base64Src, imageUrl)
-              editor.commands.setContent(updatedContent)
-            }
-          })
-          .catch(error => {
-            console.error('Image upload error:', error)
-            // Base64 image is already displayed, so upload failure is non-blocking
-          })
+      const formData = new FormData()
+      formData.append('image', f)
+      
+      fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.imageUrl) {
+          editor.chain().focus().setImage({ src: data.imageUrl }).run()
         }
-      }
-      reader.readAsDataURL(f)
+      })
+      .catch(error => {
+        console.error('Image upload error:', error)
+      })
     }
   }
 
