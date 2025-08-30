@@ -102,46 +102,54 @@ export function RichTextEditor({ value, onChange }: Props) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (f && editor) {
-      // Upload to server instead of using base64
-      const formData = new FormData()
-      formData.append('image', f)
-      
-      fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.imageUrl || data.url) {
-          const imageUrl = data.imageUrl || data.url
-          editor.chain().focus().setImage({ src: imageUrl }).run()
-          // Force editor to update and show the image
-          editor.commands.focus()
-        } else {
-          console.error('Failed to upload image - no URL returned:', data)
-          // Fallback to base64 if server upload fails
-          const reader = new FileReader()
-          reader.onload = () => {
-            if (reader.result) {
-              editor.chain().focus().setImage({ src: reader.result as string }).run()
-              editor.commands.focus()
+      // First show image immediately with base64 for instant feedback
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (reader.result && editor) {
+          // Insert image immediately with base64 for instant display
+          editor.chain().focus().setImage({ src: reader.result as string }).run()
+          
+          // Then upload to server and replace with server URL
+          const formData = new FormData()
+          formData.append('image', f)
+          
+          fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData,
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.imageUrl || data.url) {
+              const imageUrl = data.imageUrl || data.url
+              // Replace the base64 image with the server URL
+              const { state } = editor.view
+              const { doc } = state
+              let imagePos = -1
+              
+              doc.descendants((node, pos) => {
+                if (node.type.name === 'image' && node.attrs.src === reader.result) {
+                  imagePos = pos
+                  return false
+                }
+              })
+              
+              if (imagePos >= 0) {
+                editor.chain()
+                  .focus()
+                  .setNodeSelection(imagePos)
+                  .deleteSelection()
+                  .setImage({ src: imageUrl })
+                  .run()
+              }
             }
-          }
-          reader.readAsDataURL(f)
+          })
+          .catch(error => {
+            console.error('Image upload error:', error)
+            // Keep the base64 image if server upload fails
+          })
         }
-      })
-      .catch(error => {
-        console.error('Image upload error:', error)
-        // Fallback to base64 if server upload fails
-        const reader = new FileReader()
-        reader.onload = () => {
-          if (reader.result) {
-            editor.chain().focus().setImage({ src: reader.result as string }).run()
-            editor.commands.focus()
-          }
-        }
-        reader.readAsDataURL(f)
-      })
+      }
+      reader.readAsDataURL(f)
     }
   }
 
