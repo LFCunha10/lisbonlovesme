@@ -568,25 +568,44 @@ export default function TourEditorPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{t("admin.tours.badgeColor")}</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t("admin.tours.selectColor")} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="primary">Primary (Blue)</SelectItem>
-                                <SelectItem value="secondary">Secondary (Purple)</SelectItem>
-                                <SelectItem value="accent">Accent (Pink)</SelectItem>
-                                <SelectItem value="orange">Orange</SelectItem>
-                                <SelectItem value="green">Green</SelectItem>
-                                <SelectItem value="red">Red</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={`w-full justify-start text-left font-normal ${
+                                      !field.value && "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {field.value && (
+                                      <div
+                                        className={`h-4 w-4 rounded mr-2 ${
+                                          colorOptions.find(c => c.value === field.value)?.bgClass || 'bg-primary'
+                                        }`}
+                                      />
+                                    )}
+                                    {colorOptions.find(c => c.value === field.value)?.label || t("admin.tours.selectColor")}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-60 p-3">
+                                <div className="grid grid-cols-3 gap-2">
+                                  {colorOptions.map((color) => (
+                                    <Button
+                                      key={color.value}
+                                      type="button"
+                                      variant="outline"
+                                      className={`h-8 w-full p-0 ${
+                                        field.value === color.value && "border-2 border-primary"
+                                      }`}
+                                      onClick={() => field.onChange(color.value)}
+                                    >
+                                      <div className={`h-full w-full rounded ${color.bgClass}`} />
+                                    </Button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                             <FormMessage />
                           </FormItem>
                         )}
