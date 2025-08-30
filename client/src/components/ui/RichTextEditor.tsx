@@ -105,7 +105,9 @@ export function RichTextEditor({ value, onChange }: Props) {
       const reader = new FileReader()
       reader.onload = () => {
         if (reader.result && editor) {
-          editor.chain().focus().setImage({ src: reader.result as string }).run()
+          // Insert image immediately with base64 for instant display
+          const base64Src = reader.result as string
+          editor.chain().focus().setImage({ src: base64Src }).run()
           
           const formData = new FormData()
           formData.append('image', f)
@@ -136,31 +138,15 @@ export function RichTextEditor({ value, onChange }: Props) {
           .then(data => {
             if (data.imageUrl || data.url) {
               const imageUrl = data.imageUrl || data.url
-              // Replace the base64 image with the server URL
-              const { state } = editor.view
-              const { doc } = state
-              let imagePos = -1
-              
-              doc.descendants((node, pos) => {
-                if (node.type.name === 'image' && node.attrs.src === reader.result) {
-                  imagePos = pos
-                  return false
-                }
-              })
-              
-              if (imagePos >= 0) {
-                editor.chain()
-                  .focus()
-                  .setNodeSelection(imagePos)
-                  .deleteSelection()
-                  .setImage({ src: imageUrl })
-                  .run()
-              }
+              // Replace base64 with server URL in the editor content
+              const currentContent = editor.getHTML()
+              const updatedContent = currentContent.replace(base64Src, imageUrl)
+              editor.commands.setContent(updatedContent)
             }
           })
           .catch(error => {
             console.error('Image upload error:', error)
-            // Keep the base64 image if server upload fails
+            // Base64 image is already displayed, so upload failure is non-blocking
           })
         }
       }
