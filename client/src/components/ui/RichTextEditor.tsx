@@ -112,17 +112,34 @@ export function RichTextEditor({ value, onChange }: Props) {
       })
       .then(response => response.json())
       .then(data => {
-        if (data.imageUrl) {
-          editor.chain().focus().setImage({ src: data.imageUrl }).run()
+        if (data.imageUrl || data.url) {
+          const imageUrl = data.imageUrl || data.url
+          editor.chain().focus().setImage({ src: imageUrl }).run()
+          // Force editor to update and show the image
+          editor.commands.focus()
         } else {
-          console.error('Failed to upload image:', data)
+          console.error('Failed to upload image - no URL returned:', data)
+          // Fallback to base64 if server upload fails
+          const reader = new FileReader()
+          reader.onload = () => {
+            if (reader.result) {
+              editor.chain().focus().setImage({ src: reader.result as string }).run()
+              editor.commands.focus()
+            }
+          }
+          reader.readAsDataURL(f)
         }
       })
       .catch(error => {
         console.error('Image upload error:', error)
         // Fallback to base64 if server upload fails
         const reader = new FileReader()
-        reader.onload = () => editor.chain().focus().setImage({ src: reader.result as string }).run()
+        reader.onload = () => {
+          if (reader.result) {
+            editor.chain().focus().setImage({ src: reader.result as string }).run()
+            editor.commands.focus()
+          }
+        }
         reader.readAsDataURL(f)
       })
     }
