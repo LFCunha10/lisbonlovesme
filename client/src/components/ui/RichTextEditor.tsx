@@ -102,9 +102,29 @@ export function RichTextEditor({ value, onChange }: Props) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (f && editor) {
-      const reader = new FileReader()
-      reader.onload = () => editor.chain().focus().setImage({ src: reader.result as string }).run()
-      reader.readAsDataURL(f)
+      // Upload to server instead of using base64
+      const formData = new FormData()
+      formData.append('image', f)
+      
+      fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.imageUrl) {
+          editor.chain().focus().setImage({ src: data.imageUrl }).run()
+        } else {
+          console.error('Failed to upload image:', data)
+        }
+      })
+      .catch(error => {
+        console.error('Image upload error:', error)
+        // Fallback to base64 if server upload fails
+        const reader = new FileReader()
+        reader.onload = () => editor.chain().focus().setImage({ src: reader.result as string }).run()
+        reader.readAsDataURL(f)
+      })
     }
   }
 
