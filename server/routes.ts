@@ -264,24 +264,22 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       
       // Set session data with regeneration
       if (req.session) {
-        req.session.regenerate((err) => {
+        req.session.isAuthenticated = true;
+        req.session.isAdmin = !!user.isAdmin;
+        req.session.user = {
+          id: user.id,
+          username: user.username,
+          isAdmin: !!user.isAdmin
+        };
+
+        // Save the session explicitly
+        req.session.save((err) => {
           if (err) {
-            console.error("Session regeneration error:", err);
-            return res.status(500).json({ message: "Failed to regenerate session" });
+            console.error("Session save error:", err);
+            return res.status(500).json({ message: "Failed to save session" });
           }
 
-          console.log("Session after regenerate:", req.sessionID);
-
-          req.session.isAuthenticated = true;
-          req.session.isAdmin = !!user.isAdmin;
-          req.session.user = {
-            id: user.id,
-            username: user.username,
-            isAdmin: !!user.isAdmin
-          };
-
-          console.log("Session set:", req.session);
-          console.log("Session user now:", req.session.user);
+          console.log("Session saved successfully:", req.session.user);
 
           res.json({
             message: "Login successful",
