@@ -68,7 +68,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const csrfProtection = csurf({ cookie: true }) as express.RequestHandler;
-app.use(csrfProtection);
+
+// Apply CSRF protection only to state-modifying requests
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    csrfProtection(req, res, next);
+  } else {
+    next();
+  }
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
