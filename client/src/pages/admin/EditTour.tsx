@@ -126,6 +126,12 @@ export default function EditTourPage() {
   // Create/Update tour mutation
   const tourMutation = useMutation({
     mutationFn: async (data: MultilingualTourForm) => {
+      // Get CSRF token
+      const csrfResponse = await fetch("/api/csrf-token", {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfResponse.json();
+
       const payload = {
         ...data,
         price: Math.round(data.price * 100), // Convert to cents
@@ -136,7 +142,11 @@ export default function EditTourPage() {
       
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken
+        },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
       
