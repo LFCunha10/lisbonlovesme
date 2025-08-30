@@ -35,7 +35,7 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "https://replit.com"],
+      scriptSrc: ["'self'", "https://replit.com", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
       fontSrc: ["'self'", "https:", "data:"],
       connectSrc: ["'self'", "https:"],
