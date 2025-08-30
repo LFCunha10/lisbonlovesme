@@ -300,6 +300,23 @@ export default function EditTourPage() {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={form.control}
+                        name={`badge.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name={`badge.${lang}`}
