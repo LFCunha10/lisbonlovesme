@@ -300,6 +300,22 @@ export default function EditTourPage() {
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={form.control}
+                        name={`badge.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
@@ -448,22 +464,7 @@ export default function EditTourPage() {
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="badge"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Badge Text (Optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Popular, New, etc." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
+                <FormField
                     control={form.control}
                     name="badgeColor"
                     render={({ field }) => (
@@ -485,7 +486,6 @@ export default function EditTourPage() {
                       </FormItem>
                     )}
                   />
-                </div>
               </CardContent>
             </Card>
 
