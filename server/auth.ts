@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { storage } from './storage';
 import { User } from '@shared/schema';
 

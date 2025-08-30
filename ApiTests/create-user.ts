@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "../server/db";
 import { users } from "../shared/schema"; // <-- your Drizzle schema
 
