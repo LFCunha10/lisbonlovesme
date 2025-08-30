@@ -20,7 +20,9 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   cors({
-    origin: "http://localhost:5001", // or wherever your frontend runs
+    origin: process.env.NODE_ENV === "production" 
+      ? ["https://lfcunha10-lisbonlove-tivp.bolt.host", "https://jolly-stroopwafel-1e831e.netlify.app"]
+      : "http://localhost:5001",
     credentials: true,
   })
 );
@@ -55,7 +57,7 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: false, // false for development
+      secure: process.env.NODE_ENV === "production", // true for production
       maxAge: 1000 * 60 * 60 * 2, // 2 hours
       sameSite: "lax",
     },
@@ -147,7 +149,7 @@ app.use(passport.session());
   // ALWAYS serve the app on port 5001
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5001;
+  const port = process.env.PORT || 5001;
   server.listen(
     {
       port,
