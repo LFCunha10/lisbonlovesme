@@ -302,13 +302,19 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   });
   
   app.get("/api/admin/session", (req: Request, res: Response) => {
-    if (req.session && req.session.isAuthenticated && req.session.isAdmin) {
+    if (req.session?.isAuthenticated && req.session?.user?.isAdmin) {
       res.json({
         isAuthenticated: true,
         isAdmin: true,
         user: req.session.user,
       });
     } else {
+      console.log("Session check failed. Session data:", {
+        sessionExists: !!req.session,
+        isAuthenticated: req.session?.isAuthenticated,
+        hasUser: !!req.session?.user,
+        userIsAdmin: req.session?.user?.isAdmin
+      });
       res.json({
         isAuthenticated: false,
         isAdmin: false,
