@@ -58,10 +58,11 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       maxAge: 1000 * 60 * 60 * 2, // 2 hours
-      sameSite: "lax",
+      sameSite: "lax"
     },
+    name: 'connect.sid'
   }),
 );
 

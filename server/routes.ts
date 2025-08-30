@@ -262,37 +262,25 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         return res.status(403).json({ message: "You do not have admin privileges" });
       }
       
-      // Set session data with regeneration
-      if (req.session) {
-        req.session.isAuthenticated = true;
-        req.session.isAdmin = !!user.isAdmin;
-        req.session.user = {
+      // Set session data
+      req.session.isAuthenticated = true;
+      req.session.isAdmin = true;
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        isAdmin: true
+      };
+      
+      console.log("Session user set:", req.session.user);
+      
+      res.json({
+        message: "Login successful",
+        user: {
           id: user.id,
           username: user.username,
-          isAdmin: !!user.isAdmin
-        };
-
-        // Save the session explicitly
-        req.session.save((err) => {
-          if (err) {
-            console.error("Session save error:", err);
-            return res.status(500).json({ message: "Failed to save session" });
-          }
-
-          console.log("Session saved successfully:", req.session.user);
-
-          res.json({
-            message: "Login successful",
-            user: {
-              id: user.id,
-              username: user.username,
-              isAdmin: !!user.isAdmin
-            }
-          });
-        });
-        return;
-      }
-      return res.status(500).json({ message: "Session not available" });
+          isAdmin: true
+        }
+      });
     } catch (error: any) {
       console.error("Login error:", error);
       res.status(500).json({ message: error.message || "An error occurred during login" });
