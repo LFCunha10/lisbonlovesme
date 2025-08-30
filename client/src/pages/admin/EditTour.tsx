@@ -175,8 +175,9 @@ export default function EditTourPage() {
 
   // Translation functionality removed - will be added back later
 
-  const onSubmit = (data: MultilingualTourForm) => {
-    tourMutation.mutate(data);
+  const handleSave = () => {
+    const formData = form.getValues();
+    tourMutation.mutate(formData);
   };
 
   if (isEditing && isLoading) {
@@ -206,7 +207,7 @@ export default function EditTourPage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -289,6 +290,23 @@ export default function EditTourPage() {
                             <p className="text-sm text-gray-500 mt-1">
                               Use the toolbar to format text, add images, links, and more. Content will be displayed with formatting on the website.
                             </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`badge.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                {...field}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -518,7 +536,8 @@ export default function EditTourPage() {
 
             <div className="flex gap-4">
               <Button 
-                type="submit" 
+                type="button"
+                onClick={handleSave}
                 disabled={tourMutation.isPending}
                 className="flex-1"
               >
@@ -534,7 +553,7 @@ export default function EditTourPage() {
                 Cancel
               </Button>
             </div>
-          </form>
+          </div>
         </Form>
       </div>
     </div>
