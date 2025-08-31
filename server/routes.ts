@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import type { Express, Request, Response, NextFunction, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
@@ -41,15 +41,20 @@ function generateRandomString(x: number): string {
   return result;
 }
 
-const csrfProtection = csurf({ 
+const csrfProtection = csurf({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax'
   }
-}) as express.RequestHandler;
+}) as RequestHandler;
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
+  // CSRF protection
+  app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
+    res.json({ csrfToken: req.csrfToken() });
+  });
+
   // Expose authenticated admin user route
   app.get("/api/admin/me", async (req: Request, res: Response) => {
     if (!req.session?.user?.id) {
@@ -238,7 +243,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   });
 
   // Authentication routes
-  app.post("/api/admin/login", async (req: Request, res: Response) => {
+  app.post("/api/admin/login", csrfProtection, async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
       
