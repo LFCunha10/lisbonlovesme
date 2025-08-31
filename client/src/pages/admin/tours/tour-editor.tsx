@@ -69,7 +69,9 @@ const tourSchema = z.object({
   difficulty: z.string().min(1, { message: "Difficulty is required" }),
   price: z.string().min(1, { message: "Price is required" }),
   priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
-  badge: z.string().optional().nullable(),
+  badgeEn: z.string().optional(),
+  badgePt: z.string().optional(),
+  badgeRu: z.string().optional(),
   badgeColor: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
@@ -100,7 +102,9 @@ export default function TourEditorPage() {
       difficulty: "medium",
       price: "",
       priceType: "per_person" as const,
-      badge: "",
+      badgeEn: "",
+      badgePt: "",
+      badgeRu: "",
       badgeColor: "primary",
       isActive: true,
     },
@@ -119,6 +123,11 @@ export default function TourEditorPage() {
   // Set form values when tour data is loaded in edit mode
   useEffect(() => {
     if (tour && isEditMode) {
+      // Handle multilingual badge data
+      const badgeData = typeof tour.badge === 'object' && tour.badge 
+        ? tour.badge 
+        : { en: tour.badge || "", pt: "", ru: "" };
+      
       form.reset({
         name: tour.name,
         description: tour.description || "",
@@ -128,7 +137,9 @@ export default function TourEditorPage() {
         difficulty: tour.difficulty,
         price: (tour.price / 100).toFixed(2), // Convert cents to decimal
         priceType: tour.priceType || "per_person",
-        badge: tour.badge || "",
+        badgeEn: badgeData.en || "",
+        badgePt: badgeData.pt || "",
+        badgeRu: badgeData.ru || "",
         badgeColor: tour.badgeColor || "primary",
         isActive: tour.isActive !== false, // Default to true if not specified
       });
@@ -199,7 +210,18 @@ export default function TourEditorPage() {
       const formattedData = {
         ...data,
         price: parseFloat(data.price) * 100, // Convert price to cents
+        // Convert badge fields to multilingual object
+        badge: {
+          en: data.badgeEn || "",
+          pt: data.badgePt || "",
+          ru: data.badgeRu || "",
+        },
       };
+      // Remove individual badge fields
+      delete formattedData.badgeEn;
+      delete formattedData.badgePt;
+      delete formattedData.badgeRu;
+      
       return apiRequest("POST", "/api/tours", formattedData);
     },
     onSuccess: () => {
@@ -226,7 +248,18 @@ export default function TourEditorPage() {
       const formattedData = {
         ...data,
         price: parseFloat(data.price) * 100, // Convert price to cents
+        // Convert badge fields to multilingual object
+        badge: {
+          en: data.badgeEn || "",
+          pt: data.badgePt || "",
+          ru: data.badgeRu || "",
+        },
       };
+      // Remove individual badge fields
+      delete formattedData.badgeEn;
+      delete formattedData.badgePt;
+      delete formattedData.badgeRu;
+      
       return apiRequest("PUT", `/api/tours/${tourId}`, formattedData);
     },
     onSuccess: () => {
@@ -448,22 +481,58 @@ export default function TourEditorPage() {
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name={`badge.${lang}`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Badge Text</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="badgeEn"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text (English)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g., Popular"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="badgePt"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text (Portuguese)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g., Popular"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="badgeRu"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text (Russian)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g., Популярный"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     
                     <FormField
                       control={form.control}
