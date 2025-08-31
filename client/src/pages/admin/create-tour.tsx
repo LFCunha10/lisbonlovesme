@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { insertTourSchema } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import AdminLayout from "@/components/admin/AdminLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,10 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -27,164 +23,335 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Save } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
-import { Badge } from "lucide-react";
 
-// Extended schema for our form with proper validation
-const createTourSchema = insertTourSchema.extend({
-  // Override price to accept decimal format like 45.00
-  price: z.string().min(1, "Price is required").refine(
-    (val) => {
-      // Check if it's a valid decimal number
-      return /^\d+(\.\d{1,2})?$/.test(val);
-    },
-    { message: "Price must be a valid number (e.g. 45.00)" }
-  ),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+// Multilingual form schema
+const multilingualTourSchema = z.object({
+  name: z.object({
+    en: z.string().min(1, "English name is required"),
+    pt: z.string().min(1, "Portuguese name is required"),
+    ru: z.string().min(1, "Russian name is required"),
+  }),
+  description: z.object({
+    en: z.string().min(10, "English description must be at least 10 characters"),
+    pt: z.string().min(10, "Portuguese description must be at least 10 characters"),
+    ru: z.string().min(10, "Russian description must be at least 10 characters"),
+  }),
+  shortDescription: z.object({
+    en: z.string().optional(),
+    pt: z.string().optional(),
+    ru: z.string().optional(),
+  }).optional(),
+  duration: z.object({
+    en: z.string().min(1, "English duration is required"),
+    pt: z.string().min(1, "Portuguese duration is required"),
+    ru: z.string().min(1, "Russian duration is required"),
+  }),
+  difficulty: z.object({
+    en: z.string().min(1, "English difficulty is required"),
+    pt: z.string().min(1, "Portuguese difficulty is required"),
+    ru: z.string().min(1, "Russian difficulty is required"),
+  }),
+  badge: z.object({
+    en: z.string().optional(),
+    pt: z.string().optional(),
+    ru: z.string().optional(),
+  }).optional(),
+  price: z.number().min(0, "Price must be positive"),
+  priceType: z.enum(["per_person", "per_group"]),
+  maxGroupSize: z.number().min(1, "Group size must be at least 1"),
+  imageUrl: z.string().optional(),
+  badgeColor: z.string().optional(),
+  featured: z.boolean().optional(),
 });
 
-// Badge color options with preview
+type MultilingualTourForm = z.infer<typeof multilingualTourSchema>;
+
 const badgeColors = [
-  { value: "bg-red-500 text-white", label: "Red", preview: "bg-red-500" },
-  { value: "bg-blue-500 text-white", label: "Blue", preview: "bg-blue-500" },
-  { value: "bg-green-500 text-white", label: "Green", preview: "bg-green-500" },
-  { value: "bg-yellow-500 text-black", label: "Yellow", preview: "bg-yellow-500" },
-  { value: "bg-purple-500 text-white", label: "Purple", preview: "bg-purple-500" },
+  { value: "primary", label: "Primary" },
+  { value: "secondary", label: "Secondary" },
+  { value: "accent", label: "Accent" },
 ];
 
 export default function CreateTourPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'pt' | 'ru'>('en');
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
 
-  // Form definition with validation
-  const form = useForm<z.infer<typeof createTourSchema>>({
-    resolver: zodResolver(createTourSchema),
+  const form = useForm<MultilingualTourForm>({
+    resolver: zodResolver(multilingualTourSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: { en: "", pt: "", ru: "" },
+      description: { en: "", pt: "", ru: "" },
+      shortDescription: { en: "", pt: "", ru: "" },
+      duration: { en: "", pt: "", ru: "" },
+      difficulty: { en: "", pt: "", ru: "" },
+      badge: { en: "", pt: "", ru: "" },
+      price: 0,
+      priceType: "per_person",
+      maxGroupSize: 1,
       imageUrl: "",
-      duration: "",
-      maxGroupSize: 10,
-      difficulty: "medium",
-      price: "",
-      badge: "",
-      badgeColor: "",
-      isActive: true,
+      badgeColor: "primary",
+      featured: false,
     },
   });
 
-  // Handle image upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // Create tour mutation
+  const tourMutation = useMutation({
+    mutationFn: async (data: MultilingualTourForm) => {
+      // Get CSRF token
+      const csrfResponse = await fetch("/api/csrf-token", {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfResponse.json();
 
-  // Submit handler
-  const onSubmit = async (data: z.infer<typeof createTourSchema>) => {
-    try {
-      setIsSubmitting(true);
-
-      // First, upload the image if there is one
-      let imageUrl = data.imageUrl;
-      
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        
-        const uploadResponse = await fetch("/api/upload-image", {
-          method: "POST",
-          body: formData,
-        });
-        
-        if (!uploadResponse.ok) {
-          throw new Error("Failed to upload image");
-        }
-        
-        const uploadResult = await uploadResponse.json();
-        imageUrl = uploadResult.imageUrl;
-      }
-      
-      // Convert price to cents for storage
-      const priceInCents = Math.round(parseFloat(data.price) * 100);
-      
-      // Create tour with the processed data
-      const response = await apiRequest("POST", "/api/tours", {
+      const payload = {
         ...data,
-        imageUrl,
-        price: priceInCents,
+        price: Math.round(data.price * 100), // Convert to cents
+      };
+
+      const response = await fetch("/api/tours", {
+        method: "POST",
+        headers: { 
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
       });
       
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Tour created successfully",
-        });
-        navigate("/admin/tours");
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create tour");
+      if (!response.ok) {
+        throw new Error("Failed to create tour");
       }
-    } catch (error: any) {
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Tour created",
+        description: "New tour has been created successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      navigate('/admin/tours');
+    },
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create tour",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+  });
+
+  const handleSave = () => {
+    const formData = form.getValues();
+    tourMutation.mutate(formData);
   };
 
   return (
-    <AdminLayout title="Create New Tour">
-      <Card className="p-6 max-w-4xl mx-auto">
+    <div className="container mx-auto py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Create New Tour</h1>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                {/* Tour Name */}
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tour Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Historic Belém Tour" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Tour Duration */}
-                <FormField
-                  control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration</FormLabel>
-                      <FormControl>
-                        <Input placeholder="2 hours" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Group Size */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Multilingual Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={currentLanguage} onValueChange={(value) => setCurrentLanguage(value as 'en' | 'pt' | 'ru')}>
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="en">English</TabsTrigger>
+                    <TabsTrigger value="pt">Português</TabsTrigger>
+                    <TabsTrigger value="ru">Русский</TabsTrigger>
+                  </TabsList>
+                  {(['en', 'pt', 'ru'] as const).map((lang) => (
+                    <TabsContent key={lang} value={lang} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name={`name.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tour Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder={`Enter tour name in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`shortDescription.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={`Brief description in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                rows={2}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`description.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Description</FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`duration.${lang}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Duration</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder={`e.g., "2 hours" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`difficulty.${lang}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Difficulty</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select difficulty" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {lang === 'en' && (
+                                    <>
+                                      <SelectItem value="Easy">Easy</SelectItem>
+                                      <SelectItem value="Medium">Medium</SelectItem>
+                                      <SelectItem value="Hard">Hard</SelectItem>
+                                    </>
+                                  )}
+                                  {lang === 'pt' && (
+                                    <>
+                                      <SelectItem value="Fácil">Fácil</SelectItem>
+                                      <SelectItem value="Médio">Médio</SelectItem>
+                                      <SelectItem value="Difícil">Difícil</SelectItem>
+                                    </>
+                                  )}
+                                  {lang === 'ru' && (
+                                    <>
+                                      <SelectItem value="Легкий">Легкий</SelectItem>
+                                      <SelectItem value="Средний">Средний</SelectItem>
+                                      <SelectItem value="Сложный">Сложный</SelectItem>
+                                    </>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name={`badge.${lang}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Badge Text</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tour Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="priceType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price Type</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="per_person">Per Person</SelectItem>
+                            <SelectItem value="per_group">Per Group</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="maxGroupSize"
@@ -192,168 +359,46 @@ export default function CreateTourPage() {
                     <FormItem>
                       <FormLabel>Maximum Group Size</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min={1} 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {/* Difficulty */}
                 <FormField
                   control={form.control}
-                  name="difficulty"
+                  name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Difficulty</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select difficulty" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="easy">Easy</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Price */}
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (€)</FormLabel>
+                      <FormLabel>Image URL</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="45.00" 
-                          {...field} 
-                        />
+                        <Input placeholder="https://..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="space-y-6">
-                {/* Image Upload */}
-                <div className="space-y-2">
-                  <FormLabel>Tour Image</FormLabel>
-                  <div className="border-2 border-dashed border-gray-300 rounded-md p-4">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="tour-image"
-                    />
-                    <label
-                      htmlFor="tour-image"
-                      className="cursor-pointer block text-center"
-                    >
-                      {imagePreview ? (
-                        <div className="space-y-2">
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="max-h-40 mx-auto object-contain"
-                          />
-                          <p className="text-sm text-blue-500">Change image</p>
-                        </div>
-                      ) : (
-                        <div className="py-4">
-                          <p className="text-gray-500">
-                            Click to upload an image
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            JPG, PNG or GIF, max 5MB
-                          </p>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Or enter an image URL:
-                  </p>
-                  <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="https://example.com/image.jpg"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Badge */}
-                <FormField
-                  control={form.control}
-                  name="badge"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Badge Text (Optional)</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center gap-2">
-                          <Badge className="h-5 w-5" />
-                          <Input
-                            placeholder="Popular"
-                            value={field.value || ""}
-                            onChange={field.onChange}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Badge Color */}
                 <FormField
                   control={form.control}
                   name="badgeColor"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Badge Color</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || ""}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select color" />
+                            <SelectValue />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {badgeColors.map((color) => (
                             <SelectItem key={color.value} value={color.value}>
-                              <div className="flex items-center">
-                                <div 
-                                  className={`w-4 h-4 rounded-full mr-2 ${color.preview}`} 
-                                />
-                                {color.label}
-                              </div>
+                              {color.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -362,61 +407,46 @@ export default function CreateTourPage() {
                     </FormItem>
                   )}
                 />
-
-                {/* Is Active */}
                 <FormField
                   control={form.control}
-                  name="isActive"
+                  name="featured"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-2 border rounded-md">
+                    <FormItem>
+                      <FormLabel>Featured</FormLabel>
                       <FormControl>
-                        <Switch
+                        <input
+                          type="checkbox"
                           checked={field.value || false}
-                          onCheckedChange={field.onChange}
+                          onChange={(e) => field.onChange(e.target.checked)}
                         />
                       </FormControl>
-                      <FormLabel className="m-0">
-                        Active (will be shown on website)
-                      </FormLabel>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-            </div>
-
-            {/* Description - Rich Text Editor */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tour Description</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end space-x-2">
-              <Button
+              </CardContent>
+            </Card>
+            <div className="flex gap-4">
+              <Button 
                 type="button"
+                onClick={handleSave}
+                disabled={tourMutation.isPending}
+                className="flex-1"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {tourMutation.isPending ? 'Creating...' : 'Create Tour'}
+              </Button>
+              <Button 
+                type="button" 
                 variant="outline"
-                onClick={() => navigate("/admin/tours")}
+                onClick={() => navigate('/admin/tours')}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Tour"}
-              </Button>
             </div>
-          </form>
+          </div>
         </Form>
-      </Card>
-    </AdminLayout>
+      </div>
+    </div>
   );
 }

@@ -20,6 +20,7 @@ import { getLocalizedText } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 // Multilingual form schema
 const multilingualTourSchema = z.object({
@@ -182,129 +183,76 @@ export default function EditTourPage() {
 
   if (isEditing && isLoading) {
     return (
-      <div className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+      <AdminLayout title={isEditing ? "Edit Tour" : "Create New Tour"}>
+        <div className="container mx-auto py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" size="sm" onClick={() => navigate('/admin/tours')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Tours
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? 'Edit Tour' : 'Create New Tour'}
-          </h1>
-        </div>
+    <AdminLayout title={isEditing ? "Edit Tour" : "Create New Tour"}>
+      <div className="container mx-auto py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant="outline" size="sm" onClick={() => navigate('/admin/tours')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Tours
+            </Button>
+            <h1 className="text-2xl font-bold">
+              {isEditing ? 'Edit Tour' : 'Create New Tour'}
+            </h1>
+          </div>
 
-        <Form {...form}>
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  Multilingual Content
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={currentLanguage} onValueChange={(value) => setCurrentLanguage(value as 'en' | 'pt' | 'ru')}>
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="en">English</TabsTrigger>
-                    <TabsTrigger value="pt">Português</TabsTrigger>
-                    <TabsTrigger value="ru">Русский</TabsTrigger>
-                  </TabsList>
+          <Form {...form}>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    Multilingual Content
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs value={currentLanguage} onValueChange={(value) => setCurrentLanguage(value as 'en' | 'pt' | 'ru')}>
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="en">English</TabsTrigger>
+                      <TabsTrigger value="pt">Português</TabsTrigger>
+                      <TabsTrigger value="ru">Русский</TabsTrigger>
+                    </TabsList>
 
-                  {(['en', 'pt', 'ru'] as const).map((lang) => (
-                    <TabsContent key={lang} value={lang} className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          {lang === 'en' && 'English Content'}
-                          {lang === 'pt' && 'Portuguese Content'}
-                          {lang === 'ru' && 'Russian Content'}
-                        </h3>
-                        <div className="flex gap-2">
-                          <span className="text-sm text-gray-500 py-2">
-                            {lang === 'en' && 'English content (source language)'}
-                            {lang === 'pt' && 'Portuguese content'}
-                            {lang === 'ru' && 'Russian content'}
-                          </span>
+                    {(['en', 'pt', 'ru'] as const).map((lang) => (
+                      <TabsContent key={lang} value={lang} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">
+                            {lang === 'en' && 'English Content'}
+                            {lang === 'pt' && 'Portuguese Content'}
+                            {lang === 'ru' && 'Russian Content'}
+                          </h3>
+                          <div className="flex gap-2">
+                            <span className="text-sm text-gray-500 py-2">
+                              {lang === 'en' && 'English content (source language)'}
+                              {lang === 'pt' && 'Portuguese content'}
+                              {lang === 'ru' && 'Russian content'}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <FormField
-                        control={form.control}
-                        name={`name.${lang}`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tour Name</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder={`Enter tour name in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name={`shortDescription.${lang}`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Short Description</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder={`Brief description in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                                rows={2}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name={`description.${lang}`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Description</FormLabel>
-                            <FormControl>
-                              <RichTextEditor
-                                value={field.value || ""}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <p className="text-sm text-gray-500 mt-1">
-                              Use the toolbar to format text, add images, links, and more. Content will be displayed with formatting on the website.
-                            </p>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
-                          name={`duration.${lang}`}
+                          name={`name.${lang}`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Duration</FormLabel>
+                              <FormLabel>Tour Name</FormLabel>
                               <FormControl>
                                 <Input 
-                                  placeholder={`e.g., "2 hours" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                  placeholder={`Enter tour name in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
                                   {...field}
                                 />
                               </FormControl>
@@ -315,65 +263,163 @@ export default function EditTourPage() {
 
                         <FormField
                           control={form.control}
-                          name={`difficulty.${lang}`}
+                          name={`shortDescription.${lang}`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Difficulty</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select difficulty" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {lang === 'en' && (
-                                    <>
-                                      <SelectItem value="Easy">Easy</SelectItem>
-                                      <SelectItem value="Medium">Medium</SelectItem>
-                                      <SelectItem value="Hard">Hard</SelectItem>
-                                    </>
-                                  )}
-                                  {lang === 'pt' && (
-                                    <>
-                                      <SelectItem value="Fácil">Fácil</SelectItem>
-                                      <SelectItem value="Médio">Médio</SelectItem>
-                                      <SelectItem value="Difícil">Difícil</SelectItem>
-                                    </>
-                                  )}
-                                  {lang === 'ru' && (
-                                    <>
-                                      <SelectItem value="Легкий">Легкий</SelectItem>
-                                      <SelectItem value="Средний">Средний</SelectItem>
-                                      <SelectItem value="Сложный">Сложный</SelectItem>
-                                    </>
-                                  )}
-                                </SelectContent>
-                              </Select>
+                              <FormLabel>Short Description</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder={`Brief description in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                  rows={2}
+                                  {...field}
+                                />
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                      </div>
 
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Tour Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`description.${lang}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Description</FormLabel>
+                              <FormControl>
+                                <RichTextEditor
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
+                              </FormControl>
+                              <p className="text-sm text-gray-500 mt-1">
+                                Use the toolbar to format text, add images, links, and more. Content will be displayed with formatting on the website.
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`duration.${lang}`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Duration</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder={`e.g., "2 hours" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`difficulty.${lang}`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Difficulty</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select difficulty" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {lang === 'en' && (
+                                      <>
+                                        <SelectItem value="Easy">Easy</SelectItem>
+                                        <SelectItem value="Medium">Medium</SelectItem>
+                                        <SelectItem value="Hard">Hard</SelectItem>
+                                      </>
+                                    )}
+                                    {lang === 'pt' && (
+                                      <>
+                                        <SelectItem value="Fácil">Fácil</SelectItem>
+                                        <SelectItem value="Médio">Médio</SelectItem>
+                                        <SelectItem value="Difícil">Difícil</SelectItem>
+                                      </>
+                                    )}
+                                    {lang === 'ru' && (
+                                      <>
+                                        <SelectItem value="Легкий">Легкий</SelectItem>
+                                        <SelectItem value="Средний">Средний</SelectItem>
+                                        <SelectItem value="Сложный">Сложный</SelectItem>
+                                      </>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Tour Details</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Price (€)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="priceType"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Price Type</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="per_person">Per Person</SelectItem>
+                                        <SelectItem value="per_group">Per Group</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
                             <FormField
                               control={form.control}
-                              name="price"
+                              name="maxGroupSize"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Price (€)</FormLabel>
+                                  <FormLabel>Maximum Group Size</FormLabel>
                                   <FormControl>
                                     <Input
                                       type="number"
-                                      step="0.01"
-                                      min="0"
+                                      min="1"
                                       {...field}
-                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -383,10 +429,42 @@ export default function EditTourPage() {
 
                             <FormField
                               control={form.control}
-                              name="priceType"
+                              name="imageUrl"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Price Type</FormLabel>
+                                  <FormLabel>Image URL</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="https://..." {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Badge text per language tab */}
+                            <FormField
+                              control={form.control}
+                              name={`badge.${lang}`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Badge Text</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="badgeColor"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Badge Color</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                       <SelectTrigger>
@@ -394,120 +472,47 @@ export default function EditTourPage() {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value="per_person">Per Person</SelectItem>
-                                      <SelectItem value="per_group">Per Group</SelectItem>
+                                      <SelectItem value="primary">Primary</SelectItem>
+                                      <SelectItem value="secondary">Secondary</SelectItem>
+                                      <SelectItem value="accent">Accent</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                          </div>
-
-                          <FormField
-                            control={form.control}
-                            name="maxGroupSize"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Maximum Group Size</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="imageUrl"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Image URL</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="https://..." {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Badge text per language tab */}
-                          <FormField
-                            control={form.control}
-                            name={`badge.${lang}`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Badge Text</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder={`e.g., "Popular" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="badgeColor"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Badge Color</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="primary">Primary</SelectItem>
-                                    <SelectItem value="secondary">Secondary</SelectItem>
-                                    <SelectItem value="accent">Accent</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </CardContent>
+              </Card>
 
 
-            <div className="flex gap-4">
-              <Button 
-                type="button"
-                onClick={handleSave}
-                disabled={tourMutation.isPending}
-                className="flex-1"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {tourMutation.isPending ? 'Saving...' : isEditing ? 'Update Tour' : 'Create Tour'}
-              </Button>
-              
-              <Button 
-                type="button" 
-                variant="outline"
-                onClick={() => navigate('/admin/tours')}
-              >
-                Cancel
-              </Button>
+              <div className="flex gap-4">
+                <Button 
+                  type="button"
+                  onClick={handleSave}
+                  disabled={tourMutation.isPending}
+                  className="flex-1"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {tourMutation.isPending ? 'Saving...' : isEditing ? 'Update Tour' : 'Create Tour'}
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => navigate('/admin/tours')}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
-          </div>
-        </Form>
+          </Form>
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

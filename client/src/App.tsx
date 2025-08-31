@@ -281,7 +281,7 @@ function LanguageAwareApp() {
     <TooltipProvider>
       <div className="min-h-screen flex flex-col">
         <NavBar />
-        <main className="flex-grow pt-16">
+        <main className="flex-grow">
           <Router />
         </main>
         <Footer />
