@@ -60,13 +60,21 @@ const colorOptions = [
 
 // Tour form schema
 const tourSchema = z.object({
-  name: z.string().min(2, { message: "Tour name must be at least 2 characters" }),
+  nameEn: z.string().min(2, { message: "English tour name must be at least 2 characters" }),
+  namePt: z.string().min(2, { message: "Portuguese tour name must be at least 2 characters" }),
+  nameRu: z.string().min(2, { message: "Russian tour name must be at least 2 characters" }),
   shortDescription: z.string().max(150, { message: "Short description must be less than 150 characters" }).optional(),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+  descriptionEn: z.string().min(10, { message: "English description must be at least 10 characters" }),
+  descriptionPt: z.string().min(10, { message: "Portuguese description must be at least 10 characters" }),
+  descriptionRu: z.string().min(10, { message: "Russian description must be at least 10 characters" }),
   imageUrl: z.string().optional(),
-  duration: z.string().min(2, { message: "Duration is required (e.g., '2 hours')" }),
+  durationEn: z.string().min(2, { message: "English duration is required" }),
+  durationPt: z.string().min(2, { message: "Portuguese duration is required" }),
+  durationRu: z.string().min(2, { message: "Russian duration is required" }),
   maxGroupSize: z.coerce.number().min(1, { message: "Max group size must be at least 1" }),
-  difficulty: z.string().min(1, { message: "Difficulty is required" }),
+  difficultyEn: z.string().min(1, { message: "English difficulty is required" }),
+  difficultyPt: z.string().min(1, { message: "Portuguese difficulty is required" }),
+  difficultyRu: z.string().min(1, { message: "Russian difficulty is required" }),
   price: z.string().min(1, { message: "Price is required" }),
   priceType: z.enum(["per_person", "per_group"], { message: "Price type is required" }),
   badgeEn: z.string().optional(),
@@ -93,13 +101,21 @@ export default function TourEditorPage() {
   const form = useForm<TourFormValues>({
     resolver: zodResolver(tourSchema),
     defaultValues: {
-      name: "",
+      nameEn: "",
+      namePt: "",
+      nameRu: "",
       shortDescription: "",
-      description: "",
+      descriptionEn: "",
+      descriptionPt: "",
+      descriptionRu: "",
       imageUrl: "",
-      duration: "",
+      durationEn: "",
+      durationPt: "",
+      durationRu: "",
       maxGroupSize: 10,
-      difficulty: "medium",
+      difficultyEn: "Medium",
+      difficultyPt: "Médio",
+      difficultyRu: "Средний",
       price: "",
       priceType: "per_person" as const,
       badgeEn: "",
@@ -123,18 +139,46 @@ export default function TourEditorPage() {
   // Set form values when tour data is loaded in edit mode
   useEffect(() => {
     if (tour && isEditMode) {
+      // Handle multilingual name data
+      const nameData = typeof tour.name === 'object' && tour.name 
+        ? tour.name 
+        : { en: tour.name || "", pt: "", ru: "" };
+      
+      // Handle multilingual description data
+      const descriptionData = typeof tour.description === 'object' && tour.description 
+        ? tour.description 
+        : { en: tour.description || "", pt: "", ru: "" };
+      
+      // Handle multilingual duration data
+      const durationData = typeof tour.duration === 'object' && tour.duration 
+        ? tour.duration 
+        : { en: tour.duration || "", pt: "", ru: "" };
+      
+      // Handle multilingual difficulty data
+      const difficultyData = typeof tour.difficulty === 'object' && tour.difficulty 
+        ? tour.difficulty 
+        : { en: tour.difficulty || "", pt: "", ru: "" };
+      
       // Handle multilingual badge data
       const badgeData = typeof tour.badge === 'object' && tour.badge 
         ? tour.badge 
         : { en: tour.badge || "", pt: "", ru: "" };
       
       form.reset({
-        name: tour.name,
-        description: tour.description || "",
+        nameEn: nameData.en,
+        namePt: nameData.pt,
+        nameRu: nameData.ru,
+        descriptionEn: descriptionData.en,
+        descriptionPt: descriptionData.pt,
+        descriptionRu: descriptionData.ru,
         imageUrl: tour.imageUrl || "",
-        duration: tour.duration,
+        durationEn: durationData.en,
+        durationPt: durationData.pt,
+        durationRu: durationData.ru,
         maxGroupSize: tour.maxGroupSize,
-        difficulty: tour.difficulty,
+        difficultyEn: difficultyData.en,
+        difficultyPt: difficultyData.pt,
+        difficultyRu: difficultyData.ru,
         price: (tour.price / 100).toFixed(2), // Convert cents to decimal
         priceType: tour.priceType || "per_person",
         badgeEn: badgeData.en || "",
@@ -208,19 +252,38 @@ export default function TourEditorPage() {
   const createTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
       const formattedData = {
-        ...data,
-        price: parseFloat(data.price) * 100, // Convert price to cents
-        // Convert badge fields to multilingual object
+        name: {
+          en: data.nameEn,
+          pt: data.namePt,
+          ru: data.nameRu,
+        },
+        description: {
+          en: data.descriptionEn,
+          pt: data.descriptionPt,
+          ru: data.descriptionRu,
+        },
+        duration: {
+          en: data.durationEn,
+          pt: data.durationPt,
+          ru: data.durationRu,
+        },
+        difficulty: {
+          en: data.difficultyEn,
+          pt: data.difficultyPt,
+          ru: data.difficultyRu,
+        },
         badge: {
           en: data.badgeEn || "",
           pt: data.badgePt || "",
           ru: data.badgeRu || "",
         },
+        imageUrl: data.imageUrl,
+        maxGroupSize: data.maxGroupSize,
+        priceType: data.priceType,
+        badgeColor: data.badgeColor,
+        isActive: data.isActive,
+        price: parseFloat(data.price) * 100, // Convert price to cents
       };
-      // Remove individual badge fields
-      delete formattedData.badgeEn;
-      delete formattedData.badgePt;
-      delete formattedData.badgeRu;
       
       return apiRequest("POST", "/api/tours", formattedData);
     },
@@ -246,19 +309,38 @@ export default function TourEditorPage() {
   const updateTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
       const formattedData = {
-        ...data,
-        price: parseFloat(data.price) * 100, // Convert price to cents
-        // Convert badge fields to multilingual object
+        name: {
+          en: data.nameEn,
+          pt: data.namePt,
+          ru: data.nameRu,
+        },
+        description: {
+          en: data.descriptionEn,
+          pt: data.descriptionPt,
+          ru: data.descriptionRu,
+        },
+        duration: {
+          en: data.durationEn,
+          pt: data.durationPt,
+          ru: data.durationRu,
+        },
+        difficulty: {
+          en: data.difficultyEn,
+          pt: data.difficultyPt,
+          ru: data.difficultyRu,
+        },
         badge: {
           en: data.badgeEn || "",
           pt: data.badgePt || "",
           ru: data.badgeRu || "",
         },
+        imageUrl: data.imageUrl,
+        maxGroupSize: data.maxGroupSize,
+        priceType: data.priceType,
+        badgeColor: data.badgeColor,
+        isActive: data.isActive,
+        price: parseFloat(data.price) * 100, // Convert price to cents
       };
-      // Remove individual badge fields
-      delete formattedData.badgeEn;
-      delete formattedData.badgePt;
-      delete formattedData.badgeRu;
       
       return apiRequest("PUT", `/api/tours/${tourId}`, formattedData);
     },
@@ -337,73 +419,236 @@ export default function TourEditorPage() {
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <CardContent className="space-y-6 pt-6">
                   <TabsContent value="details" className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("admin.tours.tourName")}</FormLabel>
-                          <FormControl>
-                            <Input placeholder={t("admin.tours.tourNamePlaceholder")} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="shortDescription"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Short Description</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Brief description for tour cards (max 150 characters)" 
-                              {...field} 
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            This short description will appear on tour cards. {field.value?.length || 0}/150 characters.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("admin.tours.description")}</FormLabel>
-                          <FormControl>
-                            {/* <QuillEditor
-                              value={field.value}
-                              onChange={field.onChange}
-                              className="mb-6"
-                            /> */}
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold">English Content</h3>
                       <FormField
                         control={form.control}
-                        name="duration"
+                        name="nameEn"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("admin.tours.duration")}</FormLabel>
+                            <FormLabel>Tour Name (English)</FormLabel>
                             <FormControl>
-                              <Input placeholder={t("admin.tours.durationPlaceholder")} {...field} />
+                              <Input placeholder="Historic Walking Tour" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                      
+                      <FormField
+                        control={form.control}
+                        name="descriptionEn"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (English)</FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="durationEn"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Duration (English)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="2 hours" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="difficultyEn"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Difficulty (English)</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select difficulty" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Easy">Easy</SelectItem>
+                                  <SelectItem value="Medium">Medium</SelectItem>
+                                  <SelectItem value="Hard">Hard</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold">Portuguese Content</h3>
+                      <FormField
+                        control={form.control}
+                        name="namePt"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tour Name (Portuguese)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Tour Histórico a Pé" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="descriptionPt"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (Portuguese)</FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="durationPt"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Duration (Portuguese)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="2 horas" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="difficultyPt"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Difficulty (Portuguese)</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecionar dificuldade" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Fácil">Fácil</SelectItem>
+                                  <SelectItem value="Médio">Médio</SelectItem>
+                                  <SelectItem value="Difícil">Difícil</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold">Russian Content</h3>
+                      <FormField
+                        control={form.control}
+                        name="nameRu"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tour Name (Russian)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Историческая пешеходная экскурсия" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="descriptionRu"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (Russian)</FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="durationRu"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Duration (Russian)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="2 часа" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="difficultyRu"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Difficulty (Russian)</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Выберите сложность" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Легкий">Легкий</SelectItem>
+                                  <SelectItem value="Средний">Средний</SelectItem>
+                                  <SelectItem value="Сложный">Сложный</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold">General Settings</h3>
                       
                       <FormField
                         control={form.control}
@@ -420,35 +665,6 @@ export default function TourEditorPage() {
                                 onChange={(e) => field.onChange(parseInt(e.target.value))}
                               />
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="difficulty"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("admin.tours.difficulty")}</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t("admin.tours.selectDifficulty")} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Easy">{t("admin.tours.difficultyEasy")}</SelectItem>
-                                <SelectItem value="Medium">{t("admin.tours.difficultyMedium")}</SelectItem>
-                                <SelectItem value="Hard">{t("admin.tours.difficultyHard")}</SelectItem>
-                              </SelectContent>
-                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -479,28 +695,28 @@ export default function TourEditorPage() {
                           </FormItem>
                         )}
                       />
-                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("admin.tours.price")} (€)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="text"
-                              placeholder="45.00" 
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Price in Euros{form.watch("priceType") === "per_person" ? " per person" : " per group"}
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("admin.tours.price")} (€)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="text"
+                                placeholder="45.00" 
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Price in Euros{form.watch("priceType") === "per_person" ? " per person" : " per group"}
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="media" className="space-y-6">
