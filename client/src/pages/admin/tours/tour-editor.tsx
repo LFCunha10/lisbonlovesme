@@ -481,59 +481,6 @@ export default function TourEditorPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="badgeEn"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Text (English)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., Popular"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="badgePt"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Text (Portuguese)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., Popular"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="badgeRu"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Badge Text (Russian)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="e.g., Популярный"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
                     <FormField
                       control={form.control}
                       name="price"
@@ -632,7 +579,7 @@ export default function TourEditorPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
-                        name="badge"
+                        name="badgeEn"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{t("admin.tours.badgeLabel")}</FormLabel>
@@ -640,7 +587,6 @@ export default function TourEditorPage() {
                               <Input 
                                 placeholder={t("admin.tours.badgePlaceholder")} 
                                 {...field} 
-                                value={field.value || ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -654,44 +600,23 @@ export default function TourEditorPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{t("admin.tours.badgeColor")}</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={`w-full justify-start text-left font-normal ${
-                                      !field.value && "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {field.value && (
-                                      <div
-                                        className={`h-4 w-4 rounded mr-2 ${
-                                          colorOptions.find(c => c.value === field.value)?.bgClass || 'bg-primary'
-                                        }`}
-                                      />
-                                    )}
-                                    {colorOptions.find(c => c.value === field.value)?.label || t("admin.tours.selectColor")}
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-60 p-3">
-                                <div className="grid grid-cols-3 gap-2">
-                                  {colorOptions.map((color) => (
-                                    <Button
-                                      key={color.value}
-                                      type="button"
-                                      variant="outline"
-                                      className={`h-8 w-full p-0 ${
-                                        field.value === color.value && "border-2 border-primary"
-                                      }`}
-                                      onClick={() => field.onChange(color.value)}
-                                    >
-                                      <div className={`h-full w-full rounded ${color.bgClass}`} />
-                                    </Button>
-                                  ))}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder={t("admin.tours.selectColor")} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {colorOptions.map((color) => (
+                                  <SelectItem key={color.value} value={color.value}>
+                                    <div className="flex items-center">
+                                      <div className={`w-4 h-4 rounded mr-2 ${color.bgClass}`} />
+                                      {color.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
