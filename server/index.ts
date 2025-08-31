@@ -65,9 +65,6 @@ app.use(
   }),
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
