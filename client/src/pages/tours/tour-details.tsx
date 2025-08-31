@@ -95,7 +95,7 @@ export default function TourDetailsPage() {
       <div className="relative h-96 mb-8">
         <img
           src={tour.imageUrl}
-          alt={getLocalizedText(tour.name)}
+          alt={getLocalizedText(tour.name, i18n.language)}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40" />
@@ -103,11 +103,11 @@ export default function TourDetailsPage() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
               <h1 className="text-3xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-0">
-                {getLocalizedText(tour.name || "")}
+                {getLocalizedText(tour.name || "", i18n.language)}
               </h1>
-              {getLocalizedText(tour.badge || "") && (
+              {getLocalizedText(tour.badge || "", i18n.language) && (
                 <Badge className="bg-primary text-primary-foreground w-fit">
-                  {getLocalizedText(tour.badge || "")}
+                  {getLocalizedText(tour.badge || "", i18n.language)}
                 </Badge>
               )}
             </div>
@@ -131,7 +131,8 @@ export default function TourDetailsPage() {
                 <span className="text-gray-200 text-sm sm:text-base">
                   ({tourTestimonials.length} {tourTestimonials.length === 1 ? t('tours.review') : t('tours.reviews')})
                 </span>
-              </div>
+                </div>
+                
             )}
           </div>
         </div>
@@ -159,7 +160,7 @@ export default function TourDetailsPage() {
                     {t('tours.duration')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {getLocalizedText(tour.duration)}
+                    {getLocalizedText(tour.duration, i18n.language)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -175,7 +176,7 @@ export default function TourDetailsPage() {
                     {t('tours.difficulty')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {getLocalizedText(tour.difficulty)}
+                    {getLocalizedText(tour.difficulty, i18n.language)}
                   </span>
                 </div>
               </div>
@@ -208,7 +209,7 @@ export default function TourDetailsPage() {
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                         {t('tours.duration')}
                       </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration)}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration, i18n.language)}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Users className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -224,7 +225,7 @@ export default function TourDetailsPage() {
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                         {t('tours.difficulty')}
                       </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty)}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Euro className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -246,7 +247,7 @@ export default function TourDetailsPage() {
                       <h3 className="font-medium text-gray-900 dark:text-white">
                         {t('tours.duration')}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration)}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration, i18n.language)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -266,7 +267,7 @@ export default function TourDetailsPage() {
                       <h3 className="font-medium text-gray-900 dark:text-white">
                         {t('tours.difficulty')}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty)}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -292,7 +293,7 @@ export default function TourDetailsPage() {
                 </h2>
                 <div 
                   className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: marked.parse(getLocalizedText(tour.description)) }}
+                  dangerouslySetInnerHTML={{ __html: marked.parse(getLocalizedText(tour.description, i18n.language)) }}
                 />
               </CardContent>
             </Card>
@@ -359,7 +360,7 @@ export default function TourDetailsPage() {
                       {t('tours.duration')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {getLocalizedText(tour.duration)}
+                      {getLocalizedText(tour.duration, i18n.language)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -375,7 +376,7 @@ export default function TourDetailsPage() {
                       {t('tours.difficulty')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {getLocalizedText(tour.difficulty)}
+                      {getLocalizedText(tour.difficulty, i18n.language)}
                     </span>
                   </div>
                 </div>

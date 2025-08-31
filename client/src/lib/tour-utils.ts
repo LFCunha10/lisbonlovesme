@@ -18,7 +18,7 @@ export function getLocalizedText(
   const lang = language || 'en';
   const langKey = lang.startsWith('pt') ? 'pt' : lang.startsWith('ru') ? 'ru' : 'en';
   
-  return text[langKey] || text.en || '';
+  return text[langKey] || '';
 }
 
 /**

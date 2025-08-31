@@ -593,34 +593,6 @@ export default function TourEditorPage() {
                           </FormItem>
                         )}
                       />
-                      
-                      <FormField
-                        control={form.control}
-                        name="badgeColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("admin.tours.badgeColor")}</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t("admin.tours.selectColor")} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {colorOptions.map((color) => (
-                                  <SelectItem key={color.value} value={color.value}>
-                                    <div className="flex items-center">
-                                      <div className={`w-4 h-4 rounded mr-2 ${color.bgClass}`} />
-                                      {color.label}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
                     
                     <FormField
