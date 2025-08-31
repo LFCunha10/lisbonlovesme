@@ -23,6 +23,7 @@ export interface IStorage {
 
   // Tour operations
   getTours(): Promise<Tour[]>;
+  getAllTours(): Promise<Tour[]>;
   getTour(id: number): Promise<Tour | undefined>;
   createTour(tour: InsertTour): Promise<Tour>;
   updateTour(id: number, tour: Partial<InsertTour>): Promise<Tour | undefined>;
@@ -213,7 +214,13 @@ export class MemStorage implements IStorage {
 
   // Tour operations
   async getTours(): Promise<Tour[]> {
-    return Array.from(this.tours.values()).filter(tour => tour.isActive);
+    // Return only active tours
+    return Array.from(this.tours.values()).filter(tour => tour.isActive === true);
+  }
+
+  async getAllTours(): Promise<Tour[]> {
+    // Return all tours (active and inactive)
+    return Array.from(this.tours.values());
   }
 
   async getTour(id: number): Promise<Tour | undefined> {
@@ -226,7 +233,7 @@ export class MemStorage implements IStorage {
       ...tour,
       id,
       shortDescription: tour.shortDescription ?? null,
-      isActive: tour.isActive ?? null,
+      isActive: tour.isActive ?? true,
       priceType: tour.priceType ?? null,
       badge: tour.badge ?? null,
       badgeColor: tour.badgeColor ?? null,

@@ -72,6 +72,7 @@ const multilingualTourSchema = z.object({
   imageUrl: z.string().optional(),
   badgeColor: z.string().optional(),
   featured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
 });
 
 type MultilingualTourForm = z.infer<typeof multilingualTourSchema>;
@@ -103,6 +104,7 @@ export default function CreateTourPage() {
       imageUrl: "",
       badgeColor: "primary",
       featured: false,
+      isActive: true,
     },
   });
 
@@ -118,6 +120,7 @@ export default function CreateTourPage() {
       const payload = {
         ...data,
         price: Math.round(data.price * 100), // Convert to cents
+        isActive: data.isActive ?? true,
       };
 
       const response = await fetch("/api/tours", {
@@ -141,7 +144,8 @@ export default function CreateTourPage() {
         title: "Tour created",
         description: "New tour has been created successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tours?all=1'] });
       navigate('/admin/tours');
     },
     onError: (error: any) => {
@@ -403,6 +407,23 @@ export default function CreateTourPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Active (visible to customers)</FormLabel>
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value ?? false}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

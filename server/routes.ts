@@ -353,7 +353,8 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   
   app.get("/api/tours", async (req: Request, res: Response) => {
     try {
-      const tours = await storage.getTours();
+      const includeAll = req.query.all === '1' || req.query.all === 'true';
+      const tours = includeAll ? await storage.getAllTours() : await storage.getTours();
       res.json(tours);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to retrieve tours" });
@@ -365,7 +366,8 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       const tour = await storage.createTour({
         ...req.body,
         shortDescription: req.body.shortDescription ?? null,
-        isActive: req.body.isActive ?? null,
+        // Default to active when not provided
+        isActive: req.body.isActive ?? true,
       });
       res.status(201).json(tour);
     } catch (error: any) {

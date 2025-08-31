@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 
 export default function ManageTours() {
   const { i18n } = useTranslation();
-  const { tours, isLoading, error } = useTours();
+  const { tours, isLoading, error } = useTours({ all: true });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
@@ -122,8 +122,9 @@ export default function ManageTours() {
         description: `The tour has been ${selectedTour.id ? "updated" : "created"} successfully`,
       });
 
-      // Invalidate tours cache to refresh the list
+      // Invalidate tours cache to refresh both public and admin lists
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
       
       setIsDialogOpen(false);
     } catch (error) {
@@ -151,8 +152,9 @@ export default function ManageTours() {
         description: "The tour has been deleted successfully",
       });
 
-      // Invalidate tours cache to refresh the list
+      // Invalidate tours cache to refresh both public and admin lists
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
       
       setIsDeleteDialogOpen(false);
     } catch (error) {

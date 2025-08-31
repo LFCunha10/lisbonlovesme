@@ -60,6 +60,7 @@ const multilingualTourSchema = z.object({
   imageUrl: z.string().optional(),
   badgeColor: z.string().optional(),
   featured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
 });
 
 type MultilingualTourForm = z.infer<typeof multilingualTourSchema>;
@@ -100,6 +101,7 @@ export default function EditTourPage() {
       imageUrl: "",
       badgeColor: "primary",
       featured: false,
+      isActive: true,
     },
   });
 
@@ -119,6 +121,7 @@ export default function EditTourPage() {
         imageUrl: tour.imageUrl || "",
         badgeColor: tour.badgeColor || "primary",
         featured: tour.featured || false,
+        isActive: tour.isActive ?? true,
       };
       form.reset(tourData);
     }
@@ -136,6 +139,7 @@ export default function EditTourPage() {
       const payload = {
         ...data,
         price: Math.round(data.price * 100), // Convert to cents
+        isActive: data.isActive ?? true,
       };
 
       const url = isEditing ? `/api/tours/${tourId}` : "/api/tours";
@@ -162,7 +166,8 @@ export default function EditTourPage() {
         title: isEditing ? "Tour updated" : "Tour created",
         description: isEditing ? "Tour has been updated successfully" : "New tour has been created successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tours?all=1'] });
       navigate('/admin/tours');
     },
     onError: (error: any) => {
@@ -486,6 +491,32 @@ export default function EditTourPage() {
                       </TabsContent>
                     ))}
                   </Tabs>
+                </CardContent>
+              </Card>
+
+              {/* Visibility */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Visibility</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Active (visible to customers)</FormLabel>
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value ?? false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
 

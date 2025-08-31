@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Tour, Availability, Testimonial } from "@shared/schema";
 
-export function useTours() {
+export function useTours(options?: { all?: boolean }) {
   const {
     data = [],
     isLoading,
     error,
   } = useQuery<Tour[]>({
-    queryKey: ["/api/tours"],
+    queryKey: [options?.all ? "/api/tours?all=1" : "/api/tours"],
   });
 
   return { tours: data, isLoading, error };

@@ -152,7 +152,7 @@ export default function AdminTours() {
 
   // Fetch tours
   const { data: tours, isLoading: isLoadingTours } = useQuery({
-    queryKey: ["/api/tours"],
+    queryKey: ["/api/tours?all=1"],
     select: (data) => data as any[],
   });
 
@@ -231,6 +231,7 @@ export default function AdminTours() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
       setIsCreateTourOpen(false);
       tourForm.reset();
       toast({
@@ -254,6 +255,7 @@ export default function AdminTours() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
       setIsEditTourOpen(false);
       toast({
         title: "Tour Updated",
@@ -275,6 +277,7 @@ export default function AdminTours() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
       setIsDeleteDialogOpen(false);
       setSelectedTourId(null);
       toast({

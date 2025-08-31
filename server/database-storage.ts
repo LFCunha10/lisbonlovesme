@@ -163,7 +163,13 @@ export class DatabaseStorage implements IStorage {
 
   // Tour operations
   async getTours(): Promise<Tour[]> {
+    // Only active tours for public endpoints
     return db.select().from(tours).where(eq(tours.isActive, true));
+  }
+
+  async getAllTours(): Promise<Tour[]> {
+    // Admin/management view requires all tours
+    return db.select().from(tours);
   }
 
   async getTour(id: number): Promise<Tour | undefined> {
@@ -175,7 +181,8 @@ export class DatabaseStorage implements IStorage {
     const [newTour] = await db.insert(tours).values({
       ...tour,
       shortDescription: tour.shortDescription ?? null,
-      isActive: tour.isActive ?? null,
+      // Ensure DB default true is respected when undefined
+      isActive: tour.isActive ?? true,
     }).returning();
     return newTour;
   }
