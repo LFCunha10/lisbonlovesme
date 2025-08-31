@@ -68,17 +68,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get("/api/csrf-token", (req: Request, res: Response) => {
-    // Generate CSRF token manually for this endpoint
-    const token = require('crypto').randomBytes(32).toString('hex');
-    res.cookie("csrfToken", token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "lax"
-    });
-    res.json({ csrfToken: token });
-  });
-
 app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
