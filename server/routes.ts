@@ -10,7 +10,7 @@ import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
 import { getLocalizedText } from "./utils/tour-utils.js";
-import csrf from "csurf";
+import csurf from "csurf";
 import bcrypt from "bcryptjs";
 
 // Session augmentation for custom session properties
@@ -40,7 +40,13 @@ function generateRandomString(x: number): string {
   }
   return result;
 }
-const csrfProtection = csrf({ cookie: true });
+
+const csrfProtection = csurf({ 
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  }
+}) as express.RequestHandler;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -63,12 +69,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/csrf-token", (req: Request, res: Response) => {
-    res.cookie("csrfToken", req.csrfToken(), {
+    // Generate CSRF token manually for this endpoint
+    const token = require('crypto').randomBytes(32).toString('hex');
+    res.cookie("csrfToken", token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "lax"
     });
-    res.json({ csrfToken: req.csrfToken() });
+    res.json({ csrfToken: token });
   });
 
 app.post("/api/admin/create-user", async (req: Request, res: Response) => {

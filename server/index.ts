@@ -12,7 +12,6 @@ import passport from "passport";
 import { createAdminUserIfNotExists } from "./auth";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import csurf from "csurf";
 import { pool } from "./db";
 
 const app = express();
@@ -68,16 +67,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-const csrfProtection = csurf({ 
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
-  }
-}) as express.RequestHandler;
-
-// Apply CSRF protection globally to ensure req.csrfToken() is always available
-app.use(csrfProtection);
 
 app.use((req, res, next) => {
   const start = Date.now();
