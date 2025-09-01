@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction, RequestHandler } from "e
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification } from "./emailService.js";
+import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification, verifyEmailTransport, sendTestEmail } from "./emailService.js";
 import { autoTranslateTourContent, translateField } from "./translation-service.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
@@ -1228,6 +1228,23 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       res.json({ message: "Images reordered successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to reorder gallery images" });
+    }
+  });
+
+  // Email diagnostics (admin only)
+  app.get("/api/admin/email/verify", isAuthenticated, isAdmin, async (_req: Request, res: Response) => {
+    const ok = await verifyEmailTransport();
+    res.json({ ok });
+  });
+
+  app.post("/api/admin/email/test", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const to = req.body?.to as string | undefined;
+      await sendTestEmail(to);
+      res.json({ ok: true, to: to || process.env.ADMIN_EMAIL || process.env.EMAIL_USER });
+    } catch (err: any) {
+      console.error('Email test failed:', err);
+      res.status(500).json({ ok: false, message: err?.message || 'Email test failed' });
     }
   });
 

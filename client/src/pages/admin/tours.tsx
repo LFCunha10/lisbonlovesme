@@ -66,6 +66,8 @@ import {
   TrashIcon,
   InfoIcon,
   AlertTriangleIcon,
+  ImageIcon,
+  Loader2,
 } from "lucide-react";
 
 const tourSchema = z.object({
@@ -125,6 +127,8 @@ export default function AdminTours() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("tours");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   React.useEffect(() => {
       const checkAuth = async () => {
@@ -214,6 +218,9 @@ export default function AdminTours() {
       Object.keys(formData).forEach((key) => {
         tourForm.setValue(key as any, formData[key as keyof typeof formData]);
       });
+      if (selectedTour.imageUrl) {
+        setImagePreview(selectedTour.imageUrl);
+      }
     }
   }, [selectedTour, isEditTourOpen, tourForm]);
 
@@ -365,6 +372,31 @@ export default function AdminTours() {
     setSelectedTab("details");
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Error", description: "Image is too large (max 5MB)", variant: "destructive" });
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+    setUploadingImage(true);
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const res = await fetch("/api/upload-image", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      tourForm.setValue("imageUrl", data.imageUrl, { shouldDirty: true });
+      toast({ title: "Success", description: "Image uploaded" });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to upload image", variant: "destructive" });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (isLoadingTours) {
     return (
       <div className="h-screen flex justify-center items-center">
@@ -466,13 +498,41 @@ export default function AdminTours() {
                             name="imageUrl"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Image URL</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="https://example.com/image.jpg"
-                                    {...field}
-                                  />
-                                </FormControl>
+                                <FormLabel>Tour Image</FormLabel>
+                                <div className="border rounded-md p-4">
+                                  {imagePreview ? (
+                                    <div className="mb-4">
+                                      <img src={imagePreview} alt="Tour preview" className="max-h-60 rounded-md mx-auto" />
+                                    </div>
+                                  ) : field.value ? (
+                                    <div className="mb-4">
+                                      <img src={field.value} alt="Tour" className="max-h-60 rounded-md mx-auto" />
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center justify-center h-40 bg-gray-100 rounded-md mb-4">
+                                      <ImageIcon className="h-16 w-16 text-gray-400" />
+                                    </div>
+                                  )}
+                                  <div className="flex items-center justify-center">
+                                    <Input id="tour-image-create" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                                    <label htmlFor="tour-image-create">
+                                      <Button type="button" variant="outline" disabled={uploadingImage} className="cursor-pointer" asChild>
+                                        <span>
+                                          {uploadingImage ? (
+                                            <>
+                                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                                            </>
+                                          ) : field.value ? (
+                                            "Change Image"
+                                          ) : (
+                                            "Upload Image"
+                                          )}
+                                        </span>
+                                      </Button>
+                                    </label>
+                                  </div>
+                                  <input type="hidden" {...field} />
+                                </div>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -767,13 +827,41 @@ export default function AdminTours() {
                                     name="imageUrl"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Image URL</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            placeholder="https://example.com/image.jpg"
-                                            {...field}
-                                          />
-                                        </FormControl>
+                                        <FormLabel>Tour Image</FormLabel>
+                                        <div className="border rounded-md p-4">
+                                          {imagePreview ? (
+                                            <div className="mb-4">
+                                              <img src={imagePreview} alt="Tour preview" className="max-h-60 rounded-md mx-auto" />
+                                            </div>
+                                          ) : field.value ? (
+                                            <div className="mb-4">
+                                              <img src={field.value} alt="Tour" className="max-h-60 rounded-md mx-auto" />
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center justify-center h-40 bg-gray-100 rounded-md mb-4">
+                                              <ImageIcon className="h-16 w-16 text-gray-400" />
+                                            </div>
+                                          )}
+                                          <div className="flex items-center justify-center">
+                                            <Input id="tour-image-edit" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                                            <label htmlFor="tour-image-edit">
+                                              <Button type="button" variant="outline" disabled={uploadingImage} className="cursor-pointer" asChild>
+                                                <span>
+                                                  {uploadingImage ? (
+                                                    <>
+                                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                                                    </>
+                                                  ) : field.value ? (
+                                                    "Change Image"
+                                                  ) : (
+                                                    "Upload Image"
+                                                  )}
+                                                </span>
+                                              </Button>
+                                            </label>
+                                          </div>
+                                          <input type="hidden" {...field} />
+                                        </div>
                                         <FormMessage />
                                       </FormItem>
                                     )}

@@ -17,7 +17,7 @@ import { useTours } from "@/hooks/use-tours";
 import { formatCurrency } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Trash, Plus } from "lucide-react";
+import { Edit, Trash, Plus, ImageIcon, Loader2 } from "lucide-react";
 import { InsertTour } from "@shared/schema";
 import { getLocalizedText } from "@/lib/tour-utils";
 import { useTranslation } from "react-i18next";
@@ -29,6 +29,7 @@ export default function ManageTours() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const { toast } = useToast();
 
   const defaultTour = {
@@ -70,6 +71,33 @@ export default function ManageTours() {
       ...prev,
       [name]: name === "price" ? parseInt(value) * 100 : value,
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image is too large. Maximum size is 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setUploadingImage(true);
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const res = await fetch("/api/upload-image", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setSelectedTour((prev: any) => ({ ...prev, imageUrl: data.imageUrl }));
+      toast({ title: "Success", description: "Image uploaded successfully" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to upload image", variant: "destructive" });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleNumberChange = (
@@ -259,14 +287,36 @@ export default function ManageTours() {
             </div>
             
             <div className="md:col-span-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                name="imageUrl"
-                value={selectedTour?.imageUrl || ""}
-                onChange={handleInputChange}
-                placeholder="https://example.com/image.jpg"
-              />
+              <Label htmlFor="imageUrl">Tour Image</Label>
+              <div className="border rounded-md p-4">
+                {selectedTour?.imageUrl ? (
+                  <div className="mb-4">
+                    <img src={selectedTour.imageUrl} alt="Tour" className="max-h-60 rounded-md mx-auto" />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-40 bg-gray-100 rounded-md mb-4">
+                    <ImageIcon className="h-16 w-16 text-gray-400" />
+                  </div>
+                )}
+                <div className="flex items-center justify-center">
+                  <Input id="tour-image-manage" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                  <label htmlFor="tour-image-manage">
+                    <Button type="button" variant="outline" disabled={uploadingImage} className="cursor-pointer" asChild>
+                      <span>
+                        {uploadingImage ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                          </>
+                        ) : selectedTour?.imageUrl ? (
+                          "Change Image"
+                        ) : (
+                          "Upload Image"
+                        )}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </div>
             </div>
             
             <div>

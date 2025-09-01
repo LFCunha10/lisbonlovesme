@@ -108,7 +108,34 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  logger: true,
+  debug: true,
 });
+
+export async function verifyEmailTransport(): Promise<boolean> {
+  try {
+    await transporter.verify();
+    console.log('SMTP transporter verified and ready.');
+    return true;
+  } catch (err) {
+    console.error('SMTP transporter verification failed:', err);
+    return false;
+  }
+}
+
+export async function sendTestEmail(to?: string): Promise<void> {
+  const recipient = to || process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '';
+  if (!recipient) throw new Error('No recipient configured for test email');
+  const mailOptions = {
+    from: `"Lisbonlovesme" <${process.env.EMAIL_USER}>`,
+    to: recipient,
+    subject: 'Lisbonlovesme test email',
+    text: 'This is a test email from Lisbonlovesme server.',
+    html: '<p>This is a <strong>test email</strong> from Lisbonlovesme server.</p>',
+  };
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`Test email sent: ${info.messageId} to ${recipient}`);
+}
 
 interface ConfirmationEmailOptions {
   to: string;
