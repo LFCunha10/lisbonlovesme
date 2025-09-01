@@ -478,7 +478,7 @@ export async function sendBookingRequestNotification(options: BookingRequestNoti
           <p style="color: #666; margin: 0 0 20px 0;">${t.adminNotification.reviewRequest}</p>
           
           <div style="margin: 20px 0;">
-            <a href="${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}/admin/requests` : 'https://your-domain.com/admin/requests'}" 
+            <a href="${process.env.DOMAIN ? `https://${process.env.DOMAIN}/admin/requests` : 'https://localhost:5001/admin/requests'}" 
                style="display: inline-block; background-color: #3b82f6; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 0 5px;">
               ${t.adminNotification.reviewButton}
             </a>
