@@ -1107,10 +1107,21 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       const ua = (req.headers['user-agent'] || '') as string;
       const device = parseUserAgent(ua);
       const geo = await geolocateIp(ip);
-      const when = new Date().toISOString();
+      const now = new Date();
+      const when = now.toISOString();
       const title = 'New Site Visit';
       const location = [geo.city, geo.region, geo.country].filter(Boolean).join(', ');
-      const body = `${location || 'Unknown location'} · ${device.deviceType || ''} · ${when}`;
+      const dateString = new Intl.DateTimeFormat('pt-PT', {
+        dateStyle: 'full',
+        timeStyle: 'short',
+        timeZone: 'Europe/Lisbon',
+      }).format(now);
+      const body = JSON.stringify({
+        title,
+        dateString,
+        location: location || 'Unknown location',
+        device,
+      });
       await createNotificationAndPush({
         type: 'visit',
         title,
@@ -1121,11 +1132,12 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           loc: geo.loc,
           device,
           when,
+          dateString,
           path: req.body?.path || null,
           referrer: req.body?.referrer || null,
         }
       });
-      res.json({ ok: true });
+      res.json({ ok: true, title, dateString, location, device });
     } catch (e: any) {
       console.error('track-visit failed:', e);
       res.status(500).json({ ok: false, message: e?.message || 'Failed to track visit' });
