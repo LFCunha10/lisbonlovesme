@@ -253,6 +253,23 @@ function LanguageAwareApp() {
     document.documentElement.lang = currentLang;
   }, [i18n.language]);
 
+  // Fire a lightweight visit tracking event on first load
+  useEffect(() => {
+    const controller = new AbortController();
+    const payload = {
+      path: window.location.pathname + window.location.search + window.location.hash,
+      referrer: document.referrer || null,
+    };
+    // Non-blocking; ignore errors
+    fetch('/api/track-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
+
   return (
     <TooltipProvider>
       <div className="min-h-screen flex flex-col">

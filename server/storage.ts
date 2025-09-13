@@ -78,6 +78,19 @@ export interface IStorage {
   createArticle(article: InsertArticle): Promise<Article>;
   updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
   deleteArticle(id: number): Promise<boolean>;
+
+  // Devices + Notifications + Messages
+  registerDevice(platform: string, token: string): Promise<import("@shared/schema").Device>;
+  getDevices(): Promise<import("@shared/schema").Device[]>;
+  deactivateDevice(token: string): Promise<boolean>;
+
+  createNotification(n: import("@shared/schema").InsertNotification): Promise<import("@shared/schema").Notification>;
+  getNotifications(limit?: number, offset?: number): Promise<import("@shared/schema").Notification[]>;
+  markNotificationRead(id: number, read?: boolean): Promise<boolean>;
+
+  createContactMessage(m: import("@shared/schema").InsertContactMessage): Promise<import("@shared/schema").ContactMessage>;
+  getContactMessages(limit?: number, offset?: number): Promise<import("@shared/schema").ContactMessage[]>;
+  markContactMessageRead(id: number, read?: boolean): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -473,6 +486,69 @@ export class MemStorage implements IStorage {
 
   async deleteArticle(id: number): Promise<boolean> {
     return this.articles.delete(id);
+  }
+
+  // Devices + Notifications + Messages (in-memory stubs)
+  private deviceTokens: Map<string, { platform: string; token: string; isActive: boolean; createdAt: Date; lastActiveAt?: Date }> = new Map();
+  private notificationsMem: Array<{ id: number; type: string; title: string; body: string; payload?: any; read?: boolean; createdAt: Date }> = [];
+  private contactMessagesMem: Array<{ id: number; name: string; email: string; subject?: string | null; message: string; read?: boolean; createdAt: Date }> = [];
+  private notifCurrentId = 1;
+  private contactMsgCurrentId = 1;
+
+  async registerDevice(platform: string, token: string) {
+    const now = new Date();
+    this.deviceTokens.set(token, { platform, token, isActive: true, createdAt: now, lastActiveAt: now });
+    return { id: 0, platform, token, isActive: true, createdAt: now, lastActiveAt: now } as any;
+  }
+
+  async getDevices() {
+    return Array.from(this.deviceTokens.values()).filter(d => d.isActive).map((d, idx) => ({ id: idx + 1, ...d })) as any;
+  }
+
+  async deactivateDevice(token: string) {
+    const d = this.deviceTokens.get(token);
+    if (!d) return false;
+    d.isActive = false;
+    this.deviceTokens.set(token, d);
+    return true;
+  }
+
+  async createNotification(n: any) {
+    const rec = { id: this.notifCurrentId++, read: false, createdAt: new Date(), ...n };
+    this.notificationsMem.push(rec);
+    return rec as any;
+  }
+
+  async getNotifications(limit = 50, offset = 0) {
+    return this.notificationsMem.slice().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(offset, offset + limit) as any;
+  }
+
+  async markNotificationRead(id: number, read = true) {
+    const idx = this.notificationsMem.findIndex(n => n.id === id);
+    if (idx >= 0) {
+      this.notificationsMem[idx].read = read;
+      return true;
+    }
+    return false;
+  }
+
+  async createContactMessage(m: any) {
+    const rec = { id: this.contactMsgCurrentId++, read: false, createdAt: new Date(), ...m };
+    this.contactMessagesMem.push(rec);
+    return rec as any;
+  }
+
+  async getContactMessages(limit = 50, offset = 0) {
+    return this.contactMessagesMem.slice().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(offset, offset + limit) as any;
+  }
+
+  async markContactMessageRead(id: number, read = true) {
+    const idx = this.contactMessagesMem.findIndex(n => n.id === id);
+    if (idx >= 0) {
+      this.contactMessagesMem[idx].read = read;
+      return true;
+    }
+    return false;
   }
 }
 

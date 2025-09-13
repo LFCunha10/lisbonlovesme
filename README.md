@@ -68,6 +68,20 @@ ADMIN_EMAIL=admin@yourdomain.com
 # Stripe (Optional)
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+
+# Optional: Visit geolocation and iOS Push Notifications
+# If set, visits tracked on the site will include city/region/country
+IPINFO_TOKEN=your_ipinfo_token
+
+# APNs (optional; enables iOS push from server)
+# Either set APNS_KEY_PATH to a .p8 file path on server, or base64 of the key
+APNS_KEY_ID=ABC1234567
+APNS_TEAM_ID=YOURTEAMID
+APNS_BUNDLE_ID=com.yourcompany.LLMAdmin
+# APNS_KEY_PATH=/absolute/path/AuthKey_ABC1234567.p8
+# Or alternatively:
+# APNS_KEY_BASE64=base64-encoded-.p8-key
+# APNS_SANDBOX=true
 ```
 
 ## Local Development
@@ -83,6 +97,11 @@ npm install
 ```bash
 npm run db:push
 ```
+
+New tables created by the schema:
+- `devices`: stores iOS device tokens (for push)
+- `notifications`: in-app notifications (visits, contacts, bookings)
+- `contact_messages`: persisted contact form messages
 
 4. Start development server:
 ```bash
@@ -111,6 +130,8 @@ POST /api/admin/create-user
 ```
 
 Then access the admin panel at `/admin/login`
+
+The frontend also posts a lightweight event to `/api/track-visit` on first load, which creates an admin notification (and optionally sends a push). See `mobile/LLMAdmin/README.md` for the SwiftUI admin app.
 
 ## Features Overview
 

@@ -9,6 +9,8 @@ import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-up
 import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
+import { getClientIp, parseUserAgent, geolocateIp } from "./utils/visit-utils";
+import { createNotificationAndPush } from "./notificationService";
 import { getLocalizedText } from "./utils/tour-utils.js";
 import csurf from "csurf";
 import bcrypt from "bcryptjs";
@@ -951,7 +953,19 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       // Non-blocking failure
     }
 
-    // 6. Respond to client
+    // 6. Notify admin app
+    try {
+      await createNotificationAndPush({
+        type: 'booking',
+        title: 'New Booking Request',
+        body: `${booking.customerFirstName} ${booking.customerLastName} · ${booking.numberOfParticipants} people`,
+        payload: { id: booking.id, bookingReference: booking.bookingReference, tourId: booking.tourId },
+      });
+    } catch (e) {
+      console.error('Failed to create booking notification:', e);
+    }
+
+    // 7. Respond to client
     return res.status(201).json({
       success: true,
       ...booking
@@ -983,6 +997,24 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         message,
         language: language || 'en'
       });
+      // Persist message for admin app
+      try {
+        const saved = await storage.createContactMessage({
+          name,
+          email,
+          subject: subject || null,
+          message,
+        } as any);
+        // Create an in-app notification and optional push
+        await createNotificationAndPush({
+          type: 'contact',
+          title: 'New Contact Message',
+          body: `${name} sent a message`,
+          payload: { id: saved.id, email, subject },
+        });
+      } catch (e) {
+        console.error('Failed to save contact message:', e);
+      }
       
       res.status(200).json({
         success: true,
@@ -995,6 +1027,84 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         message: error.message || "Failed to send message" 
       });
     }
+  });
+
+  // Device registration for push notifications
+  app.post("/api/notifications/device", async (req: Request, res: Response) => {
+    try {
+      const { platform, token } = req.body || {};
+      if (!platform || !token) {
+        return res.status(400).json({ message: 'platform and token are required' });
+      }
+      const dev = await storage.registerDevice(platform, token);
+      res.json({ ok: true, device: { id: dev.id, platform: dev.platform, isActive: dev.isActive } });
+    } catch (e: any) {
+      console.error('Device register failed:', e);
+      res.status(500).json({ message: e?.message || 'Failed to register device' });
+    }
+  });
+
+  // List notifications (admin)
+  app.get("/api/notifications", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    const limit = req.query.limit ? parseInt(String(req.query.limit)) : 50;
+    const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
+    const items = await storage.getNotifications(Math.min(limit, 100), offset);
+    res.json(items);
+  });
+
+  // Mark notification read
+  app.patch("/api/notifications/:id/read", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const read = req.body?.read !== false;
+    const ok = await storage.markNotificationRead(id, read);
+    res.json({ ok });
+  });
+
+  // Visit tracking endpoint
+  app.post("/api/track-visit", async (req: Request, res: Response) => {
+    try {
+      const ip = getClientIp(req);
+      const ua = (req.headers['user-agent'] || '') as string;
+      const device = parseUserAgent(ua);
+      const geo = await geolocateIp(ip);
+      const when = new Date().toISOString();
+      const title = 'New Site Visit';
+      const location = [geo.city, geo.region, geo.country].filter(Boolean).join(', ');
+      const body = `${location || 'Unknown location'} · ${device.deviceType || ''} · ${when}`;
+      await createNotificationAndPush({
+        type: 'visit',
+        title,
+        body,
+        payload: {
+          ip: geo.ip,
+          location,
+          loc: geo.loc,
+          device,
+          when,
+          path: req.body?.path || null,
+          referrer: req.body?.referrer || null,
+        }
+      });
+      res.json({ ok: true });
+    } catch (e: any) {
+      console.error('track-visit failed:', e);
+      res.status(500).json({ ok: false, message: e?.message || 'Failed to track visit' });
+    }
+  });
+
+  // Admin: list contact messages
+  app.get("/api/admin/messages", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    const limit = req.query.limit ? parseInt(String(req.query.limit)) : 50;
+    const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
+    const items = await storage.getContactMessages(Math.min(limit, 100), offset);
+    res.json(items);
+  });
+
+  app.patch("/api/admin/messages/:id/read", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const read = req.body?.read !== false;
+    const ok = await storage.markContactMessageRead(id, read);
+    res.json({ ok });
   });
 
   // === ARTICLE MANAGEMENT ROUTES ===

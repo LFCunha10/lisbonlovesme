@@ -2,6 +2,7 @@ import { eq, and, desc, asc } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles,
+  devices, notifications, contactMessages,
   type User, type InsertUser,
   type Tour, type InsertTour,
   type Availability, type InsertAvailability,
@@ -10,12 +11,86 @@ import {
   type ClosedDay, type InsertClosedDay,
   type AdminSetting, type InsertAdminSetting,
   type Gallery, type InsertGallery,
-  type Article, type InsertArticle
+  type Article, type InsertArticle,
+  type Device, type InsertDevice,
+  type Notification, type InsertNotification,
+  type ContactMessage, type InsertContactMessage
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  // Devices
+  async registerDevice(platform: string, token: string): Promise<Device> {
+    const now = new Date();
+    const [d] = await db
+      .insert(devices)
+      .values({ platform, token, isActive: true, createdAt: now, lastActiveAt: now } as any)
+      .onConflictDoUpdate({
+        target: [devices.token],
+        set: { platform, isActive: true, lastActiveAt: now },
+      })
+      .returning();
+    return d;
+  }
+
+  async getDevices(): Promise<Device[]> {
+    return db.select().from(devices).where(eq(devices.isActive, true));
+  }
+
+  async deactivateDevice(token: string): Promise<boolean> {
+    const res = await db
+      .update(devices)
+      .set({ isActive: false })
+      .where(eq(devices.token, token));
+    return res.rowCount ? res.rowCount > 0 : false;
+  }
+
+  // Notifications
+  async createNotification(n: InsertNotification): Promise<Notification> {
+    const [record] = await db.insert(notifications).values(n as any).returning();
+    return record;
+  }
+
+  async getNotifications(limit = 50, offset = 0): Promise<Notification[]> {
+    return db
+      .select()
+      .from(notifications)
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async markNotificationRead(id: number, read = true): Promise<boolean> {
+    const res = await db
+      .update(notifications)
+      .set({ read })
+      .where(eq(notifications.id, id));
+    return res.rowCount ? res.rowCount > 0 : false;
+  }
+
+  // Contact messages
+  async createContactMessage(m: InsertContactMessage): Promise<ContactMessage> {
+    const [cm] = await db.insert(contactMessages).values(m as any).returning();
+    return cm;
+  }
+
+  async getContactMessages(limit = 50, offset = 0): Promise<ContactMessage[]> {
+    return db
+      .select()
+      .from(contactMessages)
+      .orderBy(desc(contactMessages.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async markContactMessageRead(id: number, read = true): Promise<boolean> {
+    const res = await db
+      .update(contactMessages)
+      .set({ read })
+      .where(eq(contactMessages.id, id));
+    return res.rowCount ? res.rowCount > 0 : false;
+  }
   // Closed Days operations
   async getClosedDays(): Promise<ClosedDay[]> {
     const closedDaysList = await db.select().from(closedDays).orderBy(asc(closedDays.date));
