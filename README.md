@@ -133,6 +133,12 @@ Then access the admin panel at `/admin/login`
 
 The frontend also posts a lightweight event to `/api/track-visit` on first load, which creates an admin notification (and optionally sends a push). See `mobile/LLMAdmin/README.md` for the SwiftUI admin app.
 
+### Real-time Notifications (WebSocket)
+- Endpoint: `wss://<your-host>/api/notifications/ws`
+- Auth: uses existing session cookie (`connect.sid`); admin-only.
+- Messages: JSON wrapper `{ "type": "notification", "data": Notification }`
+- The server broadcasts a message whenever a new notification is created (visits, contact forms, booking requests, etc.).
+
 ## Features Overview
 
 ### Customer Features

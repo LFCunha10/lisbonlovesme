@@ -14,6 +14,7 @@ import { createNotificationAndPush } from "./notificationService";
 import { getLocalizedText } from "./utils/tour-utils.js";
 import csurf from "csurf";
 import bcrypt from "bcryptjs";
+import { initNotificationsWebSocketServer } from "./websocket";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
@@ -1397,8 +1398,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     }
   });
 
-  // Create an HTTP server
+  // Create an HTTP server and attach WebSocket notifications endpoint
   const httpServer = createServer(app);
+  initNotificationsWebSocketServer(httpServer);
 
   return httpServer;
 }

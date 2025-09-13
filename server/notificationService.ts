@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { broadcastNotification } from "./websocket";
 import type { InsertNotification } from "@shared/schema";
 
 let apnProvider: any | undefined = undefined;
@@ -33,7 +34,13 @@ async function initApnOnce() {
 
 export async function createNotificationAndPush(input: InsertNotification): Promise<void> {
   // Always persist notification for in-app list
-  await storage.createNotification(input);
+  const record = await storage.createNotification(input);
+  try {
+    broadcastNotification(record as any);
+  } catch (e) {
+    // Do not fail if WS broadcast errors
+    console.error("WS broadcast failed:", e);
+  }
 
   // Try APNs if configured
   try {
