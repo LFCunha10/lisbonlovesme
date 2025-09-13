@@ -27,7 +27,7 @@ export default function GalleryPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading gallery...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -41,18 +41,13 @@ export default function GalleryPage() {
           <Link href="/">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
+              {t('common.backToHome')}
             </Button>
           </Link>
           
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              Discover Lisbon Through Our Lens
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Explore the beauty and charm of Lisbon through our curated collection of photographs. 
-              Each image captures the essence of what makes our tours special and memorable.
-            </p>
+            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">{t('photoGallery.title')}</h1>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">{t('photoGallery.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -61,8 +56,8 @@ export default function GalleryPage() {
       <div className="container mx-auto px-4 py-12">
         {activeImages.length === 0 ? (
           <div className="text-center py-16">
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No photos yet</h3>
-            <p className="text-gray-500">Our gallery will be updated soon with beautiful Lisbon photos.</p>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">{t('gallery.noPhotos', 'No photos yet')}</h3>
+            <p className="text-gray-500">{t('gallery.noPhotosSubtitle', 'Our gallery will be updated soon with beautiful Lisbon photos.')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -132,14 +127,11 @@ export default function GalleryPage() {
       {/* Call to Action */}
       <div className="bg-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Experience Lisbon?</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join us on one of our guided tours and discover these amazing places in person. 
-            Create your own memories in the beautiful city of Lisbon.
-          </p>
+          <h2 className="text-3xl font-bold mb-4">{t('callToAction.title')}</h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">{t('callToAction.subtitle')}</p>
           <Link href="/tours">
             <Button size="lg" className="px-8">
-              View Our Tours
+              {t('home.viewAll')}
             </Button>
           </Link>
         </div>

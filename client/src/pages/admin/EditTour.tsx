@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Globe, Save, Eye, ImageIcon, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getLocalizedText } from "@/lib/tour-utils";
+import { getLocalizedText, convertToMultilingual } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
@@ -83,7 +83,7 @@ export default function EditTourPage() {
 
   // Fetch tour data if editing
   const { data: tour, isLoading } = useQuery({
-    queryKey: ['tours', tourId],
+    queryKey: [`/api/tours/${tourId}`],
     queryFn: () => fetch(`/api/tours/${tourId}`).then(res => res.json()),
     enabled: isEditing,
   });
@@ -111,13 +111,16 @@ export default function EditTourPage() {
   // Populate form when tour data is loaded
   useEffect(() => {
     if (tour && isEditing) {
+      // Coerce legacy string fields to multilingual objects to keep the form shape consistent
+      const coerceML = (v: any) => (typeof v === 'string' ? convertToMultilingual(v) : (v || { en: "", pt: "", ru: "" }));
+
       const tourData = {
-        name: tour.name || { en: "", pt: "", ru: "" },
-        description: tour.description || { en: "", pt: "", ru: "" },
-        shortDescription: tour.shortDescription || { en: "", pt: "", ru: "" },
-        duration: tour.duration || { en: "", pt: "", ru: "" },
-        difficulty: tour.difficulty || { en: "", pt: "", ru: "" },
-        badge: typeof tour.badge === 'string' ? { en: tour.badge, pt: '', ru: '' } : tour.badge || { en: "", pt: "", ru: "" },
+        name: coerceML(tour.name),
+        description: coerceML(tour.description),
+        shortDescription: coerceML(tour.shortDescription || ''),
+        duration: coerceML(tour.duration),
+        difficulty: coerceML(tour.difficulty),
+        badge: typeof tour.badge === 'string' ? convertToMultilingual(tour.badge) : coerceML(tour.badge),
         price: tour.price / 100, // Convert from cents
         priceType: tour.priceType || "per_person",
         maxGroupSize: tour.maxGroupSize || 1,
@@ -142,11 +145,15 @@ export default function EditTourPage() {
       });
       const { csrfToken } = await csrfResponse.json();
 
+      // Remove unsupported fields and ensure payload has the right shape
       const payload = {
         ...data,
         price: Math.round(data.price * 100), // Convert to cents
         isActive: data.isActive ?? true,
       };
+      // `featured` is not a DB column; avoid sending it to the API
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { featured: _featured, ...sanitized } = payload as any;
 
       const url = isEditing ? `/api/tours/${tourId}` : "/api/tours";
       const method = isEditing ? "PUT" : "POST";
@@ -158,7 +165,7 @@ export default function EditTourPage() {
           'CSRF-Token': csrfToken
         },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sanitized),
       });
       
       if (!response.ok) {
@@ -172,8 +179,12 @@ export default function EditTourPage() {
         title: isEditing ? "Tour updated" : "Tour created",
         description: isEditing ? "Tour has been updated successfully" : "New tour has been created successfully",
       });
+      // Invalidate all relevant tour queries so changes are reflected immediately
       queryClient.invalidateQueries({ queryKey: ['/api/tours'] });
       queryClient.invalidateQueries({ queryKey: ['/api/tours?all=1'] });
+      if (isEditing) {
+        queryClient.invalidateQueries({ queryKey: [`/api/tours/${tourId}`] });
+      }
       navigate('/admin/tours');
     },
     onError: (error: any) => {

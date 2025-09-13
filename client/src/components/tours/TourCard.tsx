@@ -72,7 +72,7 @@ export default function TourCard({ tour }: TourCardProps) {
           <div className="text-lg sm:text-xl font-semibold text-neutral-dark">
             {formatCurrency(tour.price)}
             <span className="text-xs sm:text-sm font-normal text-neutral-dark/70 block sm:inline">
-              /{tour.priceType === "per_group" ? "per group" : t('tours.perPerson')}
+              /{tour.priceType === "per_group" ? t('tours.perGroup') : t('tours.perPerson')}
             </span>
           </div>
           <Link href={`/tour/${tour.id}`} className="w-full sm:w-auto">

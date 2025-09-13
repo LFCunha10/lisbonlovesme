@@ -315,7 +315,7 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
   <body>
     <div class="header">
       <h1 style="margin: 0;">${t.bookingConfirmation.header}</h1>
-      <p style="margin: 5px 0 0 0;">Thank you for choosing Lisbonlovesme!</p>
+      <p style="margin: 5px 0 0 0;">${t.bookingConfirmation.tagline}</p>
     </div>
     <div class="content">
       <p>${t.bookingConfirmation.greeting} ${name},</p>

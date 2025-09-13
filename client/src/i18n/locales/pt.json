@@ -48,6 +48,9 @@
       "noAvailability": "Nenhuma disponibilidade encontrada para este passeio",
       "people": "pessoas",
       "perPerson": "por pessoa",
+      "perGroup": "por grupo",
+      "perGroupShort": "/grupo",
+      "perPersonShort": "/pessoa",
       "easy": "Fácil",
       "moderate": "Moderado",
       "challenging": "Desafiador",
@@ -77,6 +80,40 @@
       "rating": "Avaliação",
       "submit": "Enviar Avaliação",
       "thankYou": "Obrigado pelo seu feedback!"
+    },
+    "review": {
+      "loading": "A carregar...",
+      "notFoundTitle": "Reserva não encontrada",
+      "notFoundMessage": "A referência de reserva que procura não existe ou expirou.",
+      "title": "Partilhe a sua experiência",
+      "howWasTour": "Como foi o seu passeio {{tour}} com a Lisbonlovesme?",
+      "bookingReference": "Referência da reserva",
+      "yourName": "O seu nome",
+      "yourCountry": "O seu país",
+      "rating": "Avaliação",
+      "pleaseSelectRating": "Por favor, selecione uma avaliação",
+      "yourReview": "A sua avaliação",
+      "textPlaceholder": "Conte-nos sobre a sua experiência no passeio. O que mais gostou? Recomendaria a outras pessoas?",
+      "namePlaceholder": "João Silva",
+      "countryPlaceholder": "Portugal",
+      "submit": "Enviar avaliação",
+      "submitting": "A enviar...",
+      "submittedTitle": "Avaliação enviada!",
+      "submittedDescription": "Obrigado por partilhar a sua experiência connosco. A sua avaliação será publicada após a nossa equipa a analisar.",
+      "submittedToastTitle": "Avaliação enviada!",
+      "submittedToastDescription": "Obrigado pelo seu feedback. A sua avaliação será publicada após aprovação.",
+      "appreciation": "Agradecemos o seu feedback e esperamos recebê-lo novamente para outro passeio incrível em Lisboa!",
+      "exploreMoreTours": "Explorar mais passeios",
+      "errorTitle": "Erro",
+      "errorDefault": "Falha ao enviar a avaliação. Por favor, tente novamente.",
+      "validation": {
+        "nameMin": "O nome deve ter pelo menos 2 caracteres",
+        "countryMin": "O país deve ter pelo menos 2 caracteres",
+        "selectRating": "Por favor, selecione uma avaliação",
+        "maxRating": "A avaliação máxima é 5",
+        "textMin": "A avaliação deve ter pelo menos 10 caracteres",
+        "textMax": "A avaliação deve ter menos de 500 caracteres"
+      }
     },
     "admin": {
       "dashboard": "Painel Administrativo",
@@ -190,7 +227,8 @@
       "customTourRequest": "Solicitação de Passeio Personalizado",
       "feedback": "Feedback",
       "other": "Outro",
-      "sending": "Enviando..."
+      "sending": "Enviando...",
+      "missingRouteHint": "Esqueceu-se de adicionar a página ao router?"
     },
     "tour": {
       "notFound": "Passeio não encontrado",
@@ -317,7 +355,8 @@
       "noAvailableTimeSlots": "Nenhum horário disponível para a data selecionada",
       "selectDateToSeeAvailableTimes": "Selecione uma data para ver os horários disponíveis",
       "spots": "vagas",
-      "nextStep": "Próximo Passo"
+      "nextStep": "Próximo Passo",
+      "pricePerGroup": "Preço por grupo"
     },
     "whyChooseUs": {
       "title": "Por Que Escolher Lisboa Tours",
@@ -348,6 +387,10 @@
       "subtitle": "Inspire-se com a beleza e charme de Lisboa nestas imagens dos nossos passeios.",
       "viewGallery": "Ver Galeria Completa"
     },
+    "gallery": {
+      "noPhotos": "Sem fotos ainda",
+      "noPhotosSubtitle": "A nossa galeria será atualizada em breve com belas fotos de Lisboa."
+    },
     "callToAction": {
       "title": "Pronto para Conhecer Lisboa?",
       "subtitle": "Reserve hoje e descubra a magia da capital portuguesa.",
@@ -376,6 +419,7 @@
       "bookingConfirmation": {
         "subject": "Confirmação de Reserva - Lisbonlovesme",
         "header": "Confirmação de Reserva",
+        "tagline": "Obrigado por escolher a Lisbonlovesme!",
         "greeting": "Olá",
         "confirmationMessage": "A sua reserva foi confirmada e estamos ansiosos por lhe mostrar o melhor de Lisboa!",
         "tourDetails": "Detalhes do Tour",

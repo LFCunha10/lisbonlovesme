@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useRoute } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -17,14 +17,14 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Tour } from "@shared/schema";
 
-const reviewSchema = z.object({
-  customerName: z.string().min(2, "Name must be at least 2 characters"),
-  customerCountry: z.string().min(2, "Country must be at least 2 characters"),
-  rating: z.number().min(1, "Please select a rating").max(5, "Maximum rating is 5"),
-  text: z.string().min(10, "Review must be at least 10 characters long").max(500, "Review must be less than 500 characters")
-});
+// Schema will be created inside component to use translations for messages
 
-type ReviewFormValues = z.infer<typeof reviewSchema>;
+type ReviewFormValues = {
+  customerName: string;
+  customerCountry: string;
+  rating: number;
+  text: string;
+};
 
 export default function ReviewPage() {
   const { t, i18n } = useTranslation();
@@ -56,6 +56,23 @@ export default function ReviewPage() {
     enabled: !!booking?.tourId,
   });
 
+  const reviewSchema = useMemo(() => z.object({
+    customerName: z
+      .string()
+      .min(2, t('review.validation.nameMin', 'Name must be at least 2 characters')),
+    customerCountry: z
+      .string()
+      .min(2, t('review.validation.countryMin', 'Country must be at least 2 characters')),
+    rating: z
+      .number()
+      .min(1, t('review.validation.selectRating', 'Please select a rating'))
+      .max(5, t('review.validation.maxRating', 'Maximum rating is 5')),
+    text: z
+      .string()
+      .min(10, t('review.validation.textMin', 'Review must be at least 10 characters long'))
+      .max(500, t('review.validation.textMax', 'Review must be less than 500 characters')),
+  }), [i18n.language]);
+
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
@@ -79,14 +96,14 @@ export default function ReviewPage() {
       setSubmitted(true);
       queryClient.invalidateQueries({ queryKey: ['/api/testimonials'] });
       toast({
-        title: "Review Submitted!",
-        description: "Thank you for your feedback. Your review will be published after approval.",
+        title: t('review.submittedToastTitle'),
+        description: t('review.submittedToastDescription'),
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit review. Please try again.",
+        title: t('review.errorTitle'),
+        description: error.message || t('review.errorDefault'),
         variant: "destructive",
       });
     }
@@ -104,7 +121,7 @@ export default function ReviewPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -115,16 +132,16 @@ export default function ReviewPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center">Booking Not Found</CardTitle>
+            <CardTitle className="text-center">{t('review.notFoundTitle')}</CardTitle>
             <CardDescription className="text-center">
-              The booking reference you're looking for doesn't exist or has expired.
+              {t('review.notFoundMessage')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Link href="/">
               <Button>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
+                {t('common.backToHome')}
               </Button>
             </Link>
           </CardContent>
@@ -140,19 +157,17 @@ export default function ReviewPage() {
           <CardHeader>
             <CardTitle className="text-center flex items-center justify-center gap-2">
               <CheckCircle className="w-6 h-6 text-green-600" />
-              Review Submitted!
+              {t('review.submittedTitle')}
             </CardTitle>
             <CardDescription className="text-center">
-              Thank you for sharing your experience with us. Your review will be published after our team reviews it.
+              {t('review.submittedDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-sm text-gray-600">
-              We appreciate your feedback and hope to welcome you back for another amazing tour in Lisbon!
-            </p>
+            <p className="text-sm text-gray-600">{t('review.appreciation')}</p>
             <Link href="/">
               <Button className="w-full">
-                Explore More Tours
+                {t('review.exploreMoreTours')}
               </Button>
             </Link>
           </CardContent>
@@ -169,18 +184,18 @@ export default function ReviewPage() {
             <Link href="/">
               <Button variant="ghost">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
+                {t('common.backToHome')}
               </Button>
             </Link>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-center">Share Your Experience</CardTitle>
+              <CardTitle className="text-center">{t('review.title')}</CardTitle>
               <CardDescription className="text-center">
-                How was your <strong>{tour ? getLocalizedText(tour.name, i18n.language) : ''}</strong> tour with Lisbonlovesme?
+                {t('review.howWasTour', { tour: tour ? getLocalizedText(tour.name, i18n.language) : '' })}
                 <br />
-                Booking Reference: <span className="font-mono">{bookingReference}</span>
+                {t('review.bookingReference')}: <span className="font-mono">{bookingReference}</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -192,9 +207,9 @@ export default function ReviewPage() {
                       name="customerName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Your Name</FormLabel>
+                          <FormLabel>{t('review.yourName')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe" {...field} />
+                            <Input placeholder={t('review.namePlaceholder')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -206,9 +221,9 @@ export default function ReviewPage() {
                       name="customerCountry"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Your Country</FormLabel>
+                          <FormLabel>{t('review.yourCountry')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="United States" {...field} />
+                            <Input placeholder={t('review.countryPlaceholder')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -217,7 +232,7 @@ export default function ReviewPage() {
                   </div>
 
                   <div>
-                    <FormLabel>Rating</FormLabel>
+                    <FormLabel>{t('review.rating')}</FormLabel>
                     <div className="flex items-center gap-1 mt-2">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
@@ -237,7 +252,7 @@ export default function ReviewPage() {
                       </span>
                     </div>
                     {rating === 0 && form.formState.isSubmitted && (
-                      <p className="text-sm text-red-600 mt-1">Please select a rating</p>
+                      <p className="text-sm text-red-600 mt-1">{t('review.pleaseSelectRating')}</p>
                     )}
                   </div>
 
@@ -246,10 +261,10 @@ export default function ReviewPage() {
                     name="text"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Your Review</FormLabel>
+                        <FormLabel>{t('review.yourReview')}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Tell us about your experience with the tour. What did you enjoy most? Would you recommend it to others?"
+                            placeholder={t('review.textPlaceholder')}
                             className="min-h-[120px]"
                             {...field}
                           />
@@ -264,7 +279,7 @@ export default function ReviewPage() {
                     className="w-full" 
                     disabled={submitReviewMutation.isPending || rating === 0}
                   >
-                    {submitReviewMutation.isPending ? "Submitting..." : "Submit Review"}
+                    {submitReviewMutation.isPending ? t('review.submitting') : t('review.submit')}
                   </Button>
                 </form>
               </Form>

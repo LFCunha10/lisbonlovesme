@@ -51,6 +51,17 @@ const csrfProtection = csurf({
 }) as RequestHandler;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Helper to coerce legacy strings to multilingual objects
+  const toML = (v: any): { en: string; pt: string; ru: string } => {
+    if (!v) return { en: '', pt: '', ru: '' };
+    if (typeof v === 'string') return { en: v, pt: v, ru: v };
+    const src = v as Record<string, string>;
+    return {
+      en: typeof src?.en === 'string' ? src.en : '',
+      pt: typeof src?.pt === 'string' ? src.pt : (typeof src?.en === 'string' ? src.en : ''),
+      ru: typeof src?.ru === 'string' ? src.ru : (typeof src?.en === 'string' ? src.en : ''),
+    };
+  };
 
   // CSRF protection
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
@@ -365,14 +376,26 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   
   app.post("/api/tours", async (req: Request, res: Response) => {
     try {
-      const tour = await storage.createTour({
-        ...req.body,
-        shortDescription: req.body.shortDescription ?? null,
-        // Default to active when not provided
-        isActive: req.body.isActive ?? true,
-      });
+      const b = req.body || {};
+      // sanitize + normalize payload to expected DB shape
+      const payload: any = {
+        name: toML(b.name),
+        shortDescription: b.shortDescription ? toML(b.shortDescription) : { en: '', pt: '', ru: '' },
+        description: toML(b.description),
+        imageUrl: b.imageUrl,
+        duration: toML(b.duration),
+        maxGroupSize: b.maxGroupSize,
+        difficulty: toML(b.difficulty),
+        price: b.price,
+        priceType: b.priceType || 'per_person',
+        badge: b.badge ? toML(b.badge) : { en: '', pt: '', ru: '' },
+        badgeColor: b.badgeColor ?? null,
+        isActive: b.isActive ?? true,
+      };
+      const tour = await storage.createTour(payload);
       res.status(201).json(tour);
     } catch (error: any) {
+      console.error('Create tour error:', error);
       res.status(500).json({ message: error.message || "Failed to create tour" });
     }
   });
@@ -473,14 +496,30 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   app.put("/api/tours/:id", async (req: Request, res: Response) => {
     try {
       const tourId = parseInt(req.params.id);
-      const updatedTour = await storage.updateTour(tourId, req.body);
-      
+      const b = req.body || {};
+
+      // Build a partial update with only provided fields, normalized
+      const update: any = {};
+      if (b.name !== undefined) update.name = toML(b.name);
+      if (b.shortDescription !== undefined) update.shortDescription = toML(b.shortDescription);
+      if (b.description !== undefined) update.description = toML(b.description);
+      if (b.imageUrl !== undefined) update.imageUrl = b.imageUrl;
+      if (b.duration !== undefined) update.duration = toML(b.duration);
+      if (b.maxGroupSize !== undefined) update.maxGroupSize = b.maxGroupSize;
+      if (b.difficulty !== undefined) update.difficulty = toML(b.difficulty);
+      if (b.price !== undefined) update.price = b.price;
+      if (b.priceType !== undefined) update.priceType = b.priceType;
+      if (b.badge !== undefined) update.badge = toML(b.badge);
+      if (b.badgeColor !== undefined) update.badgeColor = b.badgeColor;
+      if (b.isActive !== undefined) update.isActive = b.isActive;
+
+      const updatedTour = await storage.updateTour(tourId, update);
       if (!updatedTour) {
         return res.status(404).json({ message: "Tour not found" });
       }
-      
       res.json(updatedTour);
     } catch (error: any) {
+      console.error('Update tour error:', error);
       res.status(500).json({ message: error.message || "Failed to update tour" });
     }
   });

@@ -210,19 +210,35 @@ export default function AdminTours() {
   // Update form values when selected tour changes
   React.useEffect(() => {
     if (selectedTour && isEditTourOpen) {
-      // Convert price to cents for editing (stored in cents in DB)
-      const formData = {
-        ...selectedTour,
+      // Map multilingual fields to a single localized string for editing
+      const formData: Partial<TourFormValues> = {
+        name: getLocalizedText(selectedTour.name as any, i18n.language),
+        shortDescription: getLocalizedText(selectedTour.shortDescription as any, i18n.language),
+        description: getLocalizedText(selectedTour.description as any, i18n.language),
+        imageUrl: selectedTour.imageUrl || "",
+        duration: getLocalizedText(selectedTour.duration as any, i18n.language),
+        maxGroupSize: selectedTour.maxGroupSize,
+        difficulty: getLocalizedText(selectedTour.difficulty as any, i18n.language),
+        price: selectedTour.price, // already in cents
+        priceType: (selectedTour as any).priceType || "per_person",
+        badge: getLocalizedText((selectedTour as any).badge, i18n.language),
+        badgeColor: (selectedTour as any).badgeColor || "",
+        isActive: selectedTour.isActive,
       };
 
-      Object.keys(formData).forEach((key) => {
-        tourForm.setValue(key as any, formData[key as keyof typeof formData]);
+      (Object.keys(formData) as Array<keyof TourFormValues>).forEach((key) => {
+        const value = formData[key];
+        if (value !== undefined) {
+          // @ts-ignore - react-hook-form typing is flexible here
+          tourForm.setValue(key, value);
+        }
       });
+
       if (selectedTour.imageUrl) {
         setImagePreview(selectedTour.imageUrl);
       }
     }
-  }, [selectedTour, isEditTourOpen, tourForm]);
+  }, [selectedTour, isEditTourOpen, tourForm, i18n.language]);
 
   // Update availability form when selected tour changes
   React.useEffect(() => {
@@ -261,8 +277,12 @@ export default function AdminTours() {
       return apiRequest("PUT", `/api/tours/${id}`, tourData);
     },
     onSuccess: () => {
+      // Invalidate list and detail queries so the UI reflects the latest data
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       queryClient.invalidateQueries({ queryKey: ["/api/tours?all=1"] });
+      if (selectedTourId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/tours/${selectedTourId}`] });
+      }
       setIsEditTourOpen(false);
       toast({
         title: "Tour Updated",
@@ -1075,6 +1095,14 @@ export default function AdminTours() {
 
                         <TabsContent value="details">
                           <div className="space-y-4">
+                            {selectedTour?.shortDescription && (
+                              <div>
+                                <h3 className="font-medium">Short Description</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {getLocalizedText(selectedTour.shortDescription, i18n.language)}
+                                </p>
+                              </div>
+                            )}
                             <div>
                               <h3 className="font-medium">Description</h3>
                               <div

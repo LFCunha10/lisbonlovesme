@@ -48,6 +48,9 @@
       "noAvailability": "No availabilities found for this tour",
       "people": "people",
       "perPerson": "per person",
+      "perGroup": "per group",
+      "perGroupShort": "/group",
+      "perPersonShort": "/person",
       "easy": "Easy",
       "moderate": "Moderate",
       "challenging": "Challenging",
@@ -67,6 +70,40 @@
       "легкий": "Easy",
       "средний": "Medium",
       "сложный": "Hard"
+    },
+    "review": {
+      "loading": "Loading...",
+      "notFoundTitle": "Booking Not Found",
+      "notFoundMessage": "The booking reference you're looking for doesn't exist or has expired.",
+      "title": "Share Your Experience",
+      "howWasTour": "How was your {{tour}} tour with Lisbonlovesme?",
+      "bookingReference": "Booking Reference",
+      "yourName": "Your Name",
+      "yourCountry": "Your Country",
+      "rating": "Rating",
+      "pleaseSelectRating": "Please select a rating",
+      "yourReview": "Your Review",
+      "textPlaceholder": "Tell us about your experience with the tour. What did you enjoy most? Would you recommend it to others?",
+      "namePlaceholder": "John Doe",
+      "countryPlaceholder": "United States",
+      "submit": "Submit Review",
+      "submitting": "Submitting...",
+      "submittedTitle": "Review Submitted!",
+      "submittedDescription": "Thank you for sharing your experience with us. Your review will be published after our team reviews it.",
+      "submittedToastTitle": "Review Submitted!",
+      "submittedToastDescription": "Thank you for your feedback. Your review will be published after approval.",
+      "appreciation": "We appreciate your feedback and hope to welcome you back for another amazing tour in Lisbon!",
+      "exploreMoreTours": "Explore More Tours",
+      "errorTitle": "Error",
+      "errorDefault": "Failed to submit review. Please try again.",
+      "validation": {
+        "nameMin": "Name must be at least 2 characters",
+        "countryMin": "Country must be at least 2 characters",
+        "selectRating": "Please select a rating",
+        "maxRating": "Maximum rating is 5",
+        "textMin": "Review must be at least 10 characters long",
+        "textMax": "Review must be less than 500 characters"
+      }
     },
     "reviews": {
       "title": "Reviews",
@@ -190,7 +227,8 @@
       "customTourRequest": "Custom Tour Request",
       "feedback": "Feedback",
       "other": "Other",
-      "sending": "Sending..."
+      "sending": "Sending...",
+      "missingRouteHint": "Did you forget to add the page to the router?"
     },
     "tour": {
       "notFound": "Tour not found",
@@ -317,7 +355,8 @@
       "noAvailableTimeSlots": "No available time slots for selected date",
       "selectDateToSeeAvailableTimes": "Please select a date to see available times",
       "spots": "spots",
-      "nextStep": "Next Step"
+      "nextStep": "Next Step",
+      "pricePerGroup": "Price per group"
 
     },
     "whyChooseUs": {
@@ -349,6 +388,10 @@
       "subtitle": "Get inspired by the beauty and charm of Lisbon with these snapshots from our tours.",
       "viewGallery": "View Full Gallery"
     },
+    "gallery": {
+      "noPhotos": "No photos yet",
+      "noPhotosSubtitle": "Our gallery will be updated soon with beautiful Lisbon photos."
+    },
     "callToAction": {
       "title": "Ready to Experience Lisbon?",
       "subtitle": "Book your tour today and discover the magic of Portugal's capital city.",
@@ -377,6 +420,7 @@
       "bookingConfirmation": {
         "subject": "Booking Confirmation - Lisbonlovesme",
         "header": "Booking Confirmation",
+        "tagline": "Thank you for choosing Lisbonlovesme!",
         "greeting": "Hello",
         "confirmationMessage": "Your booking has been confirmed and we're excited to show you the best of Lisbon!",
         "tourDetails": "Tour Details",
