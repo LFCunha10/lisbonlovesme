@@ -49,8 +49,11 @@ import {
   RefreshCw
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { getLocalizedText } from "@/lib/tour-utils";
 
 export default function AdminPaymentsPage() {
+  const { i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
@@ -246,9 +249,7 @@ export default function AdminPaymentsPage() {
                           </code>
                         </TableCell>
                         <TableCell>
-                          {typeof booking.tourName === 'object' && booking.tourName !== null
-                            ? booking.tourName.en ?? booking.tourName.pt ?? booking.tourName.ru ?? 'N/A'
-                            : booking.tourName ?? 'N/A'}
+                          {getLocalizedText(booking.tourName, i18n.language) || 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">
@@ -308,7 +309,7 @@ export default function AdminPaymentsPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Tour:</span>
-                <span className="font-medium">{selectedBooking?.tourName}</span>
+                <span className="font-medium">{selectedBooking ? getLocalizedText(selectedBooking.tourName, i18n.language) : ''}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Date:</span>

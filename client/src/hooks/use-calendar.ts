@@ -20,7 +20,7 @@ export function useCalendar(availabilities?: Availability[]) {
       .filter(a => a.spotsLeft > 0)
       .map(a => a.date);
     
-    const uniqueDates = [...new Set(dates)];
+    const uniqueDates = Array.from(new Set(dates));
     setAvailableDates(uniqueDates);
 
     // Find which days of the week have no availabilities

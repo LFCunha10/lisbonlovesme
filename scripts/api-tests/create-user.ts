@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { db } from "../server/db";
-import { users } from "../shared/schema"; // <-- your Drizzle schema
+import { db } from "../../server/db";
+import { users } from "../../shared/schema";
 
 async function createUser() {
   const username = "newadmin";
@@ -15,7 +15,6 @@ async function createUser() {
 
   console.log("User created.");
 }
+
 createUser();
-if (require.main === module) {
-  createUser();
-}
+

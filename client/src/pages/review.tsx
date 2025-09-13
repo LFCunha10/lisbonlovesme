@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRoute } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { getLocalizedText } from "@/lib/tour-utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import type { Tour } from "@shared/schema";
 
 const reviewSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
@@ -25,7 +27,7 @@ const reviewSchema = z.object({
 type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 export default function ReviewPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, params] = useRoute("/review/:bookingReference");
@@ -49,7 +51,7 @@ export default function ReviewPage() {
   });
 
   // Fetch tour details
-  const { data: tour } = useQuery({
+  const { data: tour } = useQuery<Tour>({
     queryKey: ['/api/tours', booking?.tourId],
     enabled: !!booking?.tourId,
   });
@@ -176,7 +178,7 @@ export default function ReviewPage() {
             <CardHeader>
               <CardTitle className="text-center">Share Your Experience</CardTitle>
               <CardDescription className="text-center">
-                How was your <strong>{tour?.name}</strong> tour with Lisbonlovesme?
+                How was your <strong>{tour ? getLocalizedText(tour.name, i18n.language) : ''}</strong> tour with Lisbonlovesme?
                 <br />
                 Booking Reference: <span className="font-mono">{bookingReference}</span>
               </CardDescription>

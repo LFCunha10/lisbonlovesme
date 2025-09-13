@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { getLocalizedText, useLocalizedTourText } from "@/lib/tour-utils";
 import { 
   Eye, 
   Check, 
@@ -49,8 +50,8 @@ interface BookingRequest {
     time?: string;
   };
   tour?: {
-    name: string;
-    duration: string;
+    name: string | { en: string; pt: string; ru: string };
+    duration: string | { en: string; pt: string; ru: string };
   };
 }
 
@@ -308,6 +309,7 @@ export default function BookingRequests() {
 
 function RequestDetailsDialog({ request }: { request: BookingRequest }) {
   const { t } = useTranslation();
+  const getText = useLocalizedTourText();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
@@ -430,7 +432,7 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <Label className="text-muted-foreground">{t('tours.title')}</Label>
-              <p>{request.tour?.name || 'Tour not found'}</p>
+              <p>{request.tour ? getText(request.tour.name) : 'Tour not found'}</p>
             </div>
             <div>
               <Label className="text-muted-foreground">{t('admin.requests.totalAmount')}</Label>

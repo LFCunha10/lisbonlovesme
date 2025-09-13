@@ -24,10 +24,11 @@ GET http://localhost:5001/api/csrf-token
 ### Create Admin User
 POST http://localhost:5001/api/admin/create-user
 Content-Type: application/json
-Cookie: _csrf=STSIV6Av-tbuy1eXvSDxma6x1FMQ67sxsINw
-CSRF-Token: STSIV6Av-tbuy1eXvSDxma6x1FMQ67sxsINw
+Cookie: _csrf=PUT_CSRF_COOKIE_VALUE
+CSRF-Token: PUT_CSRF_TOKEN_VALUE
 
 {
   "username": "newadmin",
   "password": "securepass123"
 }
+

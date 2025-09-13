@@ -287,7 +287,8 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     location: meetingPoint,
     start: eventDate.toISOString(),
     duration,
-    url: 'https://lisbonlovesme.com'
+    url: 'https://lisbonlovesme.com',
+    tzid: 'Europe/Lisbon'
   });
 
   // Create HTML email content
@@ -413,8 +414,9 @@ ${t.bookingConfirmation.teamName}
     html: htmlContent,
     attachments: [
       {
-        content: Buffer.from(icsContent).toString('base64'),
         filename: 'tour-booking.ics',
+        content: Buffer.from(icsContent, 'utf-8'),
+        contentType: 'text/calendar; charset=UTF-8; method=PUBLISH'
       }
     ]
   };

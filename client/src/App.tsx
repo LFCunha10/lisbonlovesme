@@ -46,7 +46,6 @@ function Router() {
           );
         }}
       </Route>
-      <Route path="/tours/:tourId" component={TourDetailPage} />
       <Route path="/tour/:id">
         {() => {
           const TourDetailsPage = React.lazy(() => import("@/pages/tours/tour-details"));
@@ -74,30 +73,7 @@ function Router() {
           </AdminProtectedRoute>
         )}
       </Route>
-      <Route path="/admin/tours/edit/:id">
-        {() => {
-          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <EditTourPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/tours/create">
-        {() => {
-          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <EditTourPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
+      
       <Route path="/admin/login">
         {() => {
           // No protection for login page
@@ -147,11 +123,11 @@ function Router() {
       </Route>
       <Route path="/admin/tours/create">
         {() => {
-          const TourEditorPage = React.lazy(() => import("@/pages/admin/tours/tour-editor"));
+          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>
-                <TourEditorPage />
+                <EditTourPage />
               </AdminProtectedRoute>
             </React.Suspense>
           );
@@ -159,11 +135,11 @@ function Router() {
       </Route>
       <Route path="/admin/tours/edit/:id">
         {() => {
-          const TourEditorPage = React.lazy(() => import("@/pages/admin/tours/tour-editor"));
+          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
           return (
             <React.Suspense fallback={<div>Loading...</div>}>
               <AdminProtectedRoute>
-                <TourEditorPage />
+                <EditTourPage />
               </AdminProtectedRoute>
             </React.Suspense>
           );

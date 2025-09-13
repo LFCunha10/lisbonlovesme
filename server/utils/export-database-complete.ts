@@ -107,14 +107,14 @@ async function exportDatabase() {
         
         if (records.length > 0) {
           // Generate INSERT statements for each record
-          for (const record of records) {
-            const jsProperties = Object.keys(record).filter(key => record[key] !== null);
+          for (const record of records as any[]) {
+            const jsProperties = Object.keys(record).filter((key) => (record as any)[key] !== null);
             
             // Convert JavaScript properties to SQL column names
-            const sqlColumns = jsProperties.map(prop => propertyToColumnMap[prop] || prop);
+            const sqlColumns = jsProperties.map((prop) => (propertyToColumnMap as any)[prop] || prop);
             
-            const values = jsProperties.map(prop => {
-              const value = record[prop];
+            const values = jsProperties.map((prop) => {
+              const value = (record as any)[prop];
               
               // Format values based on their type
               if (value === null) {

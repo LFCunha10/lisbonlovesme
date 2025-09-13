@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { getLocalizedText } from "@/lib/tour-utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function AdminReviews() {
+  const { i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
@@ -254,7 +257,7 @@ export default function AdminReviews() {
                           <div className="text-sm text-gray-500">{booking.customerEmail}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{booking.tourName || 'Tour'}</TableCell>
+                      <TableCell>{getLocalizedText(booking.tourName, i18n.language) || 'Tour'}</TableCell>
                       <TableCell>{new Date(booking.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <Badge variant={booking.paymentStatus === 'succeeded' ? 'default' : 'secondary'}>
