@@ -584,6 +584,17 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         ...req.body,
         isApproved: false,
       });
+      // Push notification for new review
+      try {
+        await createNotificationAndPush({
+          type: 'review',
+          title: 'New Review Submitted',
+          body: `${testimonial.customerName} · ⭐️ ${testimonial.rating}`,
+          payload: { id: testimonial.id, tourId: testimonial.tourId }
+        });
+      } catch (e) {
+        console.error('Failed to create review notification:', e);
+      }
       res.json(testimonial);
     } catch (error: any) {
       res.status(500).json({ message: "Error creating testimonial: " + error.message });

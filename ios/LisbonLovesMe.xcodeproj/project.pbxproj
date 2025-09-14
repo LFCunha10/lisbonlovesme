@@ -1,0 +1,129 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */; };
+E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */; };
+E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */; };
+E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */; };
+E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */; };
+E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */; };
+E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LisbonLovesMeApp.swift; sourceTree = "<group>"; };
+E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+E2EDE7D71A1A4C7B00AABBCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LisbonLovesMe.entitlements; sourceTree = "<group>"; };
+E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LisbonLovesMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+E2EDE7C91A1A4C7B00AABBCC /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+E2EDE7CE1A1A4C7B00AABBCC = {isa = PBXGroup; children = (E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */, E2EDE7F11A1A4C7B00AABBCC /* Products */); sourceTree = "<group>"; };
+E2EDE7F11A1A4C7B00AABBCC /* Products */ = {isa = PBXGroup; children = (E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */); name = Products; sourceTree = "<group>"; };
+E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */ = {isa = PBXGroup; children = (
+    E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */,
+    E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */,
+    E2EDE7D71A1A4C7B00AABBCC /* Info.plist */,
+    E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */,
+    1E1E1E001A1A4C7B00AABBCC /* Networking */,
+    1E1E1E011A1A4C7B00AABBCC /* Services */,
+    1E1E1E021A1A4C7B00AABBCC /* ViewModels */,
+    1E1E1E031A1A4C7B00AABBCC /* Views */
+); path = LisbonLovesMe; sourceTree = "<group>"; };
+1E1E1E001A1A4C7B00AABBCC /* Networking */ = {isa = PBXGroup; children = (E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */); path = Networking; sourceTree = "<group>"; };
+1E1E1E011A1A4C7B00AABBCC /* Services */ = {isa = PBXGroup; children = (E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */); path = Services; sourceTree = "<group>"; };
+1E1E1E021A1A4C7B00AABBCC /* ViewModels */ = {isa = PBXGroup; children = (E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */); path = ViewModels; sourceTree = "<group>"; };
+1E1E1E031A1A4C7B00AABBCC /* Views */ = {isa = PBXGroup; children = (
+    E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */,
+    E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */
+); path = Views; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */ = {isa = PBXNativeTarget; buildConfigurationList = E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */; buildPhases = (
+    E2EDE7C81A1A4C7B00AABBCC /* Sources */,
+    E2EDE7C91A1A4C7B00AABBCC /* Frameworks */,
+    E2EDE7CA1A1A4C7B00AABBCC /* Resources */
+); buildRules = ( ); dependencies = ( ); name = LisbonLovesMe; productName = LisbonLovesMe; productReference = E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+E2EDE7C61A1A4C7B00AABBCC /* Project object */ = {isa = PBXProject; attributes = { LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; ORGANIZATIONNAME = ""; TargetAttributes = { E2EDE7C71A1A4C7B00AABBCC = { CreatedOnToolsVersion = 15.0; };
+}; }; buildConfigurationList = E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */; compatibilityVersion = "Xcode 15.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = ( en, Base ); mainGroup = E2EDE7CE1A1A4C7B00AABBCC; productRefGroup = E2EDE7CE1A1A4C7B00AABBCC; projectDirPath = ""; projectRoot = ""; targets = ( E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */ ); };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+E2EDE7CA1A1A4C7B00AABBCC /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+E2EDE7C81A1A4C7B00AABBCC /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+    E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */,
+    E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */,
+    E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */,
+    E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */,
+    E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */,
+    E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */,
+    E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */,
+); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+E2EDE7CC1A1A4C7B00AABBCC /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+    CODE_SIGN_STYLE = Automatic;
+    CURRENT_PROJECT_VERSION = 1;
+    GENERATE_INFOPLIST_FILE = NO;
+    IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+    LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+    MARKETING_VERSION = 1.0;
+    PRODUCT_BUNDLE_IDENTIFIER = com.example.LisbonLovesMe;
+    PRODUCT_NAME = "$(TARGET_NAME)";
+    SWIFT_EMIT_LOC_STRINGS = YES;
+    SWIFT_VERSION = 5.0;
+    TARGETED_DEVICE_FAMILY = 1;
+    INFOPLIST_FILE = LisbonLovesMe/Info.plist;
+    CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
+}; name = Debug; };
+E2EDE7CD1A1A4C7B00AABBCC /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+    CODE_SIGN_STYLE = Automatic;
+    CURRENT_PROJECT_VERSION = 1;
+    GENERATE_INFOPLIST_FILE = NO;
+    IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+    LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+    MARKETING_VERSION = 1.0;
+    PRODUCT_BUNDLE_IDENTIFIER = com.example.LisbonLovesMe;
+    PRODUCT_NAME = "$(TARGET_NAME)";
+    SWIFT_EMIT_LOC_STRINGS = YES;
+    SWIFT_VERSION = 5.0;
+    TARGETED_DEVICE_FAMILY = 1;
+    INFOPLIST_FILE = LisbonLovesMe/Info.plist;
+    CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
+}; name = Release; };
+E2EDE7DF1A1A4C7B00AABBCC /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { }; name = Debug; };
+E2EDE7E71A1A4C7B00AABBCC /* Release */ = {isa = XCBuildConfiguration; buildSettings = { }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */ = {isa = XCConfigurationList; buildConfigurations = ( E2EDE7CC1A1A4C7B00AABBCC, E2EDE7CD1A1A4C7B00AABBCC ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */ = {isa = XCConfigurationList; buildConfigurations = ( E2EDE7DF1A1A4C7B00AABBCC, E2EDE7E71A1A4C7B00AABBCC ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+};
+	rootObject = E2EDE7C61A1A4C7B00AABBCC /* Project object */;
+}
