@@ -1089,7 +1089,52 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     const limit = req.query.limit ? parseInt(String(req.query.limit)) : 50;
     const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
     const items = await storage.getNotifications(Math.min(limit, 100), offset);
-    res.json(items);
+
+    const shaped = items.map((n: any) => {
+      const bodyRaw = n.body;
+      let bodyObj: any | undefined;
+
+      if (typeof bodyRaw === 'string') {
+        try { bodyObj = JSON.parse(bodyRaw); } catch { bodyObj = undefined; }
+      } else if (bodyRaw && typeof bodyRaw === 'object') {
+        bodyObj = bodyRaw;
+      }
+
+      if (!bodyObj) {
+        const title = n.title || 'Notification';
+        const whenIso: string | undefined = n.payload?.when || (n.createdAt ? new Date(n.createdAt).toISOString() : undefined);
+        const whenDate = whenIso ? new Date(whenIso) : new Date();
+        const dateString = new Intl.DateTimeFormat('pt-PT', {
+          dateStyle: 'full',
+          timeStyle: 'short',
+          timeZone: 'Europe/Lisbon',
+        }).format(whenDate);
+        let location = n.payload?.location || '';
+        if (!location && typeof bodyRaw === 'string' && bodyRaw.includes('·')) {
+          const parts = bodyRaw.split('·').map((s: string) => s.trim());
+          if (parts.length >= 1 && parts[0] && parts[0].toLowerCase() !== 'unknown location') {
+            location = parts[0];
+          }
+        }
+        const device = n.payload?.device || {};
+        bodyObj = { title, dateString, location, device };
+      }
+
+      // Ensure shape and include ok flag
+      if (bodyObj && typeof bodyObj === 'object' && bodyObj !== null) {
+        bodyObj = { ok: true, ...bodyObj };
+      }
+
+      // Replace body with structured object; include bodyRaw for backwards compatibility
+      const { body, ...rest } = n;
+      return { ...rest, body: bodyObj, bodyRaw };
+    });
+
+    // Log the response for visibility
+    try {
+      console.log('GET /api/notifications response:', JSON.stringify(shaped, null, 2));
+    } catch {}
+    res.json(shaped);
   });
 
   // Mark notification read
@@ -1107,21 +1152,10 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       const ua = (req.headers['user-agent'] || '') as string;
       const device = parseUserAgent(ua);
       const geo = await geolocateIp(ip);
-      const now = new Date();
-      const when = now.toISOString();
+      const when = new Date().toISOString();
       const title = 'New Site Visit';
       const location = [geo.city, geo.region, geo.country].filter(Boolean).join(', ');
-      const dateString = new Intl.DateTimeFormat('pt-PT', {
-        dateStyle: 'full',
-        timeStyle: 'short',
-        timeZone: 'Europe/Lisbon',
-      }).format(now);
-      const body = JSON.stringify({
-        title,
-        dateString,
-        location: location || 'Unknown location',
-        device,
-      });
+      const body = `${location || 'Unknown location'} · ${device.deviceType || ''} · ${when}`;
       await createNotificationAndPush({
         type: 'visit',
         title,
@@ -1132,12 +1166,11 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           loc: geo.loc,
           device,
           when,
-          dateString,
           path: req.body?.path || null,
           referrer: req.body?.referrer || null,
         }
       });
-      res.json({ ok: true, title, dateString, location, device });
+      res.json({ ok: true });
     } catch (e: any) {
       console.error('track-visit failed:', e);
       res.status(500).json({ ok: false, message: e?.message || 'Failed to track visit' });

@@ -16,11 +16,17 @@ export type GeoInfo = {
 };
 
 export function getClientIp(req: Request): string {
-  const xf = (req.headers["x-forwarded-for"] || "") as string;
-  const ipFromXf = xf?.split(",")[0]?.trim();
-  const ip = ipFromXf || (req.socket?.remoteAddress || "");
+  // Prefer well-known proxy headers if present
+  const cf = (req.headers["cf-connecting-ip"] || "") as string; // Cloudflare
+  const tc = (req.headers["true-client-ip"] || "") as string; // Akamai/F5
+  const xri = (req.headers["x-real-ip"] || "") as string; // Nginx/Ingress
+  const xf = (req.headers["x-forwarded-for"] || "") as string; // Standard chain
+  const xfFirst = xf?.split(",")[0]?.trim();
+  const remote = req.socket?.remoteAddress || "";
+
+  const raw = [cf, tc, xri, xfFirst, remote].find(Boolean) || "";
   // Strip IPv6 prefix if any
-  return ip.startsWith("::ffff:") ? ip.substring(7) : ip;
+  return raw.startsWith("::ffff:") ? raw.substring(7) : raw;
 }
 
 export function parseUserAgent(uaString?: string): DeviceInfo {
@@ -68,4 +74,3 @@ export async function geolocateIp(ip: string): Promise<GeoInfo> {
   }
   return info;
 }
-
