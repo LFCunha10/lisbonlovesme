@@ -74,3 +74,28 @@ export async function geolocateIp(ip: string): Promise<GeoInfo> {
   }
   return info;
 }
+
+// Attempt to reverse geocode latitude/longitude into a human-readable location
+export async function reverseGeocode(lat: number, lon: number): Promise<{ location?: string }> {
+  try {
+    const url = new URL('https://nominatim.openstreetmap.org/reverse');
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('lat', String(lat));
+    url.searchParams.set('lon', String(lon));
+    url.searchParams.set('zoom', '10');
+    const resp = await fetch(url.toString(), {
+      headers: { 'User-Agent': 'LisbonLovesMe/1.0 (+https://lisbonlovesme.onrender.com)' }
+    });
+    if (!resp.ok) return {};
+    const data = await resp.json();
+    const address = data.address || {};
+    const city = address.city || address.town || address.village || address.municipality;
+    const region = address.state || address.region || address.county;
+    const country = address.country;
+    const parts = [city, region, country].filter(Boolean);
+    const location = parts.join(', ');
+    return location ? { location } : {};
+  } catch {
+    return {};
+  }
+}

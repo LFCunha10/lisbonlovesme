@@ -9,7 +9,7 @@ import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-up
 import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
-import { getClientIp, parseUserAgent, geolocateIp } from "./utils/visit-utils";
+import { getClientIp, parseUserAgent, geolocateIp, reverseGeocode } from "./utils/visit-utils";
 import { createNotificationAndPush } from "./notificationService";
 import { getLocalizedText } from "./utils/tour-utils.js";
 import csurf from "csurf";
@@ -1156,7 +1156,27 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       const geo = await geolocateIp(ip);
       const when = new Date().toISOString();
       const title = 'New Site Visit';
-      const location = [geo.city, geo.region, geo.country].filter(Boolean).join(', ');
+      let location = [geo.city, geo.region, geo.country].filter(Boolean).join(', ');
+
+      // If the client provided precise coordinates, prefer them
+      let loc = geo.loc;
+      const coords = (req.body && (req.body.coords || req.body.coordinates)) as { lat?: number; lon?: number; lng?: number; accuracy?: number } | undefined;
+      const latRaw = (req.body && (req.body.lat ?? req.body.latitude)) as number | undefined;
+      const lonRaw = (req.body && (req.body.lon ?? req.body.lng ?? req.body.longitude)) as number | undefined;
+      const lat = typeof coords?.lat === 'number' ? coords!.lat : latRaw;
+      const lon = typeof (coords as any)?.lon === 'number' ? (coords as any).lon : (typeof (coords as any)?.lng === 'number' ? (coords as any).lng : lonRaw);
+      if (typeof lat === 'number' && typeof lon === 'number') {
+        loc = `${lat},${lon}`;
+        if (!location) {
+          try {
+            const rev = await reverseGeocode(lat, lon);
+            if (rev.location) location = rev.location;
+          } catch {
+            // ignore reverse geocode errors
+          }
+        }
+      }
+
       const body = `${location || 'Unknown location'} · ${device.deviceType || ''} · ${when}`;
       await createNotificationAndPush({
         type: 'visit',
@@ -1165,7 +1185,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         payload: {
           ip: geo.ip,
           location,
-          loc: geo.loc,
+          loc,
           device,
           when,
           path: req.body?.path || null,

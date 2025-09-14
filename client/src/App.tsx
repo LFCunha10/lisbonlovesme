@@ -254,20 +254,50 @@ function LanguageAwareApp() {
   }, [i18n.language]);
 
   // Fire a lightweight visit tracking event on first load
+  // Try to include browser geolocation if available, with a short timeout
   useEffect(() => {
     const controller = new AbortController();
-    const payload = {
+    const basePayload: any = {
       path: window.location.pathname + window.location.search + window.location.hash,
       referrer: document.referrer || null,
     };
-    // Non-blocking; ignore errors
-    fetch('/api/track-visit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    }).catch(() => {});
-    return () => controller.abort();
+
+    let sent = false;
+    const send = (data: any) => {
+      if (sent) return; sent = true;
+      fetch('/api/track-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+      }).catch(() => {});
+    };
+
+    // Fallback if geolocation is slow or unavailable
+    const fallbackTimer = setTimeout(() => send(basePayload), 1500);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          clearTimeout(fallbackTimer);
+          const { latitude, longitude, accuracy } = pos.coords;
+          send({ ...basePayload, coords: { lat: latitude, lon: longitude, accuracy } });
+        },
+        () => {
+          clearTimeout(fallbackTimer);
+          send(basePayload);
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+      );
+    } else {
+      // No geolocation API
+      // rely on fallback timer
+    }
+
+    return () => {
+      clearTimeout(fallbackTimer);
+      controller.abort();
+    };
   }, []);
 
   return (

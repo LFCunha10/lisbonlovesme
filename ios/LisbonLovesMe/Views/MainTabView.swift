@@ -2,22 +2,32 @@ import SwiftUI
 import Charts
 
 struct MainTabView: View {
+    @State private var selection: Int = 0
     var body: some View {
-        TabView {
+        TabView(selection: $selection) {
             RequestsView()
                 .tabItem { Label("Requests", systemImage: "doc.text") }
+                .tag(0)
 
             ReviewsView()
                 .tabItem { Label("Reviews", systemImage: "star.bubble") }
+                .tag(1)
 
             MessagesView()
                 .tabItem { Label("Messages", systemImage: "envelope") }
+                .tag(2)
 
             VisitsContainerView()
                 .tabItem { Label("Visits", systemImage: "person.crop.circle.badge.exclam") }
+                .tag(3)
 
             PersonalView()
                 .tabItem { Label("Personal", systemImage: "person.crop.circle") }
+                .tag(4)
+        }
+        .onChange(of: selection) { sel in
+            let names = ["Requests","Reviews","Messages","Visits","Personal"]
+            if sel >= 0 && sel < names.count { DataLogger.logTabSelection(names[sel]) }
         }
     }
 }
@@ -35,7 +45,7 @@ struct RequestsView: View {
     enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest", participantsDesc = "Most people", participantsAsc = "Fewest people" }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Group {
                 if loading { ProgressView() }
                 List(filteredAndSorted) { r in
@@ -48,6 +58,7 @@ struct RequestsView: View {
                         }
                     }
                 }
+                .searchable(text: $query)
             }
             .navigationTitle("Requests")
             .toolbar {
@@ -59,8 +70,8 @@ struct RequestsView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
             }
-            .searchable(text: $query)
             .task { await load() }
+            .onAppear { Task { await load() } }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
             .onChange(of: live.lastEvent?.noteType) { note in
                 if note == "booking" { Task { await load() } }
@@ -71,9 +82,15 @@ struct RequestsView: View {
     private func load() async {
         loading = true; defer { loading = false }
         do {
+            DataLogger.logInfo("Requests", "Fetching /api/admin/bookings")
             let all = try await APIClient.shared.fetchBookings()
             self.requests = all.filter { ($0.paymentStatus ?? "requested").lowercased() == "requested" }
-        } catch { self.error = (error as NSError).localizedDescription }
+            DataLogger.logRequests(all)
+        } catch {
+            let msg = (error as NSError).localizedDescription
+            DataLogger.logError("Requests", "Fetch error: \(msg)")
+            self.error = msg
+        }
     }
 
     static let dateFormatter: DateFormatter = {
@@ -124,7 +141,7 @@ struct ReviewsView: View {
     enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest", ratingDesc = "Highest rated", ratingAsc = "Lowest rated" }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Group {
                 if loading { ProgressView() }
                 List(filteredAndSorted) { t in
@@ -137,6 +154,7 @@ struct ReviewsView: View {
                         Text(t.text)
                     }
                 }
+                .searchable(text: $query)
             }
             .navigationTitle("Reviews")
             .toolbar {
@@ -148,8 +166,8 @@ struct ReviewsView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
             }
-            .searchable(text: $query)
             .task { await load() }
+            .onAppear { Task { await load() } }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
             .onChange(of: live.lastEvent?.noteType) { note in
                 if note == "review" { Task { await load() } }
@@ -159,8 +177,15 @@ struct ReviewsView: View {
 
     private func load() async {
         loading = true; defer { loading = false }
-        do { self.items = try await APIClient.shared.fetchTestimonials(approvedOnly: true) }
-        catch { self.error = (error as NSError).localizedDescription }
+        do {
+            DataLogger.logInfo("Reviews", "Fetching /api/testimonials?approvedOnly=true")
+            self.items = try await APIClient.shared.fetchTestimonials(approvedOnly: true)
+            DataLogger.logReviews(self.items)
+        } catch {
+            let msg = (error as NSError).localizedDescription
+            DataLogger.logError("Reviews", "Fetch error: \(msg)")
+            self.error = msg
+        }
     }
 }
 
@@ -197,7 +222,7 @@ struct MessagesView: View {
     enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest" }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Group {
                 if loading { ProgressView() }
                 List(filteredAndSorted) { m in
@@ -210,6 +235,7 @@ struct MessagesView: View {
                         }
                     }
                 }
+                .searchable(text: $query)
             }
             .navigationTitle("Messages")
             .toolbar {
@@ -221,8 +247,8 @@ struct MessagesView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
             }
-            .searchable(text: $query)
             .task { await load() }
+            .onAppear { Task { await load() } }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
             .onChange(of: live.lastEvent?.noteType) { note in
                 if note == "contact" { Task { await load() } }
@@ -232,8 +258,15 @@ struct MessagesView: View {
 
     private func load() async {
         loading = true; defer { loading = false }
-        do { self.items = try await APIClient.shared.fetchMessages() }
-        catch { self.error = (error as NSError).localizedDescription }
+        do {
+            DataLogger.logInfo("Messages", "Fetching /api/admin/messages")
+            self.items = try await APIClient.shared.fetchMessages()
+            DataLogger.logMessages(self.items)
+        } catch {
+            let msg = (error as NSError).localizedDescription
+            DataLogger.logError("Messages", "Fetch error: \(msg)")
+            self.error = msg
+        }
     }
 
     static let dateFormatter: DateFormatter = {
@@ -262,7 +295,7 @@ private extension MessagesView {
 struct VisitsContainerView: View {
     @State private var selection = 0
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Picker("Mode", selection: $selection) {
                     Text("Feed").tag(0)
@@ -293,21 +326,28 @@ struct VisitsFeedView: View {
             List(items.filter { $0.type.lowercased() == "visit" }) { n in
                 VStack(alignment: .leading, spacing: 6) {
                     Text("New visitor on the site").font(.headline)
-                    if let whenIso = n.payload?.when, let dt = ISO8601DateFormatter().date(from: whenIso) {
-                        Text(Self.dateFormatter.string(from: dt)).font(.subheadline).foregroundColor(.secondary)
+                    
+                    if let when = n.body?.dateString {
+                        Text(when)
                     }
+                    let locationText: String = {
+                        if let loc = n.payload?.location { return loc }
+                        if let loc = n.body?.location { return loc }
+                        return "Unknown"
+                    }()
+                    Text("Location: \(locationText)")
+                        .font(.subheadline)
                     if let d = n.payload?.device {
                         Text("Device: \(d.browser ?? "?") · \(d.os ?? "?") · \(d.deviceType ?? "?")")
                             .font(.subheadline)
                     }
-                    Text("Location: \(n.payload?.location ?? n.body?.location ?? "Unknown")")
-                        .font(.subheadline)
                 }
                 .padding(.vertical, 6)
             }
         }
         .toolbar { Button("Refresh") { Task { await load() } } }
         .task { await load() }
+        .onAppear { Task { await load() } }
         .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
         .onChange(of: live.lastEvent?.noteType) { note in
             if note == "visit" { Task { await load() } }
@@ -316,8 +356,15 @@ struct VisitsFeedView: View {
 
     private func load() async {
         loading = true; defer { loading = false }
-        do { self.items = try await APIClient.shared.fetchNotifications() }
-        catch { self.error = (error as NSError).localizedDescription }
+        do {
+            DataLogger.logInfo("Visits", "Fetching /api/notifications")
+            self.items = try await APIClient.shared.fetchNotifications()
+            DataLogger.logNotifications(self.items)
+        } catch {
+            let msg = (error as NSError).localizedDescription
+            DataLogger.logError("Visits", "Fetch error: \(msg)")
+            self.error = msg
+        }
     }
 
     static let dateFormatter: DateFormatter = {
@@ -341,6 +388,7 @@ struct VisitsTrendsView: View {
             .padding()
         }
         .task { await load() }
+        .onAppear { Task { await load() } }
         .onChange(of: live.lastEvent?.noteType) { note in
             if note == "visit" { Task { await load() } }
         }
@@ -360,7 +408,7 @@ struct VisitsTrendsView: View {
 
     private func load() async {
         loading = true; defer { loading = false }
-        if let res = try? await APIClient.shared.fetchNotifications(limit: 500) { self.items = res }
+        if let res = try? await APIClient.shared.fetchNotifications(limit: 500) { self.items = res; DataLogger.logNotifications(res) }
     }
 }
 
@@ -386,3 +434,4 @@ struct PersonalView: View {
         }
     }
 }
+

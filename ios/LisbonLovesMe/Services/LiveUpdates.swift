@@ -6,6 +6,7 @@ final class LiveUpdates: ObservableObject {
 
     @Published var lastEvent: Event?
 
+    private var session: URLSession?
     private var task: URLSessionWebSocketTask?
     private var isConnecting = false
     private var backoff: TimeInterval = 1
@@ -14,8 +15,12 @@ final class LiveUpdates: ObservableObject {
         guard task == nil, !isConnecting else { return }
         guard let wsURL = Self.makeWebSocketURL() else { return }
         isConnecting = true
-        let session = URLSession(configuration: .default)
-        let t = session.webSocketTask(with: wsURL)
+        let config = URLSessionConfiguration.default
+        config.waitsForConnectivity = true
+        config.httpCookieStorage = .shared
+        let s = URLSession(configuration: config)
+        session = s
+        let t = s.webSocketTask(with: wsURL)
         task = t
         t.resume()
         isConnecting = false
@@ -25,6 +30,8 @@ final class LiveUpdates: ObservableObject {
     func disconnect() {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
+        session?.invalidateAndCancel()
+        session = nil
     }
 
     private func listen() {
@@ -74,4 +81,3 @@ final class LiveUpdates: ObservableObject {
         return comps?.url
     }
 }
-

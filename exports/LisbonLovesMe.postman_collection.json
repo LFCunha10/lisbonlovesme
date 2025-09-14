@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "LisbonLovesMe API",
+    "_postman_id": "b9f3a2ba-2c1b-4a5a-9c9f-llm-collection",
+    "description": "Postman collection for LisbonLovesMe backend, including authentication via CSRF + session cookies.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "wsUrl", "value": "ws://localhost:3000/api/notifications/ws", "type": "string" },
+    { "key": "csrfToken", "value": "", "type": "string" },
+    { "key": "adminUsername", "value": "admin", "type": "string" },
+    { "key": "adminPassword", "value": "adminpassword", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get CSRF Token",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/csrf-token", "host": ["{{baseUrl}}"], "path": ["api","csrf-token"] },
+            "description": "Fetch CSRF token required for /api/admin/login."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();\n",
+                  "if (data && data.csrfToken) {\n  pm.collectionVariables.set('csrfToken', data.csrfToken);\n  console.log('CSRF token set');\n} else {\n  console.warn('No csrfToken in response');\n}\n"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-csrf-token", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/admin/login", "host": ["{{baseUrl}}"], "path": ["api","admin","login"] },
+            "description": "Log in as admin. Postman will store the session cookie automatically."
+          }
+        },
+        {
+          "name": "Session (Me)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/admin/session", "host": ["{{baseUrl}}"], "path": ["api","admin","session"] },
+            "description": "Check current session."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/admin/logout", "host": ["{{baseUrl}}"], "path": ["api","admin","logout"] },
+            "description": "Log out and clear session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tours",
+      "item": [
+        {
+          "name": "List Tours",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/tours", "host": ["{{baseUrl}}"], "path": ["api","tours"] }
+          }
+        },
+        {
+          "name": "Get Tour By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/tours/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","tours",":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Auto-translate Tour Content",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lisbon Walking Tour\",\n  \"shortDescription\": \"A short intro\",\n  \"description\": \"Full description text\",\n  \"duration\": \"2 hours\",\n  \"difficulty\": \"Easy\",\n  \"badge\": \"Popular\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/tours/auto-translate", "host": ["{{baseUrl}}"], "path": ["api","tours","auto-translate"] }
+          }
+        },
+        {
+          "name": "Translate Tour Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceData\": { \"name\": \"Lisbon Walking Tour\" },\n  \"sourceLang\": \"en\",\n  \"targetLangs\": [\"pt\", \"ru\"]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/translate-tour", "host": ["{{baseUrl}}"], "path": ["api","translate-tour"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "List Bookings (Public)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/bookings", "host": ["{{baseUrl}}"], "path": ["api","bookings"] } }
+        },
+        {
+          "name": "List Bookings (Admin)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/admin/bookings", "host": ["{{baseUrl}}"], "path": ["api","admin","bookings"] } }
+        },
+        {
+          "name": "Create Booking (Request)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tourId\": 1,\n  \"availabilityId\": 1,\n  \"customerFirstName\": \"John\",\n  \"customerLastName\": \"Doe\",\n  \"customerEmail\": \"john@example.com\",\n  \"customerPhone\": \"+351 900 000 000\",\n  \"numberOfParticipants\": 2,\n  \"totalAmount\": 10000,\n  \"language\": \"en\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/bookings", "host": ["{{baseUrl}}"], "path": ["api","bookings"] }
+          }
+        },
+        {
+          "name": "Payments (Admin)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/admin/payments", "host": ["{{baseUrl}}"], "path": ["api","admin","payments"] } }
+        },
+        {
+          "name": "Refund Booking (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Customer requested\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/admin/refund/:id", "host": ["{{baseUrl}}"], "path": ["api","admin","refund",":id"], "variable": [{ "key": "id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testimonials",
+      "item": [
+        { "name": "List Testimonials", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/testimonials?approvedOnly=true", "host": ["{{baseUrl}}"], "path": ["api","testimonials"], "query": [{"key": "approvedOnly", "value": "true"}] } } },
+        { "name": "Create Testimonial", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"customerName\": \"Jane\",\n  \"customerCountry\": \"PT\",\n  \"rating\": 5,\n  \"text\": \"Amazing!\",\n  \"tourId\": 1\n}"}, "url": {"raw": "{{baseUrl}}/api/testimonials", "host": ["{{baseUrl}}"], "path": ["api","testimonials"]} } },
+        { "name": "Approve Testimonial", "request": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/testimonials/:id/approve", "host": ["{{baseUrl}}"], "path": ["api","testimonials",":id","approve"], "variable": [{"key": "id", "value": "1"}] } } }
+      ]
+    },
+    {
+      "name": "Messages (Admin)",
+      "item": [
+        { "name": "List Messages", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/admin/messages?limit=50&offset=0", "host": ["{{baseUrl}}"], "path": ["api","admin","messages"], "query": [{"key":"limit","value":"50"},{"key":"offset","value":"0"}] } } },
+        { "name": "Mark Message Read", "request": { "method": "PATCH", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"read\": true\n}"}, "url": { "raw": "{{baseUrl}}/api/admin/messages/:id/read", "host": ["{{baseUrl}}"], "path": ["api","admin","messages",":id","read"], "variable": [{"key":"id","value":"1"}] } } }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        { "name": "Register Device", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"platform\": \"ios-fcm\",\n  \"token\": \"TEST_TOKEN\"\n}"}, "url": { "raw": "{{baseUrl}}/api/notifications/device", "host": ["{{baseUrl}}"], "path": ["api","notifications","device"] } } },
+        { "name": "List Notifications (Admin)", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/notifications?limit=50&offset=0", "host": ["{{baseUrl}}"], "path": ["api","notifications"], "query": [{"key":"limit","value":"50"},{"key":"offset","value":"0"}] } } },
+        { "name": "Mark Notification Read (Admin)", "request": { "method": "PATCH", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"read\": true\n}"}, "url": { "raw": "{{baseUrl}}/api/notifications/:id/read", "host": ["{{baseUrl}}"], "path": ["api","notifications",":id","read"], "variable": [{"key":"id","value":"1"}] } } },
+        { "name": "WebSocket: Notifications (Admin)", "request": { "method": "GET", "url": { "raw": "{{wsUrl}}", "host": ["{{wsUrl}}"] }, "description": "Connect to /api/notifications/ws. Requires logged-in admin session; Postman supports WebSocket connections on GET with a ws:// URL." } }
+      ]
+    },
+    {
+      "name": "Contact & Visits",
+      "item": [
+        { "name": "Send Contact Message", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"name\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"subject\": \"Hello\",\n  \"message\": \"I would like to know more.\",\n  \"language\": \"en\"\n}"}, "url": { "raw": "{{baseUrl}}/api/contact", "host": ["{{baseUrl}}"], "path": ["api","contact"] } } },
+        { "name": "Track Visit", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"path\": \"/\",\n  \"referrer\": \"https://google.com\"\n}"}, "url": { "raw": "{{baseUrl}}/api/track-visit", "host": ["{{baseUrl}}"], "path": ["api","track-visit"] } } }
+      ]
+    },
+    {
+      "name": "Gallery",
+      "item": [
+        { "name": "List Gallery", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/gallery", "host": ["{{baseUrl}}"], "path": ["api","gallery"] } } },
+        { "name": "Create Image", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"imageUrl\": \"https://example.com/img.jpg\",\n  \"title\": \"Photo\",\n  \"description\": \"Desc\",\n  \"displayOrder\": 0,\n  \"isActive\": true\n}"}, "url": { "raw": "{{baseUrl}}/api/gallery", "host": ["{{baseUrl}}"], "path": ["api","gallery"] } } },
+        { "name": "Update Image", "request": { "method": "PUT", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"title\": \"Updated\"\n}"}, "url": { "raw": "{{baseUrl}}/api/gallery/:id", "host": ["{{baseUrl}}"], "path": ["api","gallery",":id"], "variable": [{"key":"id","value":"1"}] } } },
+        { "name": "Delete Image", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/gallery/:id", "host": ["{{baseUrl}}"], "path": ["api","gallery",":id"], "variable": [{"key":"id","value":"1"}] } } },
+        { "name": "Reorder Images", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"imageIds\": [3,1,2]\n}"}, "url": { "raw": "{{baseUrl}}/api/gallery/reorder", "host": ["{{baseUrl}}"], "path": ["api","gallery","reorder"] } } }
+      ]
+    },
+    {
+      "name": "Articles",
+      "item": [
+        { "name": "List Articles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/articles?published=true", "host": ["{{baseUrl}}"], "path": ["api","articles"], "query": [{"key":"published","value":"true"}] } } },
+        { "name": "Articles Tree", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/articles/tree?published=true", "host": ["{{baseUrl}}"], "path": ["api","articles","tree"], "query": [{"key":"published","value":"true"}] } } }
+      ]
+    },
+    {
+      "name": "Email (Admin)",
+      "item": [
+        { "name": "Verify Transport", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/admin/email/verify", "host": ["{{baseUrl}}"], "path": ["api","admin","email","verify"] } } },
+        { "name": "Send Test Email", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"to\": \"me@example.com\"\n}"}, "url": { "raw": "{{baseUrl}}/api/admin/email/test", "host": ["{{baseUrl}}"], "path": ["api","admin","email","test"] } } }
+      ]
+    }
+  ]
+}
+
