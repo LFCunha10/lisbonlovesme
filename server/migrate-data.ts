@@ -8,6 +8,5 @@ import { eq, and } from "drizzle-orm";
  * It will populate the database with sample tours, availabilities, and testimonials
  */
 async function migrateData() {
-  console.log("Starting data migration to database...");
 }
 export default migrateData;

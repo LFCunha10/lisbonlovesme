@@ -9,7 +9,7 @@ import * as schema from '@shared/schema';
  */
 async function exportDatabase() {
   try {
-    console.log('Starting database export...');
+    
     
     // Create export directory if it doesn't exist
     const exportDir = path.join(process.cwd(), 'exports');
@@ -96,7 +96,7 @@ async function exportDatabase() {
     
     // Process each table for data export
     for (const table of tables) {
-      console.log(`Exporting table: ${table.name}...`);
+      
       
       try {
         // Get all records from table
@@ -261,8 +261,7 @@ COMMIT;`;
     // Write to file
     fs.writeFileSync(exportPath, sqlContent);
     
-    console.log(`Database export completed successfully!`);
-    console.log(`Export file saved to: ${exportPath}`);
+    
     
     return exportPath;
   } catch (error) {

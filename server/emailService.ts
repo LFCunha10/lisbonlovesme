@@ -96,7 +96,6 @@ function loadTranslations(language: string) {
 // Helper function to get translations
 function getEmailTranslations(language?: string) {
   const lang = language?.split('-')[0] || 'en';
-  console.log(`Getting email translations for language: ${language} -> ${lang}`);
   return loadTranslations(lang) || loadTranslations('en');
 }
 
@@ -115,7 +114,6 @@ const transporter = nodemailer.createTransport({
 export async function verifyEmailTransport(): Promise<boolean> {
   try {
     await transporter.verify();
-    console.log('SMTP transporter verified and ready.');
     return true;
   } catch (err) {
     console.error('SMTP transporter verification failed:', err);
@@ -134,8 +132,7 @@ export async function sendTestEmail(to?: string): Promise<void> {
     html: '<p>This is a <strong>test email</strong> from Lisbonlovesme server.</p>',
   };
   const info = await transporter.sendMail(mailOptions);
-  console.log(`Test email sent: ${info.messageId} to ${recipient}`);
-}
+  }
 
 interface ConfirmationEmailOptions {
   to: string;
@@ -239,7 +236,6 @@ export async function sendReviewRequestEmail(options: {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Review request email sent: ${info.messageId}`);
   } catch (err) {
     console.error('Error sending review request email:', err);
     throw err;
@@ -422,7 +418,6 @@ ${t.bookingConfirmation.teamName}
   };
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Booking confirmation email sent: ${info.messageId}`);
   } catch (err) {
     console.error('Error sending booking confirmation email:', err);
     throw err;
@@ -505,7 +500,6 @@ export async function sendBookingRequestNotification(options: BookingRequestNoti
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Booking request notification sent for reference: ${options.bookingReference}`);
   } catch (error) {
     console.error('Error sending booking request notification:', error);
     throw error;
@@ -654,7 +648,6 @@ ${t.requestConfirmation.teamName}
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Request confirmation email sent: ${info.messageId}`);
   } catch (err) {
     console.error('Error sending request confirmation email:', err);
     throw err;
@@ -711,7 +704,6 @@ export async function sendContactFormNotification(options: ContactFormNotificati
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Contact form notification sent to ${adminEmail} from: ${options.email}`);
   } catch (error) {
     console.error('Error sending contact form notification:', error);
     throw error;

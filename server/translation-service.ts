@@ -89,7 +89,7 @@ export async function autoTranslateTourContent(content: {
   difficulty: { en: string; pt: string; ru: string };
   badge: { en: string; pt: string; ru: string };
 }> {
-  console.log('Starting auto-translation...');
+  
   
   try {
     // Translate to Portuguese
@@ -112,7 +112,7 @@ export async function autoTranslateTourContent(content: {
       translateText(content.badge || '', 'en', 'ru'),
     ]);
 
-    console.log('Auto-translation completed successfully');
+    
 
     return {
       name: { en: content.name, pt: namePt, ru: nameRu },

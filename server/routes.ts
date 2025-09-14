@@ -201,7 +201,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           duration,
           language: req.body.language || 'en'
         });
-        console.log("Confirmation email sent successfully");
+        
         res.status(200).json({ success: true});
     } catch (emailError) {
       console.error('Email send error:', emailError);
@@ -237,7 +237,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           meetingPoint,
           duration
         });
-        console.log("Confirmation email sent successfully");
+        
         res.status(200).json({ success: true});
     } catch (emailError) {
       console.error('Email send error:', emailError);
@@ -287,7 +287,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         isAdmin: true
       };
       
-      console.log("Session user set:", req.session.user);
+      
       
       res.json({
         message: "Login successful",
@@ -311,12 +311,6 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         user: req.session.user,
       });
     } else {
-      console.log("Session check failed. Session data:", {
-        sessionExists: !!req.session,
-        isAuthenticated: req.session?.isAuthenticated,
-        hasUser: !!req.session?.user,
-        userIsAdmin: req.session?.user?.isAdmin
-      });
       res.json({
         isAuthenticated: false,
         isAdmin: false,
@@ -849,7 +843,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       const bookingId = parseInt(req.params.id);
       const updateData = req.body;
       
-      console.log("Updating booking request:", bookingId, updateData);
+      
       
       const updatedBooking = await storage.updateBooking(bookingId, updateData);
       
@@ -857,7 +851,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         return res.status(404).json({ message: "Booking request not found" });
       }
       
-      console.log("Booking request updated successfully:", updatedBooking);
+      
       res.json(updatedBooking);
     } catch (error: any) {
       console.error("Error updating booking request:", error);
@@ -916,7 +910,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   });
 
   app.post("/api/bookings", async (req: Request, res: Response) => {
-  console.log("Starting booking creation with data:", req.body);
+  
 
   try {
     // 1. Insert booking with requested status
@@ -936,19 +930,19 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     // 3. Update spots left
     const spotsRemaining = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
     await storage.updateAvailability(availability.id, { spotsLeft: spotsRemaining });
-    console.log("Availability updated successfully!!!");
+    
 
     // 4. Auto-close day if needed
    
     const autoCloseSetting = await storage.getAutoCloseDaySetting();
-    console.log("Auto-close setting: ", autoCloseSetting);
+    
     if (autoCloseSetting) {
       await storage.addClosedDay(availability.date, "Auto-closed due to booking");
-      console.log(`Day ${availability.date} auto-closed due to booking`);
+      
     }
     if (spotsRemaining <= 0) {
       await storage.addClosedDay(availability.date, "Closed due to lack of spots");
-      console.log(`Day ${availability.date} Closed due to lack of spots`);
+      
     }
  
    
@@ -986,7 +980,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           language: booking.language || 'en'
         });
         
-        console.log("Emails sent successfully");
+        
       }
     } catch (emailError) {
       console.error("Failed to send emails:", emailError);
@@ -1130,10 +1124,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       return { ...rest, body: bodyObj, bodyRaw };
     });
 
-    // Log the response for visibility
-    try {
-      console.log('GET /api/notifications response:', JSON.stringify(shaped, null, 2));
-    } catch {}
+    
     res.json(shaped);
   });
 
@@ -1321,7 +1312,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   // Export Database Endpoint
   app.get("/api/export-database", async (req: Request, res: Response) => {
     try {
-      console.log("Starting database export...");
+      
       
       // Create export directory if it doesn't exist
       const exportDir = path.join(process.cwd(), 'exports');
@@ -1349,7 +1340,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         }
         
         // Just send the complete SQL file that already contains schema and data
-        console.log(`Sending complete database export (${data.length} bytes)`);
+        
         res.send(data);
       });
     } catch (error: any) {

@@ -358,7 +358,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-  console.log("Starting booking creation with data:", booking);
+  
 
   const bookingReference = `LT-${nanoid(7).toUpperCase()}`;
 
@@ -381,7 +381,7 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
 
-    console.log("Booking inserted successfully:", newBooking);
+    
     return newBooking;
 
   } catch (error) {

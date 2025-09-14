@@ -99,7 +99,7 @@ export async function createAdminUserIfNotExists() {
         password: hashedPassword,
         isAdmin: true
       });
-      console.log('Default admin user created');
+      
     }
   } catch (error) {
     console.error('Error creating admin user:', error);
