@@ -3,127 +3,383 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
-E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */; };
-E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */; };
-E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */; };
-E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */; };
-E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */; };
-E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */; };
-E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */; };
+		564C23272E7714A8003ED1BF /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 564C23262E7714A8003ED1BF /* FirebaseCore */; };
+		564C23292E7714A8003ED1BF /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 564C23282E7714A8003ED1BF /* FirebaseMessaging */; };
+		564C232B2E77158E003ED1BF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 564C232A2E77158E003ED1BF /* GoogleService-Info.plist */; };
+		E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */; };
+		E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */; };
+		E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */; };
+		E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */; };
+		E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */; };
+		E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */; };
+		E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */; };
+		E2EDE7F21A1A4C7B00AABBCC /* Products in Sources */ = {isa = PBXBuildFile; fileRef = E2EDE7F11A1A4C7B00AABBCC /* Products */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LisbonLovesMeApp.swift; sourceTree = "<group>"; };
-E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
-E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
-E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-E2EDE7D71A1A4C7B00AABBCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LisbonLovesMe.entitlements; sourceTree = "<group>"; };
-E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LisbonLovesMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		564C232A2E77158E003ED1BF /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LisbonLovesMeApp.swift; sourceTree = "<group>"; };
+		E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		E2EDE7D71A1A4C7B00AABBCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LisbonLovesMe.entitlements; sourceTree = "<group>"; };
+		E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LisbonLovesMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-E2EDE7C91A1A4C7B00AABBCC /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+		E2EDE7C91A1A4C7B00AABBCC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				564C23292E7714A8003ED1BF /* FirebaseMessaging in Frameworks */,
+				564C23272E7714A8003ED1BF /* FirebaseCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-E2EDE7CE1A1A4C7B00AABBCC = {isa = PBXGroup; children = (E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */, E2EDE7F11A1A4C7B00AABBCC /* Products */); sourceTree = "<group>"; };
-E2EDE7F11A1A4C7B00AABBCC /* Products */ = {isa = PBXGroup; children = (E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */); name = Products; sourceTree = "<group>"; };
-E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */ = {isa = PBXGroup; children = (
-    E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */,
-    E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */,
-    E2EDE7D71A1A4C7B00AABBCC /* Info.plist */,
-    E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */,
-    1E1E1E001A1A4C7B00AABBCC /* Networking */,
-    1E1E1E011A1A4C7B00AABBCC /* Services */,
-    1E1E1E021A1A4C7B00AABBCC /* ViewModels */,
-    1E1E1E031A1A4C7B00AABBCC /* Views */
-); path = LisbonLovesMe; sourceTree = "<group>"; };
-1E1E1E001A1A4C7B00AABBCC /* Networking */ = {isa = PBXGroup; children = (E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */); path = Networking; sourceTree = "<group>"; };
-1E1E1E011A1A4C7B00AABBCC /* Services */ = {isa = PBXGroup; children = (E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */); path = Services; sourceTree = "<group>"; };
-1E1E1E021A1A4C7B00AABBCC /* ViewModels */ = {isa = PBXGroup; children = (E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */); path = ViewModels; sourceTree = "<group>"; };
-1E1E1E031A1A4C7B00AABBCC /* Views */ = {isa = PBXGroup; children = (
-    E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */,
-    E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */
-); path = Views; sourceTree = "<group>"; };
+		1E1E1E001A1A4C7B00AABBCC /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7D21A1A4C7B00AABBCC /* APIClient.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		1E1E1E011A1A4C7B00AABBCC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7D31A1A4C7B00AABBCC /* KeychainService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		1E1E1E021A1A4C7B00AABBCC /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7D41A1A4C7B00AABBCC /* AuthViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		1E1E1E031A1A4C7B00AABBCC /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7D51A1A4C7B00AABBCC /* LoginView.swift */,
+				E2EDE7D61A1A4C7B00AABBCC /* MainTabView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E2EDE7CE1A1A4C7B00AABBCC = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */,
+				E2EDE7F11A1A4C7B00AABBCC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E2EDE7CF1A1A4C7B00AABBCC /* LisbonLovesMe */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7D01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift */,
+				E2EDE7D11A1A4C7B00AABBCC /* AppConfig.swift */,
+				564C232A2E77158E003ED1BF /* GoogleService-Info.plist */,
+				E2EDE7D71A1A4C7B00AABBCC /* Info.plist */,
+				E2EDE7D81A1A4C7B00AABBCC /* LisbonLovesMe.entitlements */,
+				1E1E1E001A1A4C7B00AABBCC /* Networking */,
+				1E1E1E011A1A4C7B00AABBCC /* Services */,
+				1E1E1E021A1A4C7B00AABBCC /* ViewModels */,
+				1E1E1E031A1A4C7B00AABBCC /* Views */,
+			);
+			path = LisbonLovesMe;
+			sourceTree = "<group>";
+		};
+		E2EDE7F11A1A4C7B00AABBCC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */ = {isa = PBXNativeTarget; buildConfigurationList = E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */; buildPhases = (
-    E2EDE7C81A1A4C7B00AABBCC /* Sources */,
-    E2EDE7C91A1A4C7B00AABBCC /* Frameworks */,
-    E2EDE7CA1A1A4C7B00AABBCC /* Resources */
-); buildRules = ( ); dependencies = ( ); name = LisbonLovesMe; productName = LisbonLovesMe; productReference = E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */; productType = "com.apple.product-type.application"; };
+		E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */;
+			buildPhases = (
+				E2EDE7C81A1A4C7B00AABBCC /* Sources */,
+				E2EDE7C91A1A4C7B00AABBCC /* Frameworks */,
+				E2EDE7CA1A1A4C7B00AABBCC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LisbonLovesMe;
+			productName = LisbonLovesMe;
+			productReference = E2EDE7F01A1A4C7B00AABBCC /* LisbonLovesMe.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-E2EDE7C61A1A4C7B00AABBCC /* Project object */ = {isa = PBXProject; attributes = { LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; ORGANIZATIONNAME = ""; TargetAttributes = { E2EDE7C71A1A4C7B00AABBCC = { CreatedOnToolsVersion = 15.0; };
-}; }; buildConfigurationList = E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */; compatibilityVersion = "Xcode 15.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = ( en, Base ); mainGroup = E2EDE7CE1A1A4C7B00AABBCC; productRefGroup = E2EDE7CE1A1A4C7B00AABBCC; projectDirPath = ""; projectRoot = ""; targets = ( E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */ ); };
+		E2EDE7C61A1A4C7B00AABBCC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2600;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					E2EDE7C71A1A4C7B00AABBCC = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E2EDE7CE1A1A4C7B00AABBCC;
+			packageReferences = (
+				564C23252E7714A8003ED1BF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			productRefGroup = E2EDE7CE1A1A4C7B00AABBCC;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E2EDE7C71A1A4C7B00AABBCC /* LisbonLovesMe */,
+			);
+		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-E2EDE7CA1A1A4C7B00AABBCC /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+		E2EDE7CA1A1A4C7B00AABBCC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				564C232B2E77158E003ED1BF /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-E2EDE7C81A1A4C7B00AABBCC /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
-    E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */,
-    E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */,
-    E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */,
-    E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */,
-    E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */,
-    E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */,
-    E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */,
-); runOnlyForDeploymentPostprocessing = 0; };
+		E2EDE7C81A1A4C7B00AABBCC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2EDE7E01A1A4C7B00AABBCC /* LisbonLovesMeApp.swift in Sources */,
+				E2EDE7E11A1A4C7B00AABBCC /* AppConfig.swift in Sources */,
+				E2EDE7E21A1A4C7B00AABBCC /* APIClient.swift in Sources */,
+				E2EDE7E31A1A4C7B00AABBCC /* KeychainService.swift in Sources */,
+				E2EDE7E41A1A4C7B00AABBCC /* AuthViewModel.swift in Sources */,
+				E2EDE7E51A1A4C7B00AABBCC /* LoginView.swift in Sources */,
+				E2EDE7E61A1A4C7B00AABBCC /* MainTabView.swift in Sources */,
+				E2EDE7F21A1A4C7B00AABBCC /* Products in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-E2EDE7CC1A1A4C7B00AABBCC /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
-    CODE_SIGN_STYLE = Automatic;
-    CURRENT_PROJECT_VERSION = 1;
-    GENERATE_INFOPLIST_FILE = NO;
-    IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-    LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-    MARKETING_VERSION = 1.0;
-    PRODUCT_BUNDLE_IDENTIFIER = com.example.LisbonLovesMe;
-    PRODUCT_NAME = "$(TARGET_NAME)";
-    SWIFT_EMIT_LOC_STRINGS = YES;
-    SWIFT_VERSION = 5.0;
-    TARGETED_DEVICE_FAMILY = 1;
-    INFOPLIST_FILE = LisbonLovesMe/Info.plist;
-    CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
-}; name = Debug; };
-E2EDE7CD1A1A4C7B00AABBCC /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
-    CODE_SIGN_STYLE = Automatic;
-    CURRENT_PROJECT_VERSION = 1;
-    GENERATE_INFOPLIST_FILE = NO;
-    IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-    LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-    MARKETING_VERSION = 1.0;
-    PRODUCT_BUNDLE_IDENTIFIER = com.example.LisbonLovesMe;
-    PRODUCT_NAME = "$(TARGET_NAME)";
-    SWIFT_EMIT_LOC_STRINGS = YES;
-    SWIFT_VERSION = 5.0;
-    TARGETED_DEVICE_FAMILY = 1;
-    INFOPLIST_FILE = LisbonLovesMe/Info.plist;
-    CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
-}; name = Release; };
-E2EDE7DF1A1A4C7B00AABBCC /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { }; name = Debug; };
-E2EDE7E71A1A4C7B00AABBCC /* Release */ = {isa = XCBuildConfiguration; buildSettings = { }; name = Release; };
+		E2EDE7CC1A1A4C7B00AABBCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LisbonLovesMe/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lisbonlovesme;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lisbonlovesme.Lisbonlovesme-app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E2EDE7CD1A1A4C7B00AABBCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = LisbonLovesMe/LisbonLovesMe.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LisbonLovesMe/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lisbonlovesme;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.lisbonlovesme.Lisbonlovesme-app";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E2EDE7DF1A1A4C7B00AABBCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = W5VC5BQ5V3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+			};
+			name = Debug;
+		};
+		E2EDE7E71A1A4C7B00AABBCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = W5VC5BQ5V3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */ = {isa = XCConfigurationList; buildConfigurations = ( E2EDE7CC1A1A4C7B00AABBCC, E2EDE7CD1A1A4C7B00AABBCC ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */ = {isa = XCConfigurationList; buildConfigurations = ( E2EDE7DF1A1A4C7B00AABBCC, E2EDE7E71A1A4C7B00AABBCC ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		E2EDE7CB1A1A4C7B00AABBCC /* Build configuration list for PBXNativeTarget "LisbonLovesMe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2EDE7CC1A1A4C7B00AABBCC /* Debug */,
+				E2EDE7CD1A1A4C7B00AABBCC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2EDE7DE1A1A4C7B00AABBCC /* Build configuration list for PBXProject "LisbonLovesMe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2EDE7DF1A1A4C7B00AABBCC /* Debug */,
+				E2EDE7E71A1A4C7B00AABBCC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
-};
+/* Begin XCRemoteSwiftPackageReference section */
+		564C23252E7714A8003ED1BF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		564C23262E7714A8003ED1BF /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 564C23252E7714A8003ED1BF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		564C23282E7714A8003ED1BF /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 564C23252E7714A8003ED1BF /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
 	rootObject = E2EDE7C61A1A4C7B00AABBCC /* Project object */;
 }

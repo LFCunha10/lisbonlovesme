@@ -11,11 +11,16 @@ import FirebaseMessaging
 struct LisbonLovesMeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var session = SessionModel()
+    @StateObject var live = LiveUpdates()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(session)
+                .environmentObject(live)
+                .onChange(of: session.isAuthenticated) { authed in
+                    if authed { live.connectIfNeeded() } else { live.disconnect() }
+                }
         }
     }
 }
@@ -87,4 +92,3 @@ struct RootView: View {
         }
     }
 }
-

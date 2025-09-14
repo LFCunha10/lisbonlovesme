@@ -27,12 +27,18 @@ struct RequestsView: View {
     @State private var requests: [Booking] = []
     @State private var loading = false
     @State private var error: String?
+    @State private var query: String = ""
+    @State private var requestedOnly: Bool = true
+    @State private var sort: Sort = .dateDesc
+    @EnvironmentObject var live: LiveUpdates
+
+    enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest", participantsDesc = "Most people", participantsAsc = "Fewest people" }
 
     var body: some View {
         NavigationView {
             Group {
                 if loading { ProgressView() }
-                List(requests) { r in
+                List(filteredAndSorted) { r in
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(r.customerFirstName) \(r.customerLastName)")
                             .font(.headline)
@@ -44,9 +50,21 @@ struct RequestsView: View {
                 }
             }
             .navigationTitle("Requests")
-            .toolbar { Button("Refresh") { Task { await load() } } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Sort", selection: $sort) { ForEach(Sort.allCases, id: \.self) { Text($0.rawValue).tag($0) } }
+                        Toggle("Requested only", isOn: $requestedOnly)
+                    } label: { Label("Options", systemImage: "line.3.horizontal.decrease.circle") }
+                }
+                ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
+            }
+            .searchable(text: $query)
             .task { await load() }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
+            .onChange(of: live.lastEvent?.noteType) { note in
+                if note == "booking" { Task { await load() } }
+            }
         }
     }
 
@@ -63,17 +81,53 @@ struct RequestsView: View {
     }()
 }
 
+private extension RequestsView {
+    var filteredAndSorted: [Booking] {
+        var items = requests
+        if !query.isEmpty {
+            let q = query.lowercased()
+            items = items.filter { ("\($0.customerFirstName) \($0.customerLastName) \($0.bookingReference)".lowercased()).contains(q) }
+        }
+        if requestedOnly {
+            items = items.filter { ($0.paymentStatus ?? "requested").lowercased() == "requested" }
+        }
+        items.sort { a, b in
+            switch sort {
+            case .dateDesc:
+                let ad = a.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+                let bd = b.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+                return ad > bd
+            case .dateAsc:
+                let ad = a.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+                let bd = b.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+                return ad < bd
+            case .participantsDesc:
+                return a.numberOfParticipants > b.numberOfParticipants
+            case .participantsAsc:
+                return a.numberOfParticipants < b.numberOfParticipants
+            }
+        }
+        return items
+    }
+}
+
 // MARK: - Reviews
 struct ReviewsView: View {
     @State private var items: [Testimonial] = []
     @State private var loading = false
     @State private var error: String?
+    @State private var query: String = ""
+    @State private var minRating: Int = 0
+    @State private var sort: Sort = .dateDesc
+    @EnvironmentObject var live: LiveUpdates
+
+    enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest", ratingDesc = "Highest rated", ratingAsc = "Lowest rated" }
 
     var body: some View {
         NavigationView {
             Group {
                 if loading { ProgressView() }
-                List(items) { t in
+                List(filteredAndSorted) { t in
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(t.customerName).font(.headline)
@@ -85,9 +139,21 @@ struct ReviewsView: View {
                 }
             }
             .navigationTitle("Reviews")
-            .toolbar { Button("Refresh") { Task { await load() } } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Sort", selection: $sort) { ForEach(Sort.allCases, id: \.self) { Text($0.rawValue).tag($0) } }
+                        Picker("Min rating", selection: $minRating) { ForEach([0,1,2,3,4,5], id: \.self) { Text("\($0)+").tag($0) } }
+                    } label: { Label("Options", systemImage: "line.3.horizontal.decrease.circle") }
+                }
+                ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
+            }
+            .searchable(text: $query)
             .task { await load() }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
+            .onChange(of: live.lastEvent?.noteType) { note in
+                if note == "review" { Task { await load() } }
+            }
         }
     }
 
@@ -98,17 +164,43 @@ struct ReviewsView: View {
     }
 }
 
+private extension ReviewsView {
+    var filteredAndSorted: [Testimonial] {
+        var arr = items
+        if !query.isEmpty {
+            let q = query.lowercased()
+            arr = arr.filter { ("\($0.customerName) \($0.text)".lowercased()).contains(q) }
+        }
+        if minRating > 0 { arr = arr.filter { $0.rating >= minRating } }
+        arr.sort { a, b in
+            switch sort {
+            case .dateDesc: return a.id > b.id
+            case .dateAsc: return a.id < b.id
+            case .ratingDesc: return a.rating > b.rating
+            case .ratingAsc: return a.rating < b.rating
+            }
+        }
+        return arr
+    }
+}
+
 // MARK: - Messages
 struct MessagesView: View {
     @State private var items: [ContactMessage] = []
     @State private var loading = false
     @State private var error: String?
+    @State private var query: String = ""
+    @State private var unreadOnly: Bool = false
+    @State private var sort: Sort = .dateDesc
+    @EnvironmentObject var live: LiveUpdates
+
+    enum Sort: String, CaseIterable { case dateDesc = "Newest", dateAsc = "Oldest" }
 
     var body: some View {
         NavigationView {
             Group {
                 if loading { ProgressView() }
-                List(items) { m in
+                List(filteredAndSorted) { m in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack { Text(m.name).bold(); Spacer(); Text(m.email).foregroundColor(.secondary) }
                         if let s = m.subject { Text(s).font(.subheadline) }
@@ -120,9 +212,21 @@ struct MessagesView: View {
                 }
             }
             .navigationTitle("Messages")
-            .toolbar { Button("Refresh") { Task { await load() } } }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Sort", selection: $sort) { ForEach(Sort.allCases, id: \.self) { Text($0.rawValue).tag($0) } }
+                        Toggle("Unread only", isOn: $unreadOnly)
+                    } label: { Label("Options", systemImage: "line.3.horizontal.decrease.circle") }
+                }
+                ToolbarItem(placement: .topBarTrailing) { Button("Refresh") { Task { await load() } } }
+            }
+            .searchable(text: $query)
             .task { await load() }
             .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
+            .onChange(of: live.lastEvent?.noteType) { note in
+                if note == "contact" { Task { await load() } }
+            }
         }
     }
 
@@ -135,6 +239,23 @@ struct MessagesView: View {
     static let dateFormatter: DateFormatter = {
         let f = DateFormatter(); f.dateFormat = "EEEE, dd/MM/yyyy 'at' HH:mm"; return f
     }()
+}
+
+private extension MessagesView {
+    var filteredAndSorted: [ContactMessage] {
+        var arr = items
+        if !query.isEmpty {
+            let q = query.lowercased()
+            arr = arr.filter { ("\($0.name) \($0.email) \($0.subject ?? "") \($0.message)".lowercased()).contains(q) }
+        }
+        if unreadOnly { arr = arr.filter { ($0.read ?? false) == false } }
+        arr.sort { a, b in
+            let ad = a.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+            let bd = b.createdAt.flatMap { ISO8601DateFormatter().date(from: $0) } ?? .distantPast
+            return sort == .dateDesc ? ad > bd : ad < bd
+        }
+        return arr
+    }
 }
 
 // MARK: - Visits
@@ -164,6 +285,7 @@ struct VisitsFeedView: View {
     @State private var items: [NotificationItem] = []
     @State private var loading = false
     @State private var error: String?
+    @EnvironmentObject var live: LiveUpdates
 
     var body: some View {
         Group {
@@ -187,6 +309,9 @@ struct VisitsFeedView: View {
         .toolbar { Button("Refresh") { Task { await load() } } }
         .task { await load() }
         .alert(error ?? "", isPresented: .constant(error != nil)) { Button("OK") { error = nil } }
+        .onChange(of: live.lastEvent?.noteType) { note in
+            if note == "visit" { Task { await load() } }
+        }
     }
 
     private func load() async {
@@ -203,6 +328,7 @@ struct VisitsFeedView: View {
 struct VisitsTrendsView: View {
     @State private var items: [NotificationItem] = []
     @State private var loading = false
+    @EnvironmentObject var live: LiveUpdates
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -215,6 +341,9 @@ struct VisitsTrendsView: View {
             .padding()
         }
         .task { await load() }
+        .onChange(of: live.lastEvent?.noteType) { note in
+            if note == "visit" { Task { await load() } }
+        }
     }
 
     struct TrendPoint: Identifiable { let id = UUID(); let date: Date; let count: Int }
@@ -257,4 +386,3 @@ struct PersonalView: View {
         }
     }
 }
-

@@ -131,3 +131,9 @@ export async function createNotificationAndPush(input: InsertNotification): Prom
     console.error("APNs push failed:", e);
   }
 }
+
+// Exported utility for CI to verify Firebase configuration
+export async function verifyFcmConfig(): Promise<boolean> {
+  const admin = await initFirebaseOnce();
+  return !!admin;
+}
