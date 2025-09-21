@@ -10,6 +10,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 // User model
 export const users = pgTable("users", {
@@ -218,6 +219,28 @@ export const insertDeviceSchema = createInsertSchema(devices).omit({
   createdAt: true,
   lastActiveAt: true,
 });
+
+// Documents for downloadable files with custom slugs
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title"),
+  originalFilename: text("original_filename").notNull(),
+  storedFilename: text("stored_filename").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDocumentSchema = createInsertSchema(documents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Document = InferSelectModel<typeof documents>;
+export type InsertDocument = InferInsertModel<typeof documents>;
 
 // App-side notifications (for visits, contact messages, etc.)
 export const notifications = pgTable("notifications", {

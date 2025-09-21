@@ -99,6 +99,13 @@ export default function AdminIndexPage() {
             linkText="Manage Images"
           />
           <DashboardCard 
+            title="Documents" 
+            description="Upload and share documents"
+            icon={<Newspaper className="w-8 h-8" />}
+            linkTo="/admin/documents"
+            linkText="Manage Documents"
+          />
+          <DashboardCard 
             title="Reviews" 
             description="Approve and manage reviews"
             icon={<MessageSquareIcon className="w-8 h-8" />}

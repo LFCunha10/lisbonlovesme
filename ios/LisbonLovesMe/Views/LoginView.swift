@@ -3,7 +3,7 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var session: SessionModel
     @StateObject private var vm = AuthViewModel()
-    @State private var showEnableFaceIDPrompt = false
+    @State private var showEnableFaceIDPrompt = true
 
     var body: some View {
         VStack(spacing: 24) {

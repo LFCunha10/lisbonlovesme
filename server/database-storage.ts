@@ -1,7 +1,7 @@
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
-  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles,
+  users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles, documents,
   devices, notifications, contactMessages,
   type User, type InsertUser,
   type Tour, type InsertTour,
@@ -12,6 +12,7 @@ import {
   type AdminSetting, type InsertAdminSetting,
   type Gallery, type InsertGallery,
   type Article, type InsertArticle,
+  type Document, type InsertDocument,
   type Device, type InsertDevice,
   type Notification, type InsertNotification,
   type ContactMessage, type InsertContactMessage
@@ -20,6 +21,56 @@ import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  private async ensureDocumentsTable() {
+    // Create table if it doesn't exist (idempotent)
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT,
+        original_filename TEXT NOT NULL,
+        stored_filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )`);
+    } catch (e) {
+      // swallow; if permissions or table exists already
+    }
+  }
+  // Document operations
+  async getDocuments(): Promise<Document[]> {
+    await this.ensureDocumentsTable();
+    return db.select().from(documents).orderBy(desc(documents.createdAt));
+  }
+
+  async getDocument(id: number): Promise<Document | undefined> {
+    await this.ensureDocumentsTable();
+    const [doc] = await db.select().from(documents).where(eq(documents.id, id));
+    return doc;
+  }
+
+  async getDocumentBySlug(slug: string): Promise<Document | undefined> {
+    await this.ensureDocumentsTable();
+    const [doc] = await db.select().from(documents).where(eq(documents.slug, slug));
+    return doc;
+  }
+
+  async createDocument(doc: InsertDocument): Promise<Document> {
+    await this.ensureDocumentsTable();
+    const [record] = await db
+      .insert(documents)
+      .values({ ...doc, createdAt: new Date(), updatedAt: new Date() } as any)
+      .returning();
+    return record;
+  }
+
+  async deleteDocument(id: number): Promise<boolean> {
+    await this.ensureDocumentsTable();
+    const result = await db.delete(documents).where(eq(documents.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
   // Devices
   async registerDevice(platform: string, token: string): Promise<Device> {
     const now = new Date();

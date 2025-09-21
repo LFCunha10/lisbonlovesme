@@ -12,6 +12,9 @@
     "db:push": "drizzle-kit push",
     "run_everything": "npm run build && npm run start",
     "import:tours": "tsx scripts/import-tours.ts",
+    "import:blog": "tsx scripts/import-wix-blog.ts",
+    "import:blog:rss": "tsx scripts/import-wix-blog-rss.ts",
+    "import:blog:cards": "tsx scripts/import-wix-blog-cards.ts",
     "ci:check-fcm": "tsx scripts/ci-check-fcm.ts"
   },
   "dependencies": {

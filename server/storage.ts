@@ -7,7 +7,8 @@ import {
   closedDays, type ClosedDay, type InsertClosedDay,
   adminSettings, type AdminSetting, type InsertAdminSetting,
   gallery, type Gallery, type InsertGallery,
-  articles, type Article, type InsertArticle
+  articles, type Article, type InsertArticle,
+  documents, type Document, type InsertDocument
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 
@@ -78,6 +79,13 @@ export interface IStorage {
   createArticle(article: InsertArticle): Promise<Article>;
   updateArticle(id: number, article: Partial<InsertArticle>): Promise<Article | undefined>;
   deleteArticle(id: number): Promise<boolean>;
+
+  // Document operations
+  getDocuments(): Promise<Document[]>;
+  getDocument(id: number): Promise<Document | undefined>;
+  getDocumentBySlug(slug: string): Promise<Document | undefined>;
+  createDocument(doc: InsertDocument): Promise<Document>;
+  deleteDocument(id: number): Promise<boolean>;
 
   // Devices + Notifications + Messages
   registerDevice(platform: string, token: string): Promise<import("@shared/schema").Device>;
@@ -487,6 +495,33 @@ export class MemStorage implements IStorage {
   async deleteArticle(id: number): Promise<boolean> {
     return this.articles.delete(id);
   }
+
+  // Documents (in-memory stubs)
+  private documentsMem: Map<number, Document> = new Map();
+  private documentCurrentId = 1;
+  async getDocuments(): Promise<Document[]> { return Array.from(this.documentsMem.values()); }
+  async getDocument(id: number): Promise<Document | undefined> { return this.documentsMem.get(id); }
+  async getDocumentBySlug(slug: string): Promise<Document | undefined> {
+    return Array.from(this.documentsMem.values()).find(d => d.slug === slug);
+  }
+  async createDocument(doc: InsertDocument): Promise<Document> {
+    const id = this.documentCurrentId++;
+    const now = new Date();
+    const record: Document = {
+      id,
+      slug: doc.slug,
+      title: (doc as any).title ?? null,
+      originalFilename: doc.originalFilename,
+      storedFilename: doc.storedFilename,
+      mimeType: doc.mimeType,
+      size: doc.size,
+      createdAt: now as any,
+      updatedAt: now as any,
+    } as any;
+    this.documentsMem.set(id, record);
+    return record;
+  }
+  async deleteDocument(id: number): Promise<boolean> { return this.documentsMem.delete(id); }
 
   // Devices + Notifications + Messages (in-memory stubs)
   private deviceTokens: Map<string, { platform: string; token: string; isActive: boolean; createdAt: Date; lastActiveAt?: Date }> = new Map();

@@ -6,6 +6,7 @@ import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewR
 import { autoTranslateTourContent, translateField } from "./translation-service.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
+import { uploadDocument, handleDocumentUploadErrors, getStoredFilePath } from "./utils/document-upload";
 import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAdmin } from "./auth";
@@ -1462,6 +1463,106 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     } catch (err: any) {
       console.error('Email test failed:', err);
       res.status(500).json({ ok: false, message: err?.message || 'Email test failed' });
+    }
+  });
+
+  // Documents management (admin only)
+  const RESERVED_SLUGS = new Set([
+    'admin','api','uploads','assets','static','images','img','tours','tour','articles','article','book','review','gallery'
+  ]);
+
+  app.get("/api/documents", isAuthenticated, isAdmin, async (_req: Request, res: Response) => {
+    try {
+      const docs = await storage.getDocuments();
+      res.json(docs);
+    } catch (err: any) {
+      res.status(500).json({ message: err?.message || 'Failed to list documents' });
+    }
+  });
+
+  app.post(
+    "/api/documents",
+    isAuthenticated,
+    isAdmin,
+    uploadDocument.single('file'),
+    handleDocumentUploadErrors,
+    async (req: Request, res: Response) => {
+      try {
+        const slugRaw = (req.body?.slug || '').toString();
+        const title = (req.body?.title || '').toString() || null;
+        if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+        if (!slugRaw) return res.status(400).json({ message: 'Slug is required' });
+
+        const slug = slugRaw
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\-\s]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-');
+
+        if (!slug) return res.status(400).json({ message: 'Invalid slug' });
+        if (RESERVED_SLUGS.has(slug)) return res.status(400).json({ message: 'Slug is reserved' });
+
+        const existing = await storage.getDocumentBySlug(slug);
+        if (existing) return res.status(409).json({ message: 'Slug already in use' });
+
+        const doc = await storage.createDocument({
+          slug,
+          title: title as any,
+          originalFilename: req.file.originalname,
+          storedFilename: req.file.filename,
+          mimeType: req.file.mimetype,
+          size: req.file.size,
+        } as any);
+
+        res.status(201).json(doc);
+      } catch (err: any) {
+        console.error('Create document failed:', err);
+        res.status(500).json({ message: err?.message || 'Failed to create document' });
+      }
+    }
+  );
+
+  app.delete("/api/documents/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const doc = await storage.getDocument(id);
+      if (!doc) return res.status(404).json({ message: 'Document not found' });
+
+      // Attempt to remove file from disk
+      try {
+        const p = getStoredFilePath(doc.storedFilename);
+        if (fs.existsSync(p)) fs.unlinkSync(p);
+      } catch (e) {
+        console.warn('Failed to delete stored file:', e);
+      }
+
+      await storage.deleteDocument(id);
+      res.json({ message: 'Document deleted' });
+    } catch (err: any) {
+      res.status(500).json({ message: err?.message || 'Failed to delete document' });
+    }
+  });
+
+  // Public route: serve document by slug, if exists
+  app.get('/:slug', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const slug = req.params.slug;
+      // Do not handle known prefixes (they are handled elsewhere)
+      if (RESERVED_SLUGS.has(slug)) return next();
+
+      const doc = await storage.getDocumentBySlug(slug);
+      if (!doc) return next();
+
+      const filePath = getStoredFilePath(doc.storedFilename);
+      if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+
+      res.setHeader('Content-Type', doc.mimeType || 'application/octet-stream');
+      // Force download with a friendly filename
+      res.setHeader('Content-Disposition', `inline; filename="${doc.originalFilename.replace(/"/g, '')}"`);
+      res.sendFile(filePath);
+    } catch (err) {
+      next(err);
     }
   });
 
