@@ -219,6 +219,7 @@ export default function Booking() {
                       onSelect={handleParticipantsSelect}
                       onBack={handleBack}
                       maxParticipants={tour.maxGroupSize}
+                      totalPrice={calculateTotal()}
                       availableSpots={bookingData.availabilityId ? availabilities?.find(a => a.id === bookingData.availabilityId)?.spotsLeft || 0 : 0}
                     />
                   )}

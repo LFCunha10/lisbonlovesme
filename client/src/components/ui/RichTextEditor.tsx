@@ -11,6 +11,10 @@ import Image from '@tiptap/extension-image'
 import ImageResize from 'tiptap-extension-resize-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import { FontSize } from '@/components/extensions/FontSize'
+import Table from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableHeader from '@tiptap/extension-table-header'
+import TableCell from '@tiptap/extension-table-cell'
 
 import {
   Bold, Italic, Underline as UnderlineIcon, Paintbrush,
@@ -50,6 +54,31 @@ export function RichTextEditor({ value, onChange }: Props) {
         font-size: 1rem;
         line-height: 1.5;
       }
+      /* Table styling */
+      .ProseMirror table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin: 0.5rem 0;
+      }
+      .ProseMirror th,
+      .ProseMirror td {
+        border: 1px solid #e5e7eb; /* gray-200 */
+        padding: 0.5rem;
+        vertical-align: top;
+      }
+      .ProseMirror th {
+        background-color: #f9fafb; /* gray-50 */
+        font-weight: 600;
+        text-align: left;
+      }
+      .ProseMirror .selectedCell:after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; top: 0; bottom: 0;
+        background: rgba(59,130,246,0.14); /* blue-500 with opacity */
+        pointer-events: none;
+      }
     `
     document.head.appendChild(style)
     return () => {
@@ -74,6 +103,10 @@ export function RichTextEditor({ value, onChange }: Props) {
       TextAlign.configure({ types: ['paragraph', 'heading'] }),
       Image.configure({ inline: false, allowBase64: true }),
       ImageResize.configure({ inline: false }),
+      Table.configure({ resizable: true, HTMLAttributes: { class: 'tiptap-table' } }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Placeholder.configure({
         placeholder: 'Type here',
         emptyEditorClass: 'is-editor-empty',
@@ -149,6 +182,19 @@ export function RichTextEditor({ value, onChange }: Props) {
         <button onClick={() => editor.chain().focus().setTextAlign('justify').run()}><AlignJustify size={18} /></button>
         <button onClick={insertUpload}><Upload size={18} /></button>
         <button onClick={() => editor.chain().focus().setLink({ href: 'https://example.com' }).run()}><LinkIcon size={18} /></button>
+
+        {/* Table controls */}
+        <span style={{ width: 1, height: 22, background: '#e5e7eb', margin: '0 6px' }} />
+        <button
+          title="Insert table"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          style={{ fontSize: 12 }}
+        >Table</button>
+        <button title="Add row" onClick={() => editor.chain().focus().addRowAfter().run()} style={{ fontSize: 12 }}>+Row</button>
+        <button title="Add column" onClick={() => editor.chain().focus().addColumnAfter().run()} style={{ fontSize: 12 }}>+Col</button>
+        <button title="Delete row" onClick={() => editor.chain().focus().deleteRow().run()} style={{ fontSize: 12 }}>-Row</button>
+        <button title="Delete column" onClick={() => editor.chain().focus().deleteColumn().run()} style={{ fontSize: 12 }}>-Col</button>
+        <button title="Delete table" onClick={() => editor.chain().focus().deleteTable().run()} style={{ fontSize: 12 }}>Del Tbl</button>
 
         <select onChange={(e) => setFont(e.target.value)} defaultValue="" style={{ fontSize: '14px' }}>
           <option value="" disabled>Font</option>

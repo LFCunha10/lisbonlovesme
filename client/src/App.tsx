@@ -266,7 +266,7 @@ function LanguageAwareApp() {
   }, [i18n.language]);
 
   // Fire a lightweight visit tracking event on first load
-  // Try to include browser geolocation if available, with a short timeout
+  // Try to include browser geolocation with daily prompt throttle
   useEffect(() => {
     const controller = new AbortController();
     const basePayload: any = {
@@ -288,7 +288,19 @@ function LanguageAwareApp() {
     // Fallback if geolocation is slow or unavailable
     const fallbackTimer = setTimeout(() => send(basePayload), 1500);
 
-    if (navigator.geolocation) {
+    const GEO_PROMPT_KEY = 'llm_geo_prompt_at';
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    const getLastPrompt = (): number => {
+      try { return Number(localStorage.getItem(GEO_PROMPT_KEY) || 0); } catch { return 0; }
+    };
+    const setPromptNow = () => {
+      try { localStorage.setItem(GEO_PROMPT_KEY, String(now)); } catch {}
+    };
+
+    const tryGeolocate = () => {
+      if (!navigator.geolocation) return; // rely on fallback
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           clearTimeout(fallbackTimer);
@@ -301,9 +313,43 @@ function LanguageAwareApp() {
         },
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
       );
+    };
+
+    // Use Permissions API when available to avoid unnecessary prompts
+    const maybeGeolocateWithDailyPrompt = () => {
+      const last = getLastPrompt();
+      if (!last || now - last > DAY_MS) {
+        // Record that we attempted to prompt today regardless of outcome
+        setPromptNow();
+        tryGeolocate();
+      }
+      // else rely on fallback to send without coords
+    };
+
+    const anyNavigator: any = navigator as any;
+    if (anyNavigator.permissions?.query) {
+      try {
+        anyNavigator.permissions.query({ name: 'geolocation' as PermissionName }).then((status: any) => {
+          const state = status?.state as PermissionState | undefined;
+          if (state === 'granted') {
+            // Safe to use geolocation without prompting each time
+            tryGeolocate();
+          } else if (state === 'denied') {
+            // Don't attempt; rely on fallback
+          } else {
+            // state === 'prompt' or unknown
+            maybeGeolocateWithDailyPrompt();
+          }
+        }).catch(() => {
+          // If query fails, fall back to daily throttle
+          maybeGeolocateWithDailyPrompt();
+        });
+      } catch {
+        maybeGeolocateWithDailyPrompt();
+      }
     } else {
-      // No geolocation API
-      // rely on fallback timer
+      // No Permissions API — throttle our geolocation request to once per day
+      maybeGeolocateWithDailyPrompt();
     }
 
     return () => {

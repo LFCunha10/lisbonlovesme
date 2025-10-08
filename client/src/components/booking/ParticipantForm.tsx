@@ -25,6 +25,7 @@ interface ParticipantFormProps {
   onBack: () => void;
   maxParticipants: number;
   availableSpots: number;
+  totalPrice: number;
 }
 
 const participantSchema = z.object({
@@ -45,7 +46,7 @@ type Props = {
   };
 };
 
-export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants, availableSpots }: ParticipantFormProps) {
+export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants, availableSpots, totalPrice }: ParticipantFormProps) {
   const { t } = useTranslation();
   const [participants, setParticipants] = useState(1);
 
@@ -127,7 +128,7 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
               </Select>
               
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{((participants * tour.price) / 100).toFixed(2)}</span>
+                {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{(totalPrice / 100).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
