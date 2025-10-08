@@ -39,18 +39,6 @@ export default function FeaturedTours() {
             <TourCard key={tour.id} tour={tour} />
           ))}
         </div>
-        
-        <div className="text-center mt-12">
-          <Button
-            variant="outline"
-            className="inline-flex items-center justify-center border-2 border-primary hover:bg-primary hover:text-white"
-            asChild
-          >
-            <Link href="/tours">
-              {t('home.viewAll')} <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
       </div>
     </section>
   );
