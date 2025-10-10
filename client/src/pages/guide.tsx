@@ -54,20 +54,14 @@ export default function GuideDownloadPage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-10 text-center">
           <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-            {t('guideDownload.title', 'Download the Tour Guide (PDF)')}
+            {t('guideDownload.title', 'Download the Tour Guide')}
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t('guideDownload.description', 'Get the tour guide in your preferred language.')}
-          </p>
         </div>
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md p-8 text-center">
-          <p className="text-gray-700 mb-6">
-            {t('guideDownload.currentLanguage', 'Selected language')}: <span className="font-medium uppercase">{lang}</span>
-          </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="px-6" onClick={handleDownload} disabled={downloading}>
               <Download className="w-5 h-5 mr-2" />
