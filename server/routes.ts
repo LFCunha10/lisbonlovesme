@@ -1468,7 +1468,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
 
   // Documents management (admin only)
   const RESERVED_SLUGS = new Set([
-    'admin','api','uploads','assets','static','images','img','tours','tour','articles','article','book','review','gallery'
+    'admin','api','uploads','assets','static','images','img','tours','tour','articles','article','book','review','gallery',
+    // Front-end pages that should not be treated as document slugs
+    '3-day-guide-book'
   ]);
 
   app.get("/api/documents", isAuthenticated, isAdmin, async (_req: Request, res: Response) => {

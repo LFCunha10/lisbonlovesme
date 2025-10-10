@@ -1,5 +1,14 @@
 {
   "translation": {
+    "guideDownload": {
+      "title": "Baixar o Guia do Passeio (PDF)",
+      "description": "Obtenha o guia do passeio no seu idioma preferido.",
+      "button": "Baixar PDF",
+      "open": "Abrir no navegador",
+      "note": "Se o arquivo não abrir, pode ainda não estar disponível neste idioma.",
+      "unavailable": "Arquivo ainda não disponível neste idioma.",
+      "currentLanguage": "Idioma selecionado"
+    },
     "nav": {
       "home": "Início",
       "tours": "Passeios",

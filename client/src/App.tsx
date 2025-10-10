@@ -36,6 +36,16 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/3-day-guide-book">
+        {() => {
+          const GuidePage = React.lazy(() => import("@/pages/guide"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <GuidePage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/review/:bookingReference">
         {() => {
           const ReviewPage = React.lazy(() => import("@/pages/review"));
@@ -362,7 +372,7 @@ function LanguageAwareApp() {
     <TooltipProvider>
       <div className="min-h-screen flex flex-col">
         <NavBar />
-        <main className="flex-grow">
+        <main className="flex-grow" style={{ paddingTop: 'var(--navbar-height, 56px)' }}>
           <Router />
         </main>
         <Footer />

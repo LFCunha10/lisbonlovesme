@@ -32,6 +32,7 @@ img {
 
 :root {
       --background: 0 0% 100%;
+--navbar-height: 56px;
 --foreground: 20 14.3% 4.1%;
 --muted: 60 4.8% 95.9%;
 --muted-foreground: 25 5.3% 44.7%;

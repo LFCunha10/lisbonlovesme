@@ -250,7 +250,7 @@ export default function Booking() {
 
             {/* Sidebar - Booking Summary */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-8">
+              <Card className="sticky" style={{ top: 'calc(var(--navbar-height, 56px) + 2rem)' }}>
                 <CardHeader>
                   <CardTitle className="text-lg">
                     {t('booking.requestSummary')}

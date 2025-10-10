@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X, ChevronDown } from "lucide-react";
@@ -11,9 +11,11 @@ import LanguageSwitcher from "@/components/language-switcher";
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [articlesOpen, setArticlesOpen] = useState(false);
+  const [articlesMobileOpen, setArticlesMobileOpen] = useState(false);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
   const [location] = useLocation();
   const { t, i18n } = useTranslation();
+  const navRef = useRef<HTMLElement | null>(null);
   
   // Check if we're on an admin page
   const isAdminPage = location.startsWith('/admin');
@@ -29,8 +31,28 @@ export default function NavBar() {
 
   const publishedArticles = Array.isArray(articles) ? articles.filter(a => a.isPublished) : [];
 
+  // Keep a CSS variable updated with current navbar height
+  useEffect(() => {
+    const updateOffset = () => {
+      const h = navRef.current?.offsetHeight ?? 0;
+      // Fallback to 56px if height cannot be measured yet
+      const px = `${h || 56}px`;
+      document.documentElement.style.setProperty('--navbar-height', px);
+    };
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+    return () => window.removeEventListener('resize', updateOffset);
+  }, []);
+
+  // Recalculate when menu states change (mobile/hover dropdown may change height)
+  useEffect(() => {
+    const h = navRef.current?.offsetHeight ?? 0;
+    const px = `${h || 56}px`;
+    document.documentElement.style.setProperty('--navbar-height', px);
+  }, [isOpen, articlesOpen, articlesMobileOpen]);
+
   return (
-    <nav className="bg-white shadow-md fixed w-full z-50">
+    <nav ref={navRef} className="bg-white shadow-md fixed w-full z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
@@ -49,7 +71,7 @@ export default function NavBar() {
               {publishedArticles.length > 0 && (
                 <div className="relative">
                   <button
-                    className="flex items-center text-neutral-dark hover:text-primary transition-all font-medium"
+                    className="flex items-center text-primary hover:text-primary transition-all font-medium"
                     onMouseEnter={() => {
                       if (closeTimeout) clearTimeout(closeTimeout);
                       setArticlesOpen(true);
@@ -120,17 +142,28 @@ export default function NavBar() {
           <div className="md:hidden mt-4 pb-4 space-y-2">
             <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
             {publishedArticles.length > 0 && (
-              <div className="border-l-2 border-gray-200 pl-4 ml-2">
-                <div className="text-sm font-medium text-gray-500 mb-2">Articles</div>
-                {publishedArticles.slice(0, 5).map((article) => (
-                  <MobileNavLink 
-                    key={article.id}
-                    href={`/articles/${article.slug}`} 
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {getLocalizedText(article.title, i18n.language)}
-                  </MobileNavLink>
-                ))}
+              <div className="ml-2">
+                <button
+                  className="flex items-center justify-between w-full py-2 text-neutral-dark"
+                  onClick={() => setArticlesMobileOpen((o) => !o)}
+                  aria-expanded={articlesMobileOpen}
+                >
+                  <span className="text-sm font-medium text-gray-700">Articles</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", articlesMobileOpen && "rotate-180")} />
+                </button>
+                {articlesMobileOpen && (
+                  <div className="border-l-2 border-gray-200 pl-4">
+                    {publishedArticles.slice(0, 5).map((article) => (
+                      <MobileNavLink 
+                        key={article.id}
+                        href={`/articles/${article.slug}`} 
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {getLocalizedText(article.title, i18n.language)}
+                      </MobileNavLink>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('nav.about')}</MobileNavLink>

@@ -1,5 +1,14 @@
 {
   "translation": {
+    "guideDownload": {
+      "title": "Download the Tour Guide (PDF)",
+      "description": "Get the tour guide in your preferred language.",
+      "button": "Download PDF",
+      "open": "Open in browser",
+      "note": "If the file does not open, it may not yet be available for this language.",
+      "unavailable": "File not available for this language yet.",
+      "currentLanguage": "Selected language"
+    },
     "nav": {
       "home": "Home",
       "tours": "Tours",

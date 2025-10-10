@@ -37,7 +37,7 @@ export default function TourDetailsPage() {
 
   if (tourLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-4">
           <Skeleton className="h-8 w-32 mb-6" />
           <Skeleton className="h-96 w-full mb-8 rounded-lg" />
@@ -58,7 +58,7 @@ export default function TourDetailsPage() {
 
   if (!tour) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center pt-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             {t('common.tourNotFound')}
@@ -80,7 +80,7 @@ export default function TourDetailsPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Navigation */}
       <div className="container mx-auto px-4 py-2">
         <Link href="/">
@@ -341,7 +341,7 @@ export default function TourDetailsPage() {
 
           {/* Desktop Booking Sidebar - Hidden on mobile */}
           <div className="hidden lg:block lg:col-span-1">
-            <Card className="sticky top-6">
+            <Card className="sticky" style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}>
               <CardContent className="p-6">
                 <div className="text-center mb-6">
                   <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
