@@ -14,6 +14,8 @@ import { createAdminUserIfNotExists } from "./auth";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { pool } from "./db";
+import fs from "fs";
+import { resolveUploadDir } from "./utils/uploads-path";
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -26,11 +28,16 @@ app.use(
   })
 );
 
-// Serve uploaded files from configurable directory (supports persistent volumes)
-const UPLOAD_DIR = process.env.UPLOAD_DIR
-  ? path.resolve(process.env.UPLOAD_DIR)
-  : path.join(process.cwd(), 'public', 'uploads');
+// Serve uploaded files from a consistent directory (supports persistent volumes)
+const UPLOAD_DIR = resolveUploadDir();
 app.use("/uploads", express.static(UPLOAD_DIR));
+// Log for troubleshooting in Render
+try {
+  const canWrite = (() => {
+    try { fs.accessSync(UPLOAD_DIR, fs.constants.W_OK); return true; } catch { return false; }
+  })();
+  log(`Uploads directory: ${UPLOAD_DIR} (writable=${canWrite})`);
+} catch {}
 
 app.use(cookieParser());
 

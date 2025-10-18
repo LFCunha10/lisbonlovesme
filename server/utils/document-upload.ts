@@ -3,14 +3,10 @@ import path from 'path';
 import { nanoid } from 'nanoid';
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
+import { resolveUploadDir } from './uploads-path';
 
-// Create uploads directory if it doesn't exist (supports persistent volumes)
-const uploadDir = process.env.UPLOAD_DIR
-  ? path.resolve(process.env.UPLOAD_DIR)
-  : path.join(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Resolve and ensure uploads directory (supports Render persistent disk)
+const uploadDir = resolveUploadDir();
 
 // Configure multer storage
 const storage = multer.diskStorage({

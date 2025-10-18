@@ -17,6 +17,7 @@ import csurf from "csurf";
 import bcrypt from "bcryptjs";
 import { initNotificationsWebSocketServer } from "./websocket";
 import type { DiscountCode } from "@shared/schema";
+import { resolveUploadDir } from "./utils/uploads-path";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
@@ -1644,6 +1645,56 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     } catch (err: any) {
       console.error('Email test failed:', err);
       res.status(500).json({ ok: false, message: err?.message || 'Email test failed' });
+    }
+  });
+
+  // Admin: storage diagnostics
+  app.get("/api/admin/storage/diagnostics", isAuthenticated, isAdmin, async (_req: Request, res: Response) => {
+    try {
+      const dir = resolveUploadDir();
+      const exists = fs.existsSync(dir);
+      const stats = exists ? fs.statSync(dir) : undefined;
+      const isDirectory = !!stats?.isDirectory();
+      const readable = (() => { try { fs.accessSync(dir, fs.constants.R_OK); return true; } catch { return false; } })();
+      const writable = (() => { try { fs.accessSync(dir, fs.constants.W_OK); return true; } catch { return false; } })();
+
+      let fileCount = 0;
+      let totalBytes = 0;
+      const examples: { name: string; size: number }[] = [];
+
+      if (exists && isDirectory) {
+        const walk = (p: string) => {
+          const entries = fs.readdirSync(p, { withFileTypes: true });
+          for (const e of entries) {
+            const full = path.join(p, e.name);
+            if (e.isDirectory()) walk(full);
+            else if (e.isFile()) {
+              try {
+                const s = fs.statSync(full);
+                fileCount += 1;
+                totalBytes += s.size;
+                if (examples.length < 10) {
+                  examples.push({ name: path.relative(dir, full), size: s.size });
+                }
+              } catch {}
+            }
+          }
+        };
+        walk(dir);
+      }
+
+      res.json({
+        uploadDir: dir,
+        exists,
+        isDirectory,
+        readable,
+        writable,
+        fileCount,
+        totalBytes,
+        examples,
+      });
+    } catch (err: any) {
+      res.status(500).json({ message: err?.message || 'Failed to compute storage diagnostics' });
     }
   });
 
