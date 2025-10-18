@@ -37,6 +37,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     { href: "/admin/gallery", icon: <ImageIcon className="w-5 h-5" />, label: "Gallery" },
     { href: "/admin/reviews", icon: <MessageSquare className="w-5 h-5" />, label: "Reviews" },
     { href: "/admin/password", icon: <Lock className="w-5 h-5" />, label: "Password" },
+    // Storage diagnostics page
+    { href: "/admin/storage", icon: <Database className="w-5 h-5" />, label: "Storage" },
     { href: "/admin/database-export", icon: <Database className="w-5 h-5" />, label: "Database Export" }
   ];
 
