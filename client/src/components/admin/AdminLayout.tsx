@@ -45,7 +45,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       <Helmet>
         <title>{title ? `${title} - Lisbonlovesme Admin` : "Lisbonlovesme Admin"}</title>
       </Helmet>
-      <div className="min-h-screen bg-gray-50 md:pt-16 dark:bg-gray-900 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
         {/* Sidebar */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow-md hidden md:block">
           <nav className="mt-4">

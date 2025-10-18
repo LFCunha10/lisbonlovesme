@@ -123,6 +123,7 @@ export default function AdminTours() {
   const queryClient = useQueryClient();
   const [isCreateTourOpen, setIsCreateTourOpen] = useState(false);
   const [isCreateAvailabilityOpen, setIsCreateAvailabilityOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [isEditTourOpen, setIsEditTourOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
@@ -390,6 +391,27 @@ export default function AdminTours() {
   const handleTourSelect = (tour: any) => {
     setSelectedTourId(tour.id);
     setSelectedTab("details");
+  };
+
+  // Helper to select all (non-disabled) days of the currently visible month
+  const handleSelectAllMonthDays = () => {
+    const baseMonth = calendarMonth ?? new Date();
+    const year = baseMonth.getFullYear();
+    const month = baseMonth.getMonth();
+    const start = new Date(year, month, 1);
+    const end = new Date(year, month + 1, 0);
+    const todayMidnight = new Date(new Date().setHours(0, 0, 0, 0));
+
+    const days: Date[] = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const day = new Date(d);
+      // Respect the same disabled rule used in Calendar (no past days)
+      if (day >= todayMidnight) {
+        days.push(day);
+      }
+    }
+
+    availabilityForm.setValue("selectedDates", days, { shouldDirty: true });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1169,7 +1191,7 @@ export default function AdminTours() {
                                     Add Availability
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent>
+                                <DialogContent className="max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                                   <DialogHeader>
                                     <DialogTitle>Add Availability</DialogTitle>
                                     <DialogDescription>
@@ -1191,12 +1213,19 @@ export default function AdminTours() {
                                           <FormItem>
                                             <FormLabel>Select Dates</FormLabel>
                                             <FormControl>
-                                              <div className="w-[450px] h-[360px] border rounded-md p-3 flex flex-col items-center justify-center">
+                                              <div className="w-[450px] min-h-[360px] border rounded-md p-3 flex flex-col items-center">
+                                                <div className="w-full flex justify-end mb-2">
+                                                  <Button type="button" size="sm" variant="outline" onClick={handleSelectAllMonthDays}>
+                                                    Select all days this month
+                                                  </Button>
+                                                </div>
                                                 <div className="flex flex-1 items-center justify-center">
                                                   <Calendar
                                                     mode="multiple"
                                                     selected={field.value || []}
                                                     onSelect={field.onChange}
+                                                    month={calendarMonth}
+                                                    onMonthChange={setCalendarMonth}
                                                     disabled={(date) =>
                                                       date <
                                                       new Date(
