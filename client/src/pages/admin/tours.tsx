@@ -411,7 +411,14 @@ export default function AdminTours() {
       }
     }
 
-    availabilityForm.setValue("selectedDates", days, { shouldDirty: true });
+    // Merge with existing selections (union by day) to keep previously selected months
+    const existing = availabilityForm.getValues("selectedDates") || [];
+    const byKey = new Map<string, Date>();
+    for (const d of existing) byKey.set(format(d, "yyyy-MM-dd"), d);
+    for (const d of days) byKey.set(format(d, "yyyy-MM-dd"), d);
+    const merged = Array.from(byKey.values()).sort((a, b) => a.getTime() - b.getTime());
+
+    availabilityForm.setValue("selectedDates", merged, { shouldDirty: true });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
