@@ -7,7 +7,7 @@
     "dev": "npm run build && NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
-    "postbuild": "cp -r public dist/ && cp package.json dist/",
+    "postbuild": "if [ -d public ]; then cp -r public dist/; else echo 'No public directory, skipping copy'; fi && cp package.json dist/",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "run_everything": "npm run build && npm run start",
