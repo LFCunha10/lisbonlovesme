@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { type Request, Response, NextFunction, type RequestHandler } from "express";
+import path from "path";
 import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -25,8 +26,11 @@ app.use(
   })
 );
 
-// Serve static files from public directory
-app.use("/uploads", express.static("public/uploads"));
+// Serve uploaded files from configurable directory (supports persistent volumes)
+const UPLOAD_DIR = process.env.UPLOAD_DIR
+  ? path.resolve(process.env.UPLOAD_DIR)
+  : path.join(process.cwd(), 'public', 'uploads');
+app.use("/uploads", express.static(UPLOAD_DIR));
 
 app.use(cookieParser());
 

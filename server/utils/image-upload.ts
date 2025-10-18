@@ -4,8 +4,10 @@ import { nanoid } from 'nanoid';
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
 
-// Create uploads directory if it doesn't exist
-const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+// Create uploads directory if it doesn't exist (supports persistent volumes)
+const uploadDir = process.env.UPLOAD_DIR
+  ? path.resolve(process.env.UPLOAD_DIR)
+  : path.join(process.cwd(), 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
