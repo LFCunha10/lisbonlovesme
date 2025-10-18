@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import AdminLayout from "@/components/admin/AdminLayout";
 import {
   Card,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
 
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return "-";
@@ -33,6 +34,21 @@ export default function AdminStorageDiagnostics() {
       totalBytes: number;
       examples: { name: string; size: number }[];
     },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (name: string) => {
+      await apiRequest('POST', '/api/admin/storage/delete', { name });
+    },
+    onSuccess: () => {
+      refetch();
+    },
+    onError: async (err: any) => {
+      try {
+        const msg = err?.message || 'Failed to delete file';
+        alert(msg);
+      } catch {}
+    }
   });
 
   return (
@@ -89,9 +105,25 @@ export default function AdminStorageDiagnostics() {
                   {data.examples?.length ? (
                     <ul className="text-sm space-y-1">
                       {data.examples.map((e, i) => (
-                        <li key={i} className="flex justify-between gap-4">
-                          <span className="font-mono break-all">{e.name}</span>
-                          <span className="text-gray-500">{formatBytes(e.size)}</span>
+                        <li key={i} className="flex items-center justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <span className="font-mono break-all">{e.name}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-gray-500">{formatBytes(e.size)}</span>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deleteMutation.isPending}
+                              onClick={() => {
+                                if (window.confirm(`Delete ${e.name}?`)) {
+                                  deleteMutation.mutate(e.name);
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -107,4 +139,3 @@ export default function AdminStorageDiagnostics() {
     </AdminLayout>
   );
 }
-

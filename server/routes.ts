@@ -1698,6 +1698,36 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     }
   });
 
+  // Admin: delete a file within the uploads directory (by relative name)
+  app.post("/api/admin/storage/delete", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const dir = resolveUploadDir();
+      const nameRaw = (req.body?.name || '').toString();
+      if (!nameRaw) return res.status(400).json({ message: 'Missing file name' });
+
+      // Prevent traversal and absolute paths
+      if (nameRaw.startsWith('/') || nameRaw.includes('..')) {
+        return res.status(400).json({ message: 'Invalid file name' });
+      }
+
+      const abs = path.resolve(dir, nameRaw);
+      // Ensure target is inside uploads dir
+      if (!abs.startsWith(path.resolve(dir) + path.sep) && path.resolve(dir) !== abs) {
+        return res.status(400).json({ message: 'Path outside uploads directory' });
+      }
+
+      if (!fs.existsSync(abs)) return res.status(404).json({ message: 'File not found' });
+      const st = fs.statSync(abs);
+      if (!st.isFile()) return res.status(400).json({ message: 'Not a file' });
+
+      fs.unlinkSync(abs);
+      res.json({ ok: true, name: nameRaw });
+    } catch (err: any) {
+      console.error('Delete storage file failed:', err);
+      res.status(500).json({ message: err?.message || 'Failed to delete file' });
+    }
+  });
+
   // Documents management (admin only)
   const RESERVED_SLUGS = new Set([
     'admin','api','uploads','assets','static','images','img','tours','tour','articles','article','book','review','gallery',
