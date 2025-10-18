@@ -436,7 +436,15 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
             </div>
             <div>
               <Label className="text-muted-foreground">{t('admin.requests.totalAmount')}</Label>
-              <p>€{(request.totalAmount / 100).toFixed(2)}</p>
+              {((request.additionalInfo as any)?.pricing?.discount) ? (
+                <div>
+                  <div>Original: €{((((request.additionalInfo as any).pricing.originalAmount || 0) / 100).toFixed(2))}</div>
+                  <div>Discount{(request as any).additionalInfo?.pricing?.discount?.code ? ` (${(request as any).additionalInfo.pricing.discount.code})` : ''}: -€{((((request as any).additionalInfo?.pricing?.discount?.appliedAmount || 0) / 100).toFixed(2))}</div>
+                  <div><strong>Total: €{(((request.totalAmount || 0) / 100).toFixed(2))}</strong></div>
+                </div>
+              ) : (
+                <p>€{(request.totalAmount / 100).toFixed(2)}</p>
+              )}
             </div>
             <div>
               <Label className="text-muted-foreground">{t('admin.requests.requestedDateTime')}</Label>

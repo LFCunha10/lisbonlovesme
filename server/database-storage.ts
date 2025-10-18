@@ -2,7 +2,7 @@ import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles, documents,
-  devices, notifications, contactMessages,
+  devices, notifications, contactMessages, discountCodes,
   type User, type InsertUser,
   type Tour, type InsertTour,
   type Availability, type InsertAvailability,
@@ -15,12 +15,31 @@ import {
   type Document, type InsertDocument,
   type Device, type InsertDevice,
   type Notification, type InsertNotification,
-  type ContactMessage, type InsertContactMessage
+  type ContactMessage, type InsertContactMessage,
+  type DiscountCode, type InsertDiscountCode
 } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  private async ensureDiscountCodesTable() {
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS discount_codes (
+        id SERIAL PRIMARY KEY,
+        code TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        value INTEGER NOT NULL,
+        valid_until TIMESTAMP NULL,
+        usage_limit INTEGER NULL,
+        used_count INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )`);
+    } catch (e) {
+      // swallow errors (permissions, already exists, etc.)
+    }
+  }
   private async ensureDocumentsTable() {
     // Create table if it doesn't exist (idempotent)
     try {
@@ -141,6 +160,38 @@ export class DatabaseStorage implements IStorage {
       .set({ read })
       .where(eq(contactMessages.id, id));
     return res.rowCount ? res.rowCount > 0 : false;
+  }
+
+  // Discount codes
+  async getDiscountCodes(): Promise<DiscountCode[]> {
+    await this.ensureDiscountCodesTable();
+    return db.select().from(discountCodes).orderBy(desc(discountCodes.createdAt));
+  }
+
+  async getDiscountCodeByCode(code: string): Promise<DiscountCode | undefined> {
+    await this.ensureDiscountCodesTable();
+    const [row] = await db.select().from(discountCodes).where(eq(discountCodes.code, code));
+    return row;
+  }
+
+  async createDiscountCode(dc: InsertDiscountCode): Promise<DiscountCode> {
+    await this.ensureDiscountCodesTable();
+    const [row] = await db.insert(discountCodes).values(dc as any).returning();
+    return row;
+  }
+
+  async deleteDiscountCode(id: number): Promise<boolean> {
+    await this.ensureDiscountCodesTable();
+    const res = await db.delete(discountCodes).where(eq(discountCodes.id, id));
+    return res.rowCount ? res.rowCount > 0 : false;
+  }
+
+  async incrementDiscountUsage(id: number): Promise<void> {
+    await this.ensureDiscountCodesTable();
+    await db
+      .update(discountCodes)
+      .set({ usedCount: sql`COALESCE(${discountCodes.usedCount}, 0) + 1` as any })
+      .where(eq(discountCodes.id, id));
   }
   // Closed Days operations
   async getClosedDays(): Promise<ClosedDay[]> {

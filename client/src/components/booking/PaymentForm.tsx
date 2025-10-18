@@ -21,6 +21,16 @@ interface BookingData {
   customerEmail: string;
   customerPhone: string;
   specialRequests: string | null;
+  discountCode?: string;
+  discountDetails?: {
+    code: string;
+    name: string;
+    category: string;
+    value: number;
+    originalAmount: number;
+    discountAmount: number;
+    totalAmount: number;
+  } | null;
 }
 
 interface PaymentFormProps {
@@ -100,6 +110,7 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
         specialRequests: bookingData.specialRequests || null,
         paymentStatus: 'completed',
         totalAmount,
+        discountCode: bookingData.discountCode,
         language: i18n.language // Include user's current language
       };
       
@@ -233,6 +244,19 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
               </div>
               <span className="font-medium text-gray-900 dark:text-white">€{(tour.price / 100).toFixed(2)}</span>
             </div>
+
+            {bookingData.discountDetails && (
+              <>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">{t('booking.originalPrice')}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">€{(bookingData.discountDetails.originalAmount / 100).toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">{t('booking.discount')}{bookingData.discountDetails.code ? ` (${bookingData.discountDetails.code})` : ''}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">-€{(bookingData.discountDetails.discountAmount / 100).toFixed(2)}</span>
+                </div>
+              </>
+            )}
 
             <Separator className="my-2" />
 

@@ -21,6 +21,16 @@ interface ParticipantFormProps {
     customerEmail: string;
     customerPhone: string;
     specialRequests: string;
+    discountCode?: string;
+    discountDetails?: {
+      code: string;
+      name: string;
+      category: string;
+      value: number;
+      originalAmount: number;
+      discountAmount: number;
+      totalAmount: number;
+    } | null;
   }, moveStep: boolean) => void;
   onBack: () => void;
   maxParticipants: number;
@@ -49,6 +59,18 @@ type Props = {
 export default function ParticipantForm({ tour, onSelect, onBack, maxParticipants, availableSpots, totalPrice }: ParticipantFormProps) {
   const { t } = useTranslation();
   const [participants, setParticipants] = useState(1);
+  const [promoCode, setPromoCode] = useState("");
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    name: string;
+    category: string;
+    value: number;
+    originalAmount: number;
+    discountAmount: number;
+    totalAmount: number;
+  } | null>(null);
+  const [applyError, setApplyError] = useState<string | null>(null);
 
   const form = useForm<ParticipantFormData>({
     resolver: zodResolver(participantSchema),
@@ -69,8 +91,71 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
       customerLastName: data.customerLastName,
       customerEmail: data.customerEmail,
       customerPhone: data.customerPhone,
-      specialRequests: data.specialRequests
+      specialRequests: data.specialRequests,
+      discountCode: appliedDiscount?.code,
+      discountDetails: appliedDiscount
     }, true);
+  };
+
+  const applyPromo = async () => {
+    setApplyError(null);
+    if (!promoCode) return;
+    setApplyLoading(true);
+    try {
+      const resp = await fetch('/api/discounts/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode, tourId: tour.id, numberOfParticipants: participants }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data?.valid) {
+        setAppliedDiscount(null);
+        setApplyError(t('booking.invalidCode'));
+        onSelect({
+          numberOfParticipants: participants,
+          customerFirstName: form.getValues('customerFirstName'),
+          customerLastName: form.getValues('customerLastName'),
+          customerEmail: form.getValues('customerEmail'),
+          customerPhone: form.getValues('customerPhone'),
+          specialRequests: form.getValues('specialRequests'),
+          discountCode: undefined,
+          discountDetails: null
+        }, false);
+      } else {
+        setAppliedDiscount({
+          code: data.code,
+          name: data.name,
+          category: data.category,
+          value: data.value,
+          originalAmount: data.originalAmount,
+          discountAmount: data.discountAmount,
+          totalAmount: data.totalAmount,
+        });
+        onSelect({
+          numberOfParticipants: participants,
+          customerFirstName: form.getValues('customerFirstName'),
+          customerLastName: form.getValues('customerLastName'),
+          customerEmail: form.getValues('customerEmail'),
+          customerPhone: form.getValues('customerPhone'),
+          specialRequests: form.getValues('specialRequests'),
+          discountCode: data.code,
+          discountDetails: {
+            code: data.code,
+            name: data.name,
+            category: data.category,
+            value: data.value,
+            originalAmount: data.originalAmount,
+            discountAmount: data.discountAmount,
+            totalAmount: data.totalAmount,
+          }
+        }, false);
+      }
+    } catch (e) {
+      setApplyError(t('booking.invalidCode'));
+      setAppliedDiscount(null);
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   return (
@@ -111,8 +196,14 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                     customerLastName: form.getValues('customerLastName'),
                     customerEmail: form.getValues('customerEmail'),
                     customerPhone: form.getValues('customerPhone'),
-                    specialRequests: form.getValues('specialRequests')
+                    specialRequests: form.getValues('specialRequests'),
+                    discountCode: appliedDiscount?.code,
+                    discountDetails: appliedDiscount
                   }, false);
+                  if (promoCode || appliedDiscount) {
+                    // Re-validate discount with new participant count
+                    applyPromo();
+                  }
                 }}
               >
                 <SelectTrigger>
@@ -126,9 +217,34 @@ export default function ParticipantForm({ tour, onSelect, onBack, maxParticipant
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Promo Code */}
+              <div className="space-y-2">
+                <Label htmlFor="promo">{t('booking.promoCode')}</Label>
+                <div className="flex gap-2">
+                  <Input id="promo" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} placeholder="ABC123" />
+                  <Button type="button" onClick={applyPromo} disabled={applyLoading || !promoCode}>
+                    {applyLoading ? '...' : t('booking.apply')}
+                  </Button>
+                </div>
+                {appliedDiscount && (
+                  <div className="text-sm text-green-600">{t('booking.applied')}: {appliedDiscount.code}</div>
+                )}
+                {applyError && (
+                  <div className="text-sm text-red-600">{applyError}</div>
+                )}
+              </div>
               
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{(totalPrice / 100).toFixed(2)}</span>
+                {appliedDiscount ? (
+                  <>
+                    {t('booking.originalPrice')}: <span className="font-semibold">€{(appliedDiscount.originalAmount / 100).toFixed(2)}</span> · {t('booking.discount')}: <span className="font-semibold">-€{(appliedDiscount.discountAmount / 100).toFixed(2)}</span> · {t('booking.finalPrice')}: <span className="font-semibold text-primary">€{(appliedDiscount.totalAmount / 100).toFixed(2)}</span>
+                  </>
+                ) : (
+                  <>
+                    {t('booking.totalPrice')}: <span className="font-semibold text-primary">€{(totalPrice / 100).toFixed(2)}</span>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>

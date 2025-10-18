@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification, verifyEmailTransport, sendTestEmail } from "./emailService.js";
 import { autoTranslateTourContent, translateField } from "./translation-service.js";
 import { exportDatabase } from "./utils/export-database-complete";
-import { upload, handleUploadErrors, getUploadedFileUrl } from "./utils/image-upload";
+import { upload, handleUploadErrors, getUploadedFileUrl, getImageStoredFilePath } from "./utils/image-upload";
 import { uploadDocument, handleDocumentUploadErrors, getStoredFilePath } from "./utils/document-upload";
 import path from "path";
 import fs from "fs";
@@ -16,6 +16,7 @@ import { getLocalizedText } from "./utils/tour-utils.js";
 import csurf from "csurf";
 import bcrypt from "bcryptjs";
 import { initNotificationsWebSocketServer } from "./websocket";
+import type { DiscountCode } from "@shared/schema";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
@@ -135,6 +136,104 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     } catch (error) {
       console.error("Error fetching payments:", error);
       res.status(500).json({ message: "Failed to fetch payments data" });
+    }
+  });
+
+  // Admin: Discount codes CRUD
+  app.get("/api/admin/discounts", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const items = await storage.getDiscountCodes();
+      res.json(items);
+    } catch (e: any) {
+      console.error('Fetch discounts failed:', e);
+      res.status(500).json({ message: e?.message || 'Failed to fetch discount codes' });
+    }
+  });
+
+  app.post("/api/admin/discounts", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { code, name, category, value, validUntil, usageLimit, oneTime } = req.body || {};
+      if (!code || !name || !category || typeof value !== 'number') {
+        return res.status(400).json({ message: 'code, name, category and numeric value are required' });
+      }
+      const normalized: any = {
+        code: String(code).trim().toUpperCase(),
+        name: String(name).trim(),
+        category: String(category).trim(),
+        value: Number(value),
+      };
+      if (validUntil) normalized.validUntil = new Date(validUntil);
+      const limit = oneTime ? 1 : (usageLimit ? Number(usageLimit) : undefined);
+      if (limit !== undefined) normalized.usageLimit = limit;
+      const created = await storage.createDiscountCode(normalized);
+      res.status(201).json(created);
+    } catch (e: any) {
+      console.error('Create discount failed:', e);
+      res.status(500).json({ message: e?.message || 'Failed to create discount code' });
+    }
+  });
+
+  app.delete("/api/admin/discounts/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (!id) return res.status(400).json({ message: 'Invalid id' });
+      const ok = await storage.deleteDiscountCode(id);
+      res.json({ success: ok });
+    } catch (e: any) {
+      console.error('Delete discount failed:', e);
+      res.status(500).json({ message: e?.message || 'Failed to delete discount code' });
+    }
+  });
+
+  // Public: validate discount code and compute totals
+  app.post("/api/discounts/validate", async (req: Request, res: Response) => {
+    try {
+      const { code, tourId, numberOfParticipants } = req.body || {};
+      if (!code || !tourId || !numberOfParticipants) {
+        return res.status(400).json({ valid: false, reason: 'Missing code, tourId or participants' });
+      }
+      const tour = await storage.getTour(parseInt(tourId));
+      if (!tour) return res.status(404).json({ valid: false, reason: 'Tour not found' });
+      const dc = await storage.getDiscountCodeByCode(String(code).trim().toUpperCase());
+      if (!dc || dc.isActive === false) return res.status(404).json({ valid: false, reason: 'Invalid code' });
+      const now = new Date();
+      if (dc.validUntil && new Date(dc.validUntil) < now) {
+        return res.status(400).json({ valid: false, reason: 'Code expired' });
+      }
+      if (dc.usageLimit && dc.usedCount && dc.usedCount >= dc.usageLimit) {
+        return res.status(400).json({ valid: false, reason: 'Usage limit reached' });
+      }
+      const participants = parseInt(numberOfParticipants);
+      const originalAmount = tour.priceType === 'per_group' ? tour.price : (participants * tour.price);
+      let discountAmount = 0;
+      const category = dc.category;
+      if (category === 'percentage') {
+        discountAmount = Math.floor(originalAmount * (dc.value / 100));
+      } else if (category === 'fixed_value') {
+        discountAmount = Math.min(dc.value, originalAmount);
+      } else if (category === 'free_tour') {
+        if (tour.priceType !== 'per_person') {
+          return res.status(400).json({ valid: false, reason: 'Free tour code only valid for per-person tours' });
+        }
+        const freePeople = Math.max(0, Math.min(dc.value, participants));
+        discountAmount = freePeople * tour.price;
+      } else {
+        return res.status(400).json({ valid: false, reason: 'Unsupported code category' });
+      }
+      const totalAmount = Math.max(0, originalAmount - discountAmount);
+      return res.json({
+        valid: true,
+        code: dc.code,
+        name: dc.name,
+        category: dc.category,
+        value: dc.value,
+        originalAmount,
+        discountAmount,
+        totalAmount,
+      });
+    } catch (e: any) {
+      console.error('Validate discount failed:', e);
+      res.status(500).json({ valid: false, reason: e?.message || 'Internal error' });
     }
   });
 
@@ -905,6 +1004,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         time: confirmationTime,
         participants: booking.numberOfParticipants,
         totalAmount: `€${(booking.totalAmount / 100).toFixed(2)}`,
+        originalAmount: (booking as any).additionalInfo?.pricing?.originalAmount ? `${(Number((booking as any).additionalInfo.pricing.originalAmount) / 100).toFixed(2)}` : undefined,
+        discountAmount: (booking as any).additionalInfo?.pricing?.discount?.appliedAmount ? `${(Number((booking as any).additionalInfo.pricing.discount.appliedAmount) / 100).toFixed(2)}` : undefined,
+        discountCode: (booking as any).additionalInfo?.pricing?.discount?.code,
         meetingPoint: meetingPoint,
         duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
         adminNotes: adminNotes,
@@ -922,14 +1024,55 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   });
 
   app.post("/api/bookings", async (req: Request, res: Response) => {
-  
+
 
   try {
-    // 1. Insert booking with requested status
+    // 1. Normalize inputs and compute totals server-side
+    const body = req.body || {};
+    const tour = await storage.getTour(parseInt(body.tourId));
+    if (!tour) {
+      return res.status(404).json({ success: false, message: "Tour not found" });
+    }
+    const participants = parseInt(body.numberOfParticipants);
+    const originalAmount = tour.priceType === 'per_group' ? tour.price : (participants * tour.price);
+    let discountInfo: any = undefined;
+    let discountAmount = 0;
+    const discountCodeRaw = body.discountCode ? String(body.discountCode).trim().toUpperCase() : undefined;
+    if (discountCodeRaw) {
+      const dc = await storage.getDiscountCodeByCode(discountCodeRaw);
+      const now = new Date();
+      if (dc && dc.isActive !== false && (!dc.validUntil || new Date(dc.validUntil) >= now) && (!dc.usageLimit || (dc.usedCount || 0) < dc.usageLimit)) {
+        if (dc.category === 'percentage') {
+          discountAmount = Math.floor(originalAmount * (dc.value / 100));
+        } else if (dc.category === 'fixed_value') {
+          discountAmount = Math.min(dc.value, originalAmount);
+        } else if (dc.category === 'free_tour') {
+          if (tour.priceType === 'per_person') {
+            const freePeople = Math.max(0, Math.min(dc.value, participants));
+            discountAmount = freePeople * tour.price;
+          }
+        }
+        if (discountAmount > 0) {
+          discountInfo = { code: dc.code, name: dc.name, category: dc.category, value: dc.value, appliedAmount: discountAmount };
+        }
+      }
+    }
+    const totalAmountComputed = Math.max(0, originalAmount - (discountAmount || 0));
+
+    // 2. Insert booking with requested status and computed totals
     const bookingData = {
-      ...req.body,
-      paymentStatus: "requested", // Override to use request-based workflow
-      bookingReference: `LT-${generateRandomString(7)}`
+      ...body,
+      totalAmount: totalAmountComputed,
+      paymentStatus: "requested",
+      bookingReference: `LT-${generateRandomString(7)}`,
+      additionalInfo: {
+        ...(body.additionalInfo || {}),
+        pricing: {
+          originalAmount,
+          discount: discountInfo || null,
+          finalAmount: totalAmountComputed,
+        },
+      },
     };
     const booking = await storage.createBooking(bookingData);
 
@@ -959,7 +1102,17 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
  
    
 
-    // 5. Send notification emails
+    // 3b. Increment discount usage counter if applied
+    try {
+      if (discountInfo) {
+        const dc = await storage.getDiscountCodeByCode(discountInfo.code);
+        if (dc) await storage.incrementDiscountUsage(dc.id);
+      }
+    } catch (e) {
+      console.error('Failed to increment discount usage:', e);
+    }
+
+    // 4. Send notification emails
     try {
       const tour = await storage.getTour(booking.tourId);
       if (tour) {
@@ -973,6 +1126,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           time: availability.time,
           participants: booking.numberOfParticipants,
           totalAmount: (booking.totalAmount / 100).toFixed(2),
+          originalAmount: (originalAmount / 100).toFixed(2),
+          discountAmount: ((discountAmount || 0) / 100).toFixed(2),
+          discountCode: discountInfo?.code,
           meetingPoint: booking.meetingPoint || "To be announced",
           duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
           language: booking.language || 'en'
@@ -989,7 +1145,11 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           participants: booking.numberOfParticipants,
           specialRequests: booking.specialRequests ?? undefined,
           bookingReference: booking.bookingReference,
-          language: booking.language || 'en'
+          language: booking.language || 'en',
+          originalAmount: (originalAmount / 100).toFixed(2),
+          discountAmount: ((discountAmount || 0) / 100).toFixed(2),
+          discountCode: discountInfo?.code,
+          totalAmount: (totalAmountComputed / 100).toFixed(2)
         });
         
         
@@ -1422,12 +1582,33 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
   app.delete("/api/gallery/:id", async (req: Request, res: Response) => {
     try {
       const imageId = parseInt(req.params.id);
-      const success = await storage.deleteGalleryImage(imageId);
-      
-      if (!success) {
+
+      // Fetch record first to know its file path
+      const existing = await storage.getGalleryImage(imageId);
+      if (!existing) {
         return res.status(404).json({ message: "Gallery image not found" });
       }
-      
+
+      const success = await storage.deleteGalleryImage(imageId);
+      if (!success) {
+        return res.status(500).json({ message: "Failed to delete gallery image" });
+      }
+
+      // If the image is stored locally under /uploads, remove the file from disk
+      try {
+        const url = existing.imageUrl || "";
+        if (typeof url === 'string' && url.startsWith('/uploads/')) {
+          const withoutQuery = url.split('?')[0].split('#')[0];
+          const filename = withoutQuery.replace(/^\/uploads\//, '');
+          const filePath = getImageStoredFilePath(filename);
+          if (filePath && require('fs').existsSync(filePath)) {
+            require('fs').unlinkSync(filePath);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to delete gallery image file from disk:', e);
+      }
+
       res.json({ message: "Gallery image deleted successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to delete gallery image" });

@@ -63,3 +63,8 @@ export function handleUploadErrors(err: Error, req: Request, res: Response, next
 export function getUploadedFileUrl(filename: string): string {
   return `/uploads/${filename}`;
 }
+
+// Resolve the absolute path to a stored upload by its filename
+export function getImageStoredFilePath(filename: string): string {
+  return path.join(uploadDir, filename);
+}

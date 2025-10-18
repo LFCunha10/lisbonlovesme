@@ -365,7 +365,16 @@
       "selectDateToSeeAvailableTimes": "Please select a date to see available times",
       "spots": "spots",
       "nextStep": "Next Step",
-      "pricePerGroup": "Price per group"
+      "pricePerGroup": "Price per group",
+      "promoCode": "Promo code",
+      "apply": "Apply",
+      "applied": "Applied",
+      "invalidCode": "Invalid or expired code",
+      "discount": "Discount",
+      "originalPrice": "Original price",
+      "finalPrice": "Final price",
+      "discountAmount": "Discount amount",
+      "discountCode": "Discount code"
 
     },
     "whyChooseUs": {
@@ -438,6 +447,9 @@
         "date": "Date",
         "time": "Time",
         "participants": "Participants",
+        "originalAmount": "Original Amount",
+        "discount": "Discount",
+        "discountCode": "Code",
         "totalAmount": "Total Amount",
         "meetingPoint": "Meeting Point",
         "importantInfo": "Important Information",
@@ -479,6 +491,9 @@
         "date": "Date",
         "time": "Time",
         "participants": "Participants",
+        "originalAmount": "Original Amount",
+        "discount": "Discount",
+        "discountCode": "Code",
         "totalAmount": "Total Amount",
         "meetingPoint": "Meeting Point"
       },

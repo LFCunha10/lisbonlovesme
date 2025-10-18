@@ -179,6 +179,18 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/admin/discounts">
+        {() => {
+          const AdminDiscountsPage = React.lazy(() => import("@/pages/admin/discounts"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AdminProtectedRoute>
+                <AdminDiscountsPage />
+              </AdminProtectedRoute>
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/admin/gallery">
         {() => {
           const AdminGalleryPage = React.lazy(() => import("@/pages/admin/gallery"));

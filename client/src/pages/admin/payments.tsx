@@ -258,6 +258,11 @@ export default function AdminPaymentsPage() {
                           <div className="text-xs text-muted-foreground">
                             {booking.participants} {booking.participants === 1 ? 'person' : 'people'}
                           </div>
+                          {booking.additionalInfo?.pricing?.discount && (
+                            <div className="text-xs text-muted-foreground">
+                              Discount{booking.additionalInfo.pricing.discount.code ? ` (${booking.additionalInfo.pricing.discount.code})` : ''}: -{formatCurrency(booking.additionalInfo.pricing.discount.appliedAmount || 0)}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           {getStatusBadge(booking.paymentStatus)}

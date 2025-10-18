@@ -143,6 +143,9 @@ interface ConfirmationEmailOptions {
   time: string;
   participants: number;
   totalAmount: string;
+  originalAmount?: string; // optional: for discount breakdown (no currency symbol)
+  discountAmount?: string; // optional: value in same units as totalAmount (no currency symbol)
+  discountCode?: string; // optional: code used
   meetingPoint: string;
   duration?: string; // Duration in hours
   adminNotes?: string;
@@ -160,6 +163,10 @@ interface BookingRequestNotificationOptions {
   specialRequests?: string;
   bookingReference: string;
   language?: string; // Add language support
+  originalAmount?: string;
+  discountAmount?: string;
+  discountCode?: string;
+  totalAmount?: string;
 }
 
 interface ContactFormNotificationOptions {
@@ -339,6 +346,16 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
           <span class="detail-label">${t.bookingConfirmation.participants}:</span>
           <span class="detail-value">${participants}</span>
         </div>
+        ${typeof options.originalAmount !== 'undefined' && typeof options.discountAmount !== 'undefined' ? `
+        <div class="detail-row">
+          <span class="detail-label">${t.bookingConfirmation.originalAmount}:</span>
+          <span class="detail-value">€${options.originalAmount}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">${t.bookingConfirmation.discount}${options.discountCode ? ` (${t.bookingConfirmation.discountCode}: ${options.discountCode})` : ''}:</span>
+          <span class="detail-value">-€${options.discountAmount}</span>
+        </div>
+        ` : ''}
         <div class="detail-row">
           <span class="detail-label">${t.bookingConfirmation.totalAmount}:</span>
           <span class="detail-value">€${totalAmount}</span>
@@ -384,6 +401,9 @@ ${t.bookingConfirmation.tour}: ${tourName}
 ${t.bookingConfirmation.date}: ${formattedDate}
 ${t.bookingConfirmation.time}: ${time}
 ${t.bookingConfirmation.participants}: ${participants}
+${typeof options.originalAmount !== 'undefined' && typeof options.discountAmount !== 'undefined' ? `${t.bookingConfirmation.originalAmount}: €${options.originalAmount}
+${t.bookingConfirmation.discount}${options.discountCode ? ` (${t.bookingConfirmation.discountCode}: ${options.discountCode})` : ''}: -€${options.discountAmount}
+` : ''}
 ${t.bookingConfirmation.totalAmount}: €${totalAmount}
 
 ${t.bookingConfirmation.meetingPoint.toUpperCase()}:
@@ -461,6 +481,10 @@ export async function sendBookingRequestNotification(options: BookingRequestNoti
           <p><strong>${t.adminNotification.requestedDate}:</strong> ${options.date}</p>
           <p><strong>${t.adminNotification.requestedTime}:</strong> ${options.time}</p>
           <p><strong>${t.adminNotification.participants}:</strong> ${options.participants}</p>
+          ${typeof options.originalAmount !== 'undefined' && typeof options.discountAmount !== 'undefined' ? `
+            <p><strong>Original:</strong> €${options.originalAmount} · <strong>Discount${options.discountCode ? ` (${options.discountCode})` : ''}:</strong> -€${options.discountAmount}</p>
+          ` : ''}
+          ${typeof options.totalAmount !== 'undefined' ? `<p><strong>Total:</strong> €${options.totalAmount}</p>` : ''}
           <p><strong>${t.adminNotification.reference}:</strong> ${options.bookingReference}</p>
         </div>
 
@@ -588,6 +612,16 @@ export async function sendRequestConfirmationEmail(options: ConfirmationEmailOpt
           <span class="detail-label">${t.requestConfirmation.participants}:</span>
           <span class="detail-value">${participants}</span>
         </div>
+        ${typeof options.originalAmount !== 'undefined' && typeof options.discountAmount !== 'undefined' ? `
+        <div class="detail-row">
+          <span class="detail-label">${t.requestConfirmation.originalAmount}:</span>
+          <span class="detail-value">€${options.originalAmount}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">${t.requestConfirmation.discount}${options.discountCode ? ` (${t.requestConfirmation.discountCode}: ${options.discountCode})` : ''}:</span>
+          <span class="detail-value">-€${options.discountAmount}</span>
+        </div>
+        ` : ''}
         <div class="detail-row">
           <span class="detail-label">${t.requestConfirmation.totalAmount}:</span>
           <span class="detail-value">€${totalAmount}</span>
@@ -626,6 +660,9 @@ ${t.requestConfirmation.tour}: ${tourName}
 ${t.requestConfirmation.date}: ${formattedDate}
 ${t.requestConfirmation.time}: ${time}
 ${t.requestConfirmation.participants}: ${participants}
+${typeof options.originalAmount !== 'undefined' && typeof options.discountAmount !== 'undefined' ? `${t.requestConfirmation.originalAmount}: €${options.originalAmount}
+${t.requestConfirmation.discount}${options.discountCode ? ` (${t.requestConfirmation.discountCode}: ${options.discountCode})` : ''}: -€${options.discountAmount}
+` : ''}
 ${t.requestConfirmation.totalAmount}: €${totalAmount}
 
 ${t.requestConfirmation.reviewSoon}

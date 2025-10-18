@@ -18,6 +18,16 @@ interface BookingData {
   customerEmail: string;
   customerPhone: string;
   specialRequests: string;
+  discountCode?: string;
+  discountDetails?: {
+    code: string;
+    name: string;
+    category: string;
+    value: number;
+    originalAmount: number;
+    discountAmount: number;
+    totalAmount: number;
+  } | null;
 }
 
 interface RequestSentProps {
@@ -106,7 +116,15 @@ export default function RequestSent({ tour, bookingData, bookingReference, total
                 <Euro className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t('booking.valueToPay')}</p>
-                  <p className="font-medium text-gray-900 dark:text-white">€{(totalAmount / 100).toFixed(2)}</p>
+                  {bookingData.discountDetails ? (
+                    <div className="text-sm">
+                      <div className="text-gray-900 dark:text-white">{t('booking.originalPrice')}: €{(bookingData.discountDetails.originalAmount / 100).toFixed(2)}</div>
+                      <div className="text-gray-900 dark:text-white">{t('booking.discount')}{bookingData.discountDetails.code ? ` (${bookingData.discountDetails.code})` : ''}: -€{(bookingData.discountDetails.discountAmount / 100).toFixed(2)}</div>
+                      <div className="font-medium text-gray-900 dark:text-white">{t('booking.finalPrice')}: €{(bookingData.discountDetails.totalAmount / 100).toFixed(2)}</div>
+                    </div>
+                  ) : (
+                    <p className="font-medium text-gray-900 dark:text-white">€{(totalAmount / 100).toFixed(2)}</p>
+                  )}
                 </div>
               </div>
             </div>

@@ -35,6 +35,16 @@ interface BookingData {
   confirmedMeetingPoint?: string | null;
   adminNotes?: string | null;
   language?: string | null;
+  discountCode?: string;
+  discountDetails?: {
+    code: string;
+    name: string;
+    category: string;
+    value: number;
+    originalAmount: number;
+    discountAmount: number;
+    totalAmount: number;
+  } | null;
 }
 
 const steps = [
@@ -131,8 +141,10 @@ export default function Booking() {
   };
 
   const calculateTotal = () => {
+    if (bookingData.discountDetails && typeof bookingData.discountDetails.totalAmount === 'number') {
+      return bookingData.discountDetails.totalAmount;
+    }
     const participants = bookingData.numberOfParticipants || 1;
-    // If priceType is per_group, use the base price. If per_person, multiply by participants
     return tour.priceType === "per_group" ? tour.price : participants * tour.price;
   };
 
@@ -312,6 +324,18 @@ export default function Booking() {
                         €{(tour.price / 100).toFixed(2)}
                       </span>
                     </div>
+                    {bookingData.discountDetails && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">{t('booking.originalPrice')}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">€{(bookingData.discountDetails.originalAmount / 100).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">{t('booking.discount')}{bookingData.discountDetails.code ? ` (${bookingData.discountDetails.code})` : ''}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">-€{(bookingData.discountDetails.discountAmount / 100).toFixed(2)}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <Separator />

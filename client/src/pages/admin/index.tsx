@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon, ShoppingCart, Newspaper, Image } from "lucide-react";
+import { CalendarIcon, PencilIcon, MessageSquareIcon, LockIcon, Database as DatabaseIcon, ShoppingCart, Newspaper, Image, Tag } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useEffect, useState } from "react";
 
@@ -104,6 +104,13 @@ export default function AdminIndexPage() {
             icon={<Newspaper className="w-8 h-8" />}
             linkTo="/admin/documents"
             linkText="Manage Documents"
+          />
+          <DashboardCard 
+            title="Discount Codes" 
+            description="Create and manage promo codes"
+            icon={<Tag className="w-8 h-8" />}
+            linkTo="/admin/discounts"
+            linkText="Manage Discounts"
           />
           <DashboardCard 
             title="Reviews" 

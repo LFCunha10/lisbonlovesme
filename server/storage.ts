@@ -99,6 +99,13 @@ export interface IStorage {
   createContactMessage(m: import("@shared/schema").InsertContactMessage): Promise<import("@shared/schema").ContactMessage>;
   getContactMessages(limit?: number, offset?: number): Promise<import("@shared/schema").ContactMessage[]>;
   markContactMessageRead(id: number, read?: boolean): Promise<boolean>;
+
+  // Discount codes
+  getDiscountCodes(): Promise<import("@shared/schema").DiscountCode[]>;
+  getDiscountCodeByCode(code: string): Promise<import("@shared/schema").DiscountCode | undefined>;
+  createDiscountCode(dc: import("@shared/schema").InsertDiscountCode): Promise<import("@shared/schema").DiscountCode>;
+  deleteDiscountCode(id: number): Promise<boolean>;
+  incrementDiscountUsage(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -179,6 +186,8 @@ export class MemStorage implements IStorage {
   private availabilities: Map<number, Availability>;
   private bookings: Map<number, Booking>;
   private testimonials: Map<number, Testimonial>;
+  private discounts: Map<number, { id: number; code: string; name: string; category: string; value: number; validUntil?: Date | null; usageLimit?: number | null; usedCount: number; isActive: boolean; createdAt?: Date | null }> = new Map();
+  private discountCurrentId = 1;
   
   private userCurrentId: number;
   private tourCurrentId: number;
@@ -584,6 +593,28 @@ export class MemStorage implements IStorage {
       return true;
     }
     return false;
+  }
+
+  // Discount codes (in-memory)
+  async getDiscountCodes() {
+    return Array.from(this.discounts.values()).sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)) as any;
+  }
+  async getDiscountCodeByCode(code: string) {
+    const v = Array.from(this.discounts.values()).find(d => d.code === code);
+    return v as any;
+  }
+  async createDiscountCode(dc: any) {
+    const id = this.discountCurrentId++;
+    const row = { id, usedCount: 0, isActive: true, createdAt: new Date(), ...dc };
+    this.discounts.set(id, row);
+    return row as any;
+  }
+  async deleteDiscountCode(id: number) {
+    return this.discounts.delete(id);
+  }
+  async incrementDiscountUsage(id: number) {
+    const row = this.discounts.get(id);
+    if (row) { row.usedCount = (row.usedCount || 0) + 1; this.discounts.set(id, row); }
   }
 }
 
