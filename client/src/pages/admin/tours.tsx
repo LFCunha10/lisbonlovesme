@@ -1403,140 +1403,145 @@ export default function AdminTours() {
                                         )}
                                         className="space-y-4 py-4"
                                       >
-                                      <FormField
-                                        control={availabilityForm.control}
-                                        name="selectedDates"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel>Select Dates</FormLabel>
-                                            <FormControl>
-                                              <div className="w-[450px] min-h-[360px] border rounded-md p-3 flex flex-col items-center">
-                                                <div className="w-full flex justify-end mb-2">
-                                                  <Button type="button" size="sm" variant="outline" onClick={handleSelectAllMonthDays}>
-                                                    Select all days this month
-                                                  </Button>
+                                        <FormField
+                                          control={availabilityForm.control}
+                                          name="selectedDates"
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Select Dates</FormLabel>
+                                              <FormControl>
+                                                <div className="w-[450px] min-h-[360px] border rounded-md p-3 flex flex-col items-center">
+                                                  <div className="w-full flex justify-end mb-2">
+                                                    <Button
+                                                      type="button"
+                                                      size="sm"
+                                                      variant="outline"
+                                                      onClick={handleSelectAllMonthDays}
+                                                    >
+                                                      Select all days this month
+                                                    </Button>
+                                                  </div>
+                                                  <div className="flex flex-1 items-center justify-center">
+                                                    <Calendar
+                                                      mode="multiple"
+                                                      selected={field.value || []}
+                                                      onSelect={field.onChange}
+                                                      month={calendarMonth}
+                                                      onMonthChange={setCalendarMonth}
+                                                      disabled={(date) =>
+                                                        date <
+                                                        new Date(
+                                                          new Date().setHours(
+                                                            0,
+                                                            0,
+                                                            0,
+                                                            0,
+                                                          ),
+                                                        )
+                                                      }
+                                                      className="w-full h-auto max-w-full"
+                                                    />
+                                                  </div>
+                                                  <div className="mt-2 text-sm text-gray-600 text-center">
+                                                    {field.value?.length > 0 ? (
+                                                      <span>
+                                                        {field.value.length} date
+                                                        {field.value.length !== 1
+                                                          ? "s"
+                                                          : ""}{" "}
+                                                        selected
+                                                      </span>
+                                                    ) : (
+                                                      <span>
+                                                        Click dates to select multiple
+                                                        days
+                                                      </span>
+                                                    )}
+                                                  </div>
                                                 </div>
-                                                <div className="flex flex-1 items-center justify-center">
-                                                  <Calendar
-                                                    mode="multiple"
-                                                    selected={field.value || []}
-                                                    onSelect={field.onChange}
-                                                    month={calendarMonth}
-                                                    onMonthChange={setCalendarMonth}
-                                                    disabled={(date) =>
-                                                      date <
-                                                      new Date(
-                                                        new Date().setHours(
-                                                          0,
-                                                          0,
-                                                          0,
-                                                          0,
-                                                        ),
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                        <FormField
+                                          control={availabilityForm.control}
+                                          name="time"
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormLabel>Time</FormLabel>
+                                              <FormControl>
+                                                <Input type="time" {...field} />
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <FormField
+                                            control={availabilityForm.control}
+                                            name="maxSpots"
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Max Spots</FormLabel>
+                                                <FormControl>
+                                                  <Input
+                                                    type="number"
+                                                    {...field}
+                                                    onChange={(e) => {
+                                                      field.onChange(
+                                                        parseInt(e.target.value, 10),
+                                                      );
+                                                      availabilityForm.setValue(
+                                                        "spotsLeft",
+                                                        parseInt(e.target.value, 10),
+                                                      );
+                                                    }}
+                                                  />
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+                                          <FormField
+                                            control={availabilityForm.control}
+                                            name="spotsLeft"
+                                            render={({ field }) => (
+                                              <FormItem>
+                                                <FormLabel>Spots Left</FormLabel>
+                                                <FormControl>
+                                                  <Input
+                                                    type="number"
+                                                    {...field}
+                                                    onChange={(e) =>
+                                                      field.onChange(
+                                                        parseInt(e.target.value, 10),
                                                       )
                                                     }
-                                                    className="w-full h-auto max-w-full"
                                                   />
-                                                </div>
-                                                <div className="mt-2 text-sm text-gray-600 text-center">
-                                                  {field.value?.length > 0 ? (
-                                                    <span>
-                                                      {field.value.length} date
-                                                      {field.value.length !== 1
-                                                        ? "s"
-                                                        : ""}{" "}
-                                                      selected
-                                                    </span>
-                                                  ) : (
-                                                    <span>
-                                                      Click dates to select multiple
-                                                      days
-                                                    </span>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <FormField
-                                        control={availabilityForm.control}
-                                        name="time"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel>Time</FormLabel>
-                                            <FormControl>
-                                              <Input type="time" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                          control={availabilityForm.control}
-                                          name="maxSpots"
-                                          render={({ field }) => (
-                                            <FormItem>
-                                              <FormLabel>Max Spots</FormLabel>
-                                              <FormControl>
-                                                <Input
-                                                  type="number"
-                                                  {...field}
-                                                  onChange={(e) => {
-                                                    field.onChange(
-                                                      parseInt(e.target.value),
-                                                    );
-                                                    // Also update spotsLeft to match maxSpots when initially setting
-                                                    availabilityForm.setValue(
-                                                      "spotsLeft",
-                                                      parseInt(e.target.value),
-                                                    );
-                                                  }}
-                                                />
-                                              </FormControl>
-                                              <FormMessage />
-                                            </FormItem>
-                                          )}
-                                        />
-                                        <FormField
-                                          control={availabilityForm.control}
-                                          name="spotsLeft"
-                                          render={({ field }) => (
-                                            <FormItem>
-                                              <FormLabel>Spots Left</FormLabel>
-                                              <FormControl>
-                                                <Input
-                                                  type="number"
-                                                  {...field}
-                                                  onChange={(e) =>
-                                                    field.onChange(
-                                                      parseInt(e.target.value),
-                                                    )
-                                                  }
-                                                />
-                                              </FormControl>
-                                              <FormMessage />
-                                            </FormItem>
-                                          )}
-                                        />
-                                      </div>
-                                      <DialogFooter>
-                                        <Button
-                                          type="submit"
-                                          disabled={
-                                            createAvailabilityMutation.isPending
-                                          }
-                                        >
-                                          {createAvailabilityMutation.isPending
-                                            ? "Adding..."
-                                            : "Add Availability"}
-                                        </Button>
-                                      </DialogFooter>
-                                    </form>
-                                  </Form>
-                                </DialogContent>
-                              </Dialog>
+                                                </FormControl>
+                                                <FormMessage />
+                                              </FormItem>
+                                            )}
+                                          />
+                                        </div>
+                                        <DialogFooter>
+                                          <Button
+                                            type="submit"
+                                            disabled={
+                                              createAvailabilityMutation.isPending
+                                            }
+                                          >
+                                            {createAvailabilityMutation.isPending
+                                              ? "Adding..."
+                                              : "Add Availability"}
+                                          </Button>
+                                        </DialogFooter>
+                                      </form>
+                                    </Form>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
                             </div>
 
                             {isLoadingAvailabilities ? (
@@ -1569,18 +1574,18 @@ export default function AdminTours() {
                                 </TableHeader>
                                 <TableBody>
                                   {Array.isArray(availabilities) &&
-                                    availabilities.length === 0 && (
-                                      <TableRow>
-                                        <TableCell
-                                          colSpan={6}
-                                          className="text-center py-6 text-gray-500"
-                                        >
-                                          No availabilities found. Add some to make
-                                          this tour bookable.
-                                        </TableCell>
-                                      </TableRow>
-                                    )}
-                                  {Array.isArray(availabilities) &&
+                                  availabilities.length === 0 ? (
+                                    <TableRow>
+                                      <TableCell
+                                        colSpan={6}
+                                        className="text-center py-6 text-gray-500"
+                                      >
+                                        No availabilities found. Add some to make
+                                        this tour bookable.
+                                      </TableCell>
+                                    </TableRow>
+                                  ) : (
+                                    Array.isArray(availabilities) &&
                                     availabilities.map((availability: any) => {
                                       const isDeleting =
                                         deleteAvailabilityMutation.isPending &&
@@ -1674,7 +1679,8 @@ export default function AdminTours() {
                                           </TableCell>
                                         </TableRow>
                                       );
-                                    })}
+                                    })
+                                  )}
                                 </TableBody>
                               </Table>
                             )}
