@@ -59,6 +59,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Calendar } from "@/components/ui/calendar";
 import {
   PlusIcon,
@@ -365,6 +376,32 @@ export default function AdminTours() {
       toast({
         title: "Error",
         description: "Failed to create availability. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteAvailabilityMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/availabilities/${id}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/availabilities", selectedTourId],
+      });
+      toast({
+        title: "Availability Deleted",
+        description: "The availability slot has been removed.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete availability. Please try again.",
         variant: "destructive",
       });
     },
@@ -1361,6 +1398,9 @@ export default function AdminTours() {
                                     <TableHead>Time</TableHead>
                                     <TableHead>Capacity</TableHead>
                                     <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">
+                                      Actions
+                                    </TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -1368,7 +1408,7 @@ export default function AdminTours() {
                                     availabilities.length === 0 && (
                                       <TableRow>
                                         <TableCell
-                                          colSpan={4}
+                                          colSpan={5}
                                           className="text-center py-6 text-gray-500"
                                         >
                                           No availabilities found. Add some to make
@@ -1377,29 +1417,86 @@ export default function AdminTours() {
                                       </TableRow>
                                     )}
                                   {Array.isArray(availabilities) &&
-                                    availabilities.map((availability: any) => (
-                                      <TableRow key={availability.id}>
-                                        <TableCell>{availability.date}</TableCell>
-                                        <TableCell>{availability.time}</TableCell>
-                                        <TableCell>
-                                          {availability.spotsLeft}/
-                                          {availability.maxSpots} available
-                                        </TableCell>
-                                        <TableCell>
-                                          {availability.spotsLeft === 0 ? (
-                                            <Badge variant="destructive">
-                                              Sold Out
-                                            </Badge>
-                                          ) : availability.spotsLeft < 3 ? (
-                                            <Badge variant="outline">Limited</Badge>
-                                          ) : (
-                                            <Badge variant="default">
-                                              Available
-                                            </Badge>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
+                                    availabilities.map((availability: any) => {
+                                      const isDeleting =
+                                        deleteAvailabilityMutation.isPending &&
+                                        deleteAvailabilityMutation.variables ===
+                                          availability.id;
+
+                                      return (
+                                        <TableRow key={availability.id}>
+                                          <TableCell>{availability.date}</TableCell>
+                                          <TableCell>{availability.time}</TableCell>
+                                          <TableCell>
+                                            {availability.spotsLeft}/
+                                            {availability.maxSpots} available
+                                          </TableCell>
+                                          <TableCell>
+                                            {availability.spotsLeft === 0 ? (
+                                              <Badge variant="destructive">
+                                                Sold Out
+                                              </Badge>
+                                            ) : availability.spotsLeft < 3 ? (
+                                              <Badge variant="outline">
+                                                Limited
+                                              </Badge>
+                                            ) : (
+                                              <Badge variant="default">
+                                                Available
+                                              </Badge>
+                                            )}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                            <AlertDialog>
+                                              <AlertDialogTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  className="text-destructive hover:text-destructive"
+                                                  disabled={isDeleting}
+                                                  aria-label={`Delete availability on ${availability.date} at ${availability.time}`}
+                                                >
+                                                  {isDeleting ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                  ) : (
+                                                    <TrashIcon className="h-4 w-4" />
+                                                  )}
+                                                </Button>
+                                              </AlertDialogTrigger>
+                                              <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                  <AlertDialogTitle>
+                                                    Delete Availability
+                                                  </AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                    This will permanently remove the{" "}
+                                                    {availability.time} slot on{" "}
+                                                    {availability.date}. Continue?
+                                                  </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                  <AlertDialogCancel>
+                                                    Cancel
+                                                  </AlertDialogCancel>
+                                                  <AlertDialogAction
+                                                    onClick={() =>
+                                                      deleteAvailabilityMutation.mutate(
+                                                        availability.id,
+                                                      )
+                                                    }
+                                                    disabled={isDeleting}
+                                                  >
+                                                    {isDeleting
+                                                      ? "Deleting..."
+                                                      : "Delete"}
+                                                  </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                              </AlertDialogContent>
+                                            </AlertDialog>
+                                          </TableCell>
+                                        </TableRow>
+                                      );
+                                    })}
                                 </TableBody>
                               </Table>
                             )}
