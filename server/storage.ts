@@ -37,6 +37,7 @@ export interface IStorage {
   createAvailability(availability: InsertAvailability): Promise<Availability>;
   updateAvailability(id: number, availability: Partial<InsertAvailability>): Promise<Availability | undefined>;
   deleteAvailability(id: number): Promise<boolean>;
+  deleteAvailabilities(ids: number[]): Promise<number>;
 
   // Booking operations
   getBookings(tourId?: number): Promise<Booking[]>;
@@ -322,6 +323,16 @@ export class MemStorage implements IStorage {
 
   async deleteAvailability(id: number): Promise<boolean> {
     return this.availabilities.delete(id);
+  }
+
+  async deleteAvailabilities(ids: number[]): Promise<number> {
+    let deletedCount = 0;
+    for (const id of ids) {
+      if (this.availabilities.delete(id)) {
+        deletedCount++;
+      }
+    }
+    return deletedCount;
   }
 
   // Booking operations

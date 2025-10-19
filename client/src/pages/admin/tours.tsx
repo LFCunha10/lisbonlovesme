@@ -59,6 +59,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -142,6 +143,7 @@ export default function AdminTours() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [selectedAvailabilityIds, setSelectedAvailabilityIds] = useState<number[]>([]);
   React.useEffect(() => {
       const checkAuth = async () => {
         try {
@@ -186,6 +188,29 @@ export default function AdminTours() {
       enabled: !!selectedTourId && selectedTab === "availabilities",
     },
   );
+
+  React.useEffect(() => {
+    setSelectedAvailabilityIds([]);
+  }, [selectedTourId]);
+
+  React.useEffect(() => {
+    if (selectedTab !== "availabilities") {
+      setSelectedAvailabilityIds([]);
+    }
+  }, [selectedTab]);
+
+  React.useEffect(() => {
+    if (!Array.isArray(availabilities) || availabilities.length === 0) {
+      setSelectedAvailabilityIds([]);
+      return;
+    }
+
+    setSelectedAvailabilityIds((prev) =>
+      prev.filter((id) =>
+        availabilities.some((availability: any) => availability.id === id),
+      ),
+    );
+  }, [availabilities]);
 
 
   // Form for creating/editing tours
@@ -406,6 +431,83 @@ export default function AdminTours() {
       });
     },
   });
+
+  const bulkDeleteAvailabilitiesMutation = useMutation<
+    { deletedCount: number },
+    Error,
+    number[]
+  >({
+    mutationFn: async (ids: number[]) => {
+      const res = await apiRequest("DELETE", `/api/availabilities/bulk`, {
+        ids,
+      });
+      return res.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/availabilities", selectedTourId],
+      });
+      setSelectedAvailabilityIds([]);
+      toast({
+        title: "Availabilities Deleted",
+        description: `Removed ${result.deletedCount} availability slot${
+          result.deletedCount !== 1 ? "s" : ""
+        }.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete availabilities. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletingAvailabilityId = deleteAvailabilityMutation.variables as
+    | number
+    | undefined;
+  const isBulkDeleting = bulkDeleteAvailabilitiesMutation.isPending;
+  const allAvailabilityIds = Array.isArray(availabilities)
+    ? availabilities.map((availability: any) => availability.id)
+    : [];
+  const selectedAvailabilityCount = selectedAvailabilityIds.length;
+  const selectAllCheckboxState =
+    allAvailabilityIds.length === 0
+      ? false
+      : selectedAvailabilityCount === allAvailabilityIds.length
+        ? true
+        : selectedAvailabilityCount > 0
+          ? "indeterminate"
+          : false;
+
+  const toggleAvailabilitySelection = (
+    id: number,
+    checked: boolean | "indeterminate",
+  ) => {
+    setSelectedAvailabilityIds((prev) => {
+      if (checked === true || checked === "indeterminate") {
+        if (prev.includes(id)) {
+          return prev;
+        }
+        return [...prev, id];
+      }
+      return prev.filter((existingId) => existingId !== id);
+    });
+  };
+
+  const toggleSelectAllAvailabilities = (
+    checked: boolean | "indeterminate",
+  ) => {
+    if (checked === true || checked === "indeterminate") {
+      setSelectedAvailabilityIds(allAvailabilityIds);
+    } else {
+      setSelectedAvailabilityIds([]);
+    }
+  };
 
   const onCreateTourSubmit = (data: TourFormValues) => {
     createTourMutation.mutate(data);
@@ -1225,31 +1327,82 @@ export default function AdminTours() {
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
                               <h3 className="font-medium">Availabilities</h3>
-                              <Dialog
-                                open={isCreateAvailabilityOpen}
-                                onOpenChange={setIsCreateAvailabilityOpen}
-                              >
-                                <DialogTrigger asChild>
-                                  <Button size="sm">
-                                    <PlusIcon className="h-4 w-4 mr-2" />
-                                    Add Availability
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-                                  <DialogHeader>
-                                    <DialogTitle>Add Availability</DialogTitle>
-                                    <DialogDescription>
-                                      Select multiple dates and set the time and
-                                      capacity for this tour.
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <Form {...availabilityForm}>
-                                    <form
-                                      onSubmit={availabilityForm.handleSubmit(
-                                        onCreateAvailabilitySubmit,
-                                      )}
-                                      className="space-y-4 py-4"
+                              <div className="flex items-center gap-2">
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      disabled={
+                                        selectedAvailabilityCount === 0 ||
+                                        isBulkDeleting
+                                      }
                                     >
+                                      {isBulkDeleting ? (
+                                        <>
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          Deleting...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <TrashIcon className="h-4 w-4 mr-2" />
+                                          Delete Selected
+                                        </>
+                                      )}
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        Delete Selected Availabilities
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently remove{" "}
+                                        {selectedAvailabilityCount} availability slot
+                                        {selectedAvailabilityCount !== 1 ? "s" : ""}.
+                                        This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() =>
+                                          bulkDeleteAvailabilitiesMutation.mutate(
+                                            selectedAvailabilityIds,
+                                          )
+                                        }
+                                        disabled={isBulkDeleting}
+                                      >
+                                        {isBulkDeleting ? "Deleting..." : "Delete"}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                                <Dialog
+                                  open={isCreateAvailabilityOpen}
+                                  onOpenChange={setIsCreateAvailabilityOpen}
+                                >
+                                  <DialogTrigger asChild>
+                                    <Button size="sm">
+                                      <PlusIcon className="h-4 w-4 mr-2" />
+                                      Add Availability
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+                                    <DialogHeader>
+                                      <DialogTitle>Add Availability</DialogTitle>
+                                      <DialogDescription>
+                                        Select multiple dates and set the time and
+                                        capacity for this tour.
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <Form {...availabilityForm}>
+                                      <form
+                                        onSubmit={availabilityForm.handleSubmit(
+                                          onCreateAvailabilitySubmit,
+                                        )}
+                                        className="space-y-4 py-4"
+                                      >
                                       <FormField
                                         control={availabilityForm.control}
                                         name="selectedDates"
@@ -1394,6 +1547,17 @@ export default function AdminTours() {
                               <Table>
                                 <TableHeader>
                                   <TableRow>
+                                    <TableHead className="w-12">
+                                      <Checkbox
+                                        aria-label="Select all availabilities"
+                                        checked={selectAllCheckboxState}
+                                        onCheckedChange={toggleSelectAllAvailabilities}
+                                        disabled={
+                                          allAvailabilityIds.length === 0 ||
+                                          isBulkDeleting
+                                        }
+                                      />
+                                    </TableHead>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Time</TableHead>
                                     <TableHead>Capacity</TableHead>
@@ -1408,7 +1572,7 @@ export default function AdminTours() {
                                     availabilities.length === 0 && (
                                       <TableRow>
                                         <TableCell
-                                          colSpan={5}
+                                          colSpan={6}
                                           className="text-center py-6 text-gray-500"
                                         >
                                           No availabilities found. Add some to make
@@ -1420,11 +1584,25 @@ export default function AdminTours() {
                                     availabilities.map((availability: any) => {
                                       const isDeleting =
                                         deleteAvailabilityMutation.isPending &&
-                                        deleteAvailabilityMutation.variables ===
-                                          availability.id;
+                                        deletingAvailabilityId === availability.id;
 
                                       return (
                                         <TableRow key={availability.id}>
+                                          <TableCell>
+                                            <Checkbox
+                                              aria-label={`Select availability on ${availability.date} at ${availability.time}`}
+                                              checked={selectedAvailabilityIds.includes(
+                                                availability.id,
+                                              )}
+                                              onCheckedChange={(checked) =>
+                                                toggleAvailabilitySelection(
+                                                  availability.id,
+                                                  checked,
+                                                )
+                                              }
+                                              disabled={isBulkDeleting}
+                                            />
+                                          </TableCell>
                                           <TableCell>{availability.date}</TableCell>
                                           <TableCell>{availability.time}</TableCell>
                                           <TableCell>
@@ -1453,7 +1631,7 @@ export default function AdminTours() {
                                                   variant="ghost"
                                                   size="icon"
                                                   className="text-destructive hover:text-destructive"
-                                                  disabled={isDeleting}
+                                                  disabled={isDeleting || isBulkDeleting}
                                                   aria-label={`Delete availability on ${availability.date} at ${availability.time}`}
                                                 >
                                                   {isDeleting ? (
@@ -1484,7 +1662,7 @@ export default function AdminTours() {
                                                         availability.id,
                                                       )
                                                     }
-                                                    disabled={isDeleting}
+                                                    disabled={isDeleting || isBulkDeleting}
                                                   >
                                                     {isDeleting
                                                       ? "Deleting..."

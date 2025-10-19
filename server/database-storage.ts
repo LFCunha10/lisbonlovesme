@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { eq, and, desc, asc, sql, inArray } from "drizzle-orm";
 import { db } from "./db";
 import {
   users, tours, availabilities, bookings, testimonials, closedDays, adminSettings, gallery, articles, documents,
@@ -432,6 +432,14 @@ export class DatabaseStorage implements IStorage {
   async deleteAvailability(id: number): Promise<boolean> {
     const result = await db.delete(availabilities).where(eq(availabilities.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async deleteAvailabilities(ids: number[]): Promise<number> {
+    if (!ids.length) return 0;
+    const result = await db
+      .delete(availabilities)
+      .where(inArray(availabilities.id, ids));
+    return result.rowCount ?? 0;
   }
 
   // Booking operations

@@ -825,6 +825,26 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     }
   });
 
+  app.delete("/api/availabilities/bulk", async (req: Request, res: Response) => {
+    try {
+      const { ids } = req.body ?? {};
+      if (!Array.isArray(ids) || ids.length === 0 || ids.some((id) => typeof id !== "number" || Number.isNaN(id))) {
+        return res.status(400).json({ message: "A list of availability IDs is required" });
+      }
+
+      const deletedCount = await storage.deleteAvailabilities(ids);
+
+      if (deletedCount === 0) {
+        return res.status(404).json({ message: "No availabilities were deleted" });
+      }
+
+      res.json({ message: "Availabilities deleted successfully", deletedCount });
+    } catch (error: any) {
+      console.error("Error bulk deleting availabilities:", error);
+      res.status(500).json({ message: error.message || "Failed to delete availabilities" });
+    }
+  });
+
   app.delete("/api/availabilities/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
