@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -19,7 +19,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import {
   Bold, Italic, Underline as UnderlineIcon, Paintbrush,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Upload, Link as LinkIcon,
+  Upload, Link as LinkIcon, ImageIcon,
 } from 'lucide-react'
 
 interface Props {
@@ -30,6 +30,21 @@ interface Props {
 const colorPalette = ['#e60000', '#008000', '#0000ff', '#ffa500', '#800080', '#000000', '#808080']
 const fontOptions = ['Arial', 'Georgia', 'Courier New', 'Times New Roman', 'Verdana', 'Tahoma', 'Trebuchet MS']
 const sizeOptions = ['0.75rem', '1rem', '1.25rem', '1.5rem', '2rem', '2.5rem']
+
+const ImageExtension = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      alignment: {
+        default: 'center',
+        parseHTML: element => element.getAttribute('data-align') || 'center',
+        renderHTML: attributes => ({
+          'data-align': attributes.alignment || 'center',
+        }),
+      },
+    }
+  },
+})
 
 export function RichTextEditor({ value, onChange }: Props) {
   useEffect(() => {
@@ -42,6 +57,23 @@ export function RichTextEditor({ value, onChange }: Props) {
         outline: none;
         box-shadow: none;
         border: none;
+      }
+      .ProseMirror img {
+        max-width: 100%;
+        height: auto;
+      }
+      .ProseMirror img[data-align="left"] {
+        float: left;
+        margin: 0 1rem 1rem 0;
+      }
+      .ProseMirror img[data-align="center"] {
+        display: block;
+        margin: 1rem auto;
+        float: none;
+      }
+      .ProseMirror img[data-align="right"] {
+        float: right;
+        margin: 0 0 1rem 1rem;
       }
       .ProseMirror.is-editor-empty::before {
         content: attr(data-placeholder);
@@ -90,6 +122,8 @@ export function RichTextEditor({ value, onChange }: Props) {
   const [modalPos, setModalPos] = useState({ x: 0, y: 0 })
   const paintRef = useRef<HTMLButtonElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [imageSelected, setImageSelected] = useState(false)
+  const [currentImageAlignment, setCurrentImageAlignment] = useState<'left' | 'center' | 'right'>('center')
 
   const editor = useEditor({
     extensions: [
@@ -101,7 +135,7 @@ export function RichTextEditor({ value, onChange }: Props) {
       Color,
       Link,
       TextAlign.configure({ types: ['paragraph', 'heading'] }),
-      Image.configure({ inline: false, allowBase64: true }),
+      ImageExtension.configure({ inline: false, allowBase64: true }),
       ImageResize.configure({ inline: false }),
       Table.configure({ resizable: true, HTMLAttributes: { class: 'tiptap-table' } }),
       TableRow,
@@ -132,30 +166,55 @@ export function RichTextEditor({ value, onChange }: Props) {
 
   const insertUpload = () => fileRef.current?.click()
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadImageFile = useCallback(async (file: File) => {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status ${response.status}`)
+    }
+
+    const data = await response.json()
+    if (!data?.imageUrl) {
+      throw new Error('Upload response missing image URL')
+    }
+
+    return data.imageUrl as string
+  }, [])
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (f && editor) {
-      const formData = new FormData()
-      formData.append('image', f)
-      
-      fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.imageUrl) {
-          editor.chain().focus().setImage({ src: data.imageUrl }).run()
-        }
-      })
-      .catch(error => {
+      try {
+        const imageUrl = await uploadImageFile(f)
+        editor.chain().focus().setImage({ src: imageUrl }).updateAttributes('image', { alignment: 'center' }).run()
+      } catch (error) {
         console.error('Image upload error:', error)
-      })
+      } finally {
+        e.target.value = ''
+      }
+      return
     }
+    e.target.value = ''
   }
 
   const setFont = (font: string) => editor?.chain().focus().setFontFamily(font).run()
   const setFontSize = (size: string) => editor?.chain().focus().setFontSize(size).run()
+  const alignImage = (alignment: 'left' | 'center' | 'right') => {
+    if (!editor) return
+    editor.chain().focus().updateAttributes('image', { alignment }).run()
+  }
+  const insertImageByUrl = () => {
+    if (!editor) return
+    const url = window.prompt('Enter image URL')
+    if (!url) return
+    editor.chain().focus().setImage({ src: url }).updateAttributes('image', { alignment: 'center' }).run()
+  }
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -166,6 +225,55 @@ export function RichTextEditor({ value, onChange }: Props) {
     document.addEventListener('click', close)
     return () => document.removeEventListener('click', close)
   }, [])
+
+  useEffect(() => {
+    if (!editor) return
+
+    const updateImageState = () => {
+      if (editor.isActive('image')) {
+        setImageSelected(true)
+        const attrs = editor.getAttributes('image') as { alignment?: 'left' | 'center' | 'right' }
+        setCurrentImageAlignment(attrs.alignment || 'center')
+      } else {
+        setImageSelected(false)
+      }
+    }
+
+    editor.on('selectionUpdate', updateImageState)
+    editor.on('update', updateImageState)
+
+    return () => {
+      editor.off('selectionUpdate', updateImageState)
+      editor.off('update', updateImageState)
+    }
+  }, [editor])
+
+  useEffect(() => {
+    if (!editor) return
+
+    const handlePaste = async ({ event }: { event: ClipboardEvent }) => {
+      if (!event.clipboardData) return
+      const items = Array.from(event.clipboardData.items || [])
+      const imageItem = items.find(item => item.type.startsWith('image/'))
+      if (!imageItem) return
+
+      const file = imageItem.getAsFile()
+      if (!file) return
+
+      event.preventDefault()
+      try {
+        const imageUrl = await uploadImageFile(file)
+        editor.chain().focus().setImage({ src: imageUrl }).updateAttributes('image', { alignment: 'center' }).run()
+      } catch (error) {
+        console.error('Clipboard image upload error:', error)
+      }
+    }
+
+    editor.on('paste', handlePaste)
+    return () => {
+      editor.off('paste', handlePaste)
+    }
+  }, [editor, uploadImageFile])
 
   if (!editor) return null
 
@@ -181,6 +289,7 @@ export function RichTextEditor({ value, onChange }: Props) {
         <button onClick={() => editor.chain().focus().setTextAlign('right').run()}><AlignRight size={18} /></button>
         <button onClick={() => editor.chain().focus().setTextAlign('justify').run()}><AlignJustify size={18} /></button>
         <button onClick={insertUpload}><Upload size={18} /></button>
+        <button onClick={insertImageByUrl}><ImageIcon size={18} /></button>
         <button onClick={() => editor.chain().focus().setLink({ href: 'https://example.com' }).run()}><LinkIcon size={18} /></button>
 
         {/* Table controls */}
@@ -209,6 +318,32 @@ export function RichTextEditor({ value, onChange }: Props) {
             <option key={size} value={size}>{size}</option>
           ))}
         </select>
+
+        <span style={{ width: 1, height: 22, background: '#e5e7eb', margin: '0 6px' }} />
+        <button
+          title="Align image left"
+          onClick={() => alignImage('left')}
+          disabled={!imageSelected}
+          style={{ opacity: imageSelected && currentImageAlignment === 'left' ? 1 : 0.6 }}
+        >
+          <AlignLeft size={18} />
+        </button>
+        <button
+          title="Align image center"
+          onClick={() => alignImage('center')}
+          disabled={!imageSelected}
+          style={{ opacity: imageSelected && currentImageAlignment === 'center' ? 1 : 0.6 }}
+        >
+          <AlignCenter size={18} />
+        </button>
+        <button
+          title="Align image right"
+          onClick={() => alignImage('right')}
+          disabled={!imageSelected}
+          style={{ opacity: imageSelected && currentImageAlignment === 'right' ? 1 : 0.6 }}
+        >
+          <AlignRight size={18} />
+        </button>
       </div>
 
       {showColor && (
