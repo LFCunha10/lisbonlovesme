@@ -19,7 +19,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import {
   Bold, Italic, Underline as UnderlineIcon, Paintbrush,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Upload, Link as LinkIcon, ImageIcon,
+  Link as LinkIcon, ImageIcon,
 } from 'lucide-react'
 
 interface Props {
@@ -209,13 +209,6 @@ export function RichTextEditor({ value, onChange }: Props) {
     if (!editor) return
     editor.chain().focus().updateAttributes('image', { alignment }).run()
   }
-  const insertImageByUrl = () => {
-    if (!editor) return
-    const url = window.prompt('Enter image URL')
-    if (!url) return
-    editor.chain().focus().setImage({ src: url }).updateAttributes('image', { alignment: 'center' }).run()
-  }
-
   useEffect(() => {
     const close = (e: MouseEvent) => {
       if (paintRef.current && !paintRef.current.contains(e.target as Node)) {
@@ -288,8 +281,7 @@ export function RichTextEditor({ value, onChange }: Props) {
         <button onClick={() => editor.chain().focus().setTextAlign('center').run()}><AlignCenter size={18} /></button>
         <button onClick={() => editor.chain().focus().setTextAlign('right').run()}><AlignRight size={18} /></button>
         <button onClick={() => editor.chain().focus().setTextAlign('justify').run()}><AlignJustify size={18} /></button>
-        <button onClick={insertUpload}><Upload size={18} /></button>
-        <button onClick={insertImageByUrl}><ImageIcon size={18} /></button>
+        <button onClick={insertUpload}><ImageIcon size={18} /></button>
         <button onClick={() => editor.chain().focus().setLink({ href: 'https://example.com' }).run()}><LinkIcon size={18} /></button>
 
         {/* Table controls */}
@@ -319,31 +311,32 @@ export function RichTextEditor({ value, onChange }: Props) {
           ))}
         </select>
 
-        <span style={{ width: 1, height: 22, background: '#e5e7eb', margin: '0 6px' }} />
-        <button
-          title="Align image left"
-          onClick={() => alignImage('left')}
-          disabled={!imageSelected}
-          style={{ opacity: imageSelected && currentImageAlignment === 'left' ? 1 : 0.6 }}
-        >
-          <AlignLeft size={18} />
-        </button>
-        <button
-          title="Align image center"
-          onClick={() => alignImage('center')}
-          disabled={!imageSelected}
-          style={{ opacity: imageSelected && currentImageAlignment === 'center' ? 1 : 0.6 }}
-        >
-          <AlignCenter size={18} />
-        </button>
-        <button
-          title="Align image right"
-          onClick={() => alignImage('right')}
-          disabled={!imageSelected}
-          style={{ opacity: imageSelected && currentImageAlignment === 'right' ? 1 : 0.6 }}
-        >
-          <AlignRight size={18} />
-        </button>
+        {imageSelected && (
+          <>
+            <span style={{ width: 1, height: 22, background: '#e5e7eb', margin: '0 6px' }} />
+            <button
+              title="Align image left"
+              onClick={() => alignImage('left')}
+              style={{ opacity: currentImageAlignment === 'left' ? 1 : 0.6 }}
+            >
+              <AlignLeft size={18} />
+            </button>
+            <button
+              title="Align image center"
+              onClick={() => alignImage('center')}
+              style={{ opacity: currentImageAlignment === 'center' ? 1 : 0.6 }}
+            >
+              <AlignCenter size={18} />
+            </button>
+            <button
+              title="Align image right"
+              onClick={() => alignImage('right')}
+              style={{ opacity: currentImageAlignment === 'right' ? 1 : 0.6 }}
+            >
+              <AlignRight size={18} />
+            </button>
+          </>
+        )}
       </div>
 
       {showColor && (
