@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { normalizeLanguage, withLanguagePrefix } from '@/lib/language-routing';
 
 const languageNames = {
   'en': 'English',
@@ -25,11 +26,20 @@ export default function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
 
   const changeLanguage = (value: string) => {
-    i18n.changeLanguage(value);
+    const selectedLanguage = normalizeLanguage(value);
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const localizedPath = withLanguagePrefix(currentPath, selectedLanguage);
+
+    if (localizedPath !== currentPath) {
+      window.history.replaceState(window.history.state, '', localizedPath);
+      window.dispatchEvent(new Event('replaceState'));
+    }
+
+    i18n.changeLanguage(selectedLanguage);
   };
 
   // Get current language, handle variations like en-US -> en
-  const currentLang = i18n.language?.split('-')[0] || 'en';
+  const currentLang = normalizeLanguage(i18n.language);
   const displayValue = languageNames[currentLang as keyof typeof languageNames] || languageNames['en'];
 
   return (

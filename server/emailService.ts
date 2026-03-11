@@ -99,23 +99,65 @@ function getEmailTranslations(language?: string) {
   return loadTranslations(lang) || loadTranslations('en');
 }
 
+const smtpHost = (process.env.EMAIL_HOST ?? '').trim();
+const parsedSmtpPort = Number.parseInt(process.env.EMAIL_PORT ?? '587', 10);
+const smtpPort = Number.isFinite(parsedSmtpPort) ? parsedSmtpPort : 587;
+const smtpUser = (process.env.EMAIL_USER ?? '').trim();
+const rawSmtpPass = process.env.EMAIL_PASS ?? '';
+const isGmailSmtp = smtpHost.toLowerCase().includes('gmail.com');
+const smtpPass = isGmailSmtp ? rawSmtpPass.replace(/\s+/g, '') : rawSmtpPass;
+const smtpConfigMissingVars: string[] = [];
+const smtpPortProvided = typeof process.env.EMAIL_PORT === 'string' && process.env.EMAIL_PORT.trim().length > 0;
+const smtpPortIsValid = Number.isFinite(parsedSmtpPort);
+const enableSmtpDebugLogs = process.env.EMAIL_DEBUG === 'true';
+
+if (!smtpHost) smtpConfigMissingVars.push('EMAIL_HOST');
+if (!smtpPortProvided || !smtpPortIsValid) smtpConfigMissingVars.push('EMAIL_PORT');
+if (!smtpUser) smtpConfigMissingVars.push('EMAIL_USER');
+if (!smtpPass) smtpConfigMissingVars.push('EMAIL_PASS');
+
+if (smtpConfigMissingVars.length > 0) {
+  console.warn(`SMTP configuration is incomplete. Missing/invalid: ${smtpConfigMissingVars.join(', ')}`);
+}
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT ?? '587'),
-  secure: false, // true for 465, false for other ports
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpPort === 465, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: smtpUser,
+    pass: smtpPass,
   },
-  logger: true,
-  debug: true,
+  logger: enableSmtpDebugLogs,
+  debug: enableSmtpDebugLogs,
 });
 
+export function getEmailTransportDiagnostics() {
+  return {
+    host: smtpHost || null,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    userConfigured: Boolean(smtpUser),
+    passConfigured: Boolean(smtpPass),
+    passLength: smtpPass.length,
+    missingOrInvalidEnvVars: smtpConfigMissingVars,
+    gmailAppPasswordFormatValid: isGmailSmtp ? /^[a-zA-Z0-9]{16}$/.test(smtpPass) : null,
+  };
+}
+
 export async function verifyEmailTransport(): Promise<boolean> {
+  if (smtpConfigMissingVars.length > 0) {
+    console.error(`SMTP verification skipped: missing/invalid env vars: ${smtpConfigMissingVars.join(', ')}`);
+    return false;
+  }
+
   try {
     await transporter.verify();
     return true;
   } catch (err) {
+    if ((err as any)?.code === 'EAUTH' && isGmailSmtp) {
+      console.error('Gmail SMTP authentication failed. Ensure EMAIL_PASS is a current 16-character Google App Password and 2-Step Verification is enabled.');
+    }
     console.error('SMTP transporter verification failed:', err);
     return false;
   }
@@ -131,8 +173,8 @@ export async function sendTestEmail(to?: string): Promise<void> {
     text: 'This is a test email from Lisbonlovesme server.',
     html: '<p>This is a <strong>test email</strong> from Lisbonlovesme server.</p>',
   };
-  const info = await transporter.sendMail(mailOptions);
-  }
+  await transporter.sendMail(mailOptions);
+}
 
 interface ConfirmationEmailOptions {
   to: string;

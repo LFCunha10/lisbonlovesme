@@ -1,15 +1,81 @@
 import React, { useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { useBrowserLocation } from "wouter/use-browser-location";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
-import TourDetailPage from "@/pages/tours/tour-details";
 import AdminPage from "@/pages/admin";
 import NavBar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
 import AdminProtectedRoute from "@/components/admin/protected-route";
+import {
+  getLanguageFromPath,
+  getPreferredLanguage,
+  isLanguageExcludedPath,
+  normalizeLanguage,
+  stripLanguageFromPath,
+  withLanguagePrefix,
+} from "@/lib/language-routing";
+
+function useLocalizedBrowserLocation(): [string, (path: string, options?: { replace?: boolean; state?: unknown }) => void] {
+  const [pathname, navigate] = useBrowserLocation();
+  const preferredLanguage = getPreferredLanguage(pathname);
+  const normalizedPath = stripLanguageFromPath(pathname);
+
+  const localizedNavigate = (to: string, options?: { replace?: boolean; state?: unknown }) => {
+    navigate(withLanguagePrefix(to, preferredLanguage), options);
+  };
+
+  return [normalizedPath, localizedNavigate];
+}
+
+const formatLocalizedHref = (href: string) => {
+  if (typeof window === "undefined") {
+    return href;
+  }
+
+  const preferredLanguage = getPreferredLanguage(window.location.pathname);
+  return withLanguagePrefix(href, preferredLanguage);
+};
+
+function LanguagePathSync() {
+  const { i18n } = useTranslation();
+  const [location] = useLocation();
+
+  useEffect(() => {
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const pathLanguage = getLanguageFromPath(window.location.pathname);
+    const currentLanguage = normalizeLanguage(i18n.resolvedLanguage || i18n.language);
+
+    if (isLanguageExcludedPath(window.location.pathname)) {
+      if (pathLanguage) {
+        const canonicalPath = `${stripLanguageFromPath(window.location.pathname)}${window.location.search}${window.location.hash}`;
+        if (canonicalPath !== currentPath) {
+          window.history.replaceState(window.history.state, "", canonicalPath);
+          window.dispatchEvent(new Event("replaceState"));
+        }
+      }
+      return;
+    }
+
+    if (pathLanguage) {
+      if (pathLanguage !== currentLanguage) {
+        i18n.changeLanguage(pathLanguage);
+      }
+      return;
+    }
+
+    const localizedPath = withLanguagePrefix(currentPath, currentLanguage);
+    if (localizedPath !== currentPath) {
+      window.history.replaceState(window.history.state, "", localizedPath);
+      window.dispatchEvent(new Event("replaceState"));
+    }
+  }, [i18n, i18n.language, i18n.resolvedLanguage, location]);
+
+  return null;
+}
 
 // Define admin routes
 function Router() {
@@ -393,16 +459,19 @@ function LanguageAwareApp() {
   }, []);
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen flex flex-col">
-        <NavBar />
-        <main className="flex-grow" style={{ paddingTop: 'var(--navbar-height, 56px)' }}>
-          <Router />
-        </main>
-        <Footer />
-      </div>
-      <Toaster />
-    </TooltipProvider>
+    <WouterRouter hook={useLocalizedBrowserLocation} hrefs={formatLocalizedHref}>
+      <LanguagePathSync />
+      <TooltipProvider>
+        <div className="min-h-screen flex flex-col">
+          <NavBar />
+          <main className="flex-grow" style={{ paddingTop: 'var(--navbar-height, 56px)' }}>
+            <Router />
+          </main>
+          <Footer />
+        </div>
+        <Toaster />
+      </TooltipProvider>
+    </WouterRouter>
   );
 }
 

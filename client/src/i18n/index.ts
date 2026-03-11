@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { SUPPORTED_LANGUAGES } from '@/lib/language-routing';
 
 // Import translations
 import enTranslations from './locales/en.json';
@@ -17,7 +18,8 @@ i18n
   .init({
     debug: process.env.NODE_ENV === 'development',
     fallbackLng: 'en',
-    lng: 'en', // Set default language explicitly
+    supportedLngs: [...SUPPORTED_LANGUAGES],
+    nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false, // React already escapes variables
     },
@@ -28,7 +30,7 @@ i18n
     },
     detection: {
       // Order of detection methods
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['path', 'localStorage', 'navigator', 'htmlTag'],
       // Cache the language selection in localStorage
       caches: ['localStorage'],
       // Look for languages in these formats

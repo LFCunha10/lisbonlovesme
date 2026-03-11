@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction, RequestHandler } from "e
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import Stripe from "stripe";
-import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification, verifyEmailTransport, sendTestEmail } from "./emailService.js";
+import { sendBookingConfirmationEmail, sendRequestConfirmationEmail, sendReviewRequestEmail, sendBookingRequestNotification, sendContactFormNotification, verifyEmailTransport, sendTestEmail, getEmailTransportDiagnostics } from "./emailService.js";
 import { autoTranslateTourContent, translateField } from "./translation-service.js";
 import { exportDatabase } from "./utils/export-database-complete";
 import { upload, handleUploadErrors, getUploadedFileUrl, getImageStoredFilePath } from "./utils/image-upload";
@@ -1653,8 +1653,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
 
   // Email diagnostics (admin only)
   app.get("/api/admin/email/verify", isAuthenticated, isAdmin, async (_req: Request, res: Response) => {
+    const diagnostics = getEmailTransportDiagnostics();
     const ok = await verifyEmailTransport();
-    res.json({ ok });
+    res.json({ ok, diagnostics });
   });
 
   app.post("/api/admin/email/test", isAuthenticated, isAdmin, async (req: Request, res: Response) => {

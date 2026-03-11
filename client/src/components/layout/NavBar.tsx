@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -187,15 +186,15 @@ interface NavLinkProps {
 
 function NavLink({ href, children, isActive }: NavLinkProps) {
   return (
-    <a 
-      href={href} 
+    <Link
+      href={href}
       className={cn(
         "text-neutral-dark hover:text-primary transition-all font-medium",
         isActive && "text-primary"
       )}
     >
       {children}
-    </a>
+    </Link>
   );
 }
 
@@ -207,12 +206,12 @@ interface MobileNavLinkProps {
 
 function MobileNavLink({ href, children, onClick }: MobileNavLinkProps) {
   return (
-    <a 
-      href={href} 
+    <Link
+      href={href}
       className="block py-2 text-neutral-dark hover:text-primary"
       onClick={onClick}
     >
       {children}
-    </a>
+    </Link>
   );
 }
