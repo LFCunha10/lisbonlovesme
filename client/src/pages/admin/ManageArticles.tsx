@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { getLocalizedText } from "@/lib/tour-utils";
-import { PlusIcon, EditIcon, TrashIcon, FolderIcon, FileTextIcon } from "lucide-react";
+import { PlusIcon, EditIcon, TrashIcon, FolderIcon, FileTextIcon, Loader2 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useLocation } from "wouter";
@@ -45,6 +45,7 @@ export default function ManageArticles() {
   const [selectedParent, setSelectedParent] = useState<number | undefined>();
   const [html, setHtml] = useState('');
   const [, navigate] = useLocation();
+  const [translatingLang, setTranslatingLang] = useState<null | 'pt' | 'ru'>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   React.useEffect(() => {
     const checkAuth = async () => {
@@ -240,6 +241,55 @@ export default function ManageArticles() {
       .replace(/\s+/g, '-')
       .replace(/--+/g, '-')
       .trim();
+  };
+
+  const handleTranslateFromEnglish = async (targetLang: 'pt' | 'ru') => {
+    setTranslatingLang(targetLang);
+    try {
+      const sourceData = {
+        title: formData.title.en || "",
+        excerpt: formData.excerpt.en || "",
+        content: formData.content.en || "",
+      };
+
+      const response = await fetch("/api/translate-tour", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          sourceData,
+          sourceLang: "en",
+          targetLangs: [targetLang],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to translate article content");
+      }
+
+      const data = await response.json();
+      const translated = data?.translations?.[targetLang] || {};
+
+      setFormData((prev) => ({
+        ...prev,
+        title: { ...prev.title, [targetLang]: translated.title || prev.title.en },
+        excerpt: { ...prev.excerpt, [targetLang]: translated.excerpt || prev.excerpt.en },
+        content: { ...prev.content, [targetLang]: translated.content || prev.content.en },
+      }));
+
+      toast({
+        title: "Translated",
+        description: `English content translated to ${targetLang.toUpperCase()}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Translation error",
+        description: error.message || "Failed to translate article content.",
+        variant: "destructive",
+      });
+    } finally {
+      setTranslatingLang(null);
+    }
   };
 
   // Build a nested tree from flat articles array
@@ -445,6 +495,26 @@ export default function ManageArticles() {
                           
                           {['en', 'pt', 'ru'].map((lang) => (
                             <TabsContent key={lang} value={lang} className="space-y-4">
+                              {lang !== "en" && (
+                                <div className="flex justify-end">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleTranslateFromEnglish(lang as "pt" | "ru")}
+                                    disabled={translatingLang === lang}
+                                  >
+                                    {translatingLang === lang ? (
+                                      <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Translating...
+                                      </>
+                                    ) : (
+                                      "Translate from English"
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                               <div>
                                 <Label>Title ({lang.toUpperCase()})</Label>
                                 <Input

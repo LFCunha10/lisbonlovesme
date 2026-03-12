@@ -80,7 +80,7 @@ export default function EditTourPage() {
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'pt' | 'ru'>('en');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
-  // Translation state removed
+  const [translatingLang, setTranslatingLang] = useState<null | 'pt' | 'ru'>(null);
 
   const tourId = parseInt(id as string);
   const isEditing = !isNaN(tourId);
@@ -214,7 +214,55 @@ export default function EditTourPage() {
     },
   });
 
-  // Translation functionality removed - will be added back later
+  const handleTranslateFromEnglish = async (targetLang: 'pt' | 'ru') => {
+    setTranslatingLang(targetLang);
+    try {
+      const sourceData = {
+        name: form.getValues("name.en") || "",
+        shortDescription: form.getValues("shortDescription.en") || "",
+        description: form.getValues("description.en") || "",
+        difficulty: form.getValues("difficulty.en") || "",
+        badge: form.getValues("badge.en") || "",
+      };
+
+      const response = await fetch("/api/translate-tour", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          sourceData,
+          sourceLang: "en",
+          targetLangs: [targetLang],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to translate content");
+      }
+
+      const data = await response.json();
+      const translated = data?.translations?.[targetLang] || {};
+
+      form.setValue(`name.${targetLang}`, translated.name || sourceData.name, { shouldDirty: true });
+      form.setValue(`shortDescription.${targetLang}`, translated.shortDescription || sourceData.shortDescription, { shouldDirty: true });
+      form.setValue(`description.${targetLang}`, translated.description || sourceData.description, { shouldDirty: true });
+      form.setValue(`difficulty.${targetLang}`, translated.difficulty || sourceData.difficulty, { shouldDirty: true });
+      form.setValue(`badge.${targetLang}`, translated.badge || sourceData.badge, { shouldDirty: true });
+
+      toast({
+        title: "Translated",
+        description: `English content translated to ${targetLang.toUpperCase()}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Translation error",
+        description: error.message || "Failed to translate content.",
+        variant: "destructive",
+      });
+    } finally {
+      setTranslatingLang(null);
+    }
+  };
 
   const handleSave = () => {
     const formData = form.getValues();
@@ -316,6 +364,24 @@ export default function EditTourPage() {
                             {lang === 'ru' && 'Russian Content'}
                           </h3>
                           <div className="flex gap-2">
+                            {lang !== "en" && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={translatingLang === lang}
+                                onClick={() => handleTranslateFromEnglish(lang as "pt" | "ru")}
+                              >
+                                {translatingLang === lang ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Translating...
+                                  </>
+                                ) : (
+                                  "Translate from English"
+                                )}
+                              </Button>
+                            )}
                             <span className="text-sm text-gray-500 py-2">
                               {lang === 'en' && 'English content (source language)'}
                               {lang === 'pt' && 'Portuguese content'}
