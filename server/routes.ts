@@ -1035,11 +1035,27 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         ? JSON.parse(booking.additionalInfo)
         : booking.additionalInfo ?? {};
 
-      // Use confirmed details if available, otherwise use original request details
-      const confirmationDate = booking.confirmedDate || additionalInfo?.date || 'TBD';
-      const confirmationTime = booking.confirmedTime || additionalInfo?.time || 'TBD';
-      const meetingPoint = booking.confirmedMeetingPoint || booking.meetingPoint || 'TBD';
+      // Require explicit confirmation details before sending confirmation email
+      const confirmationDate = booking.confirmedDate || additionalInfo?.date;
+      const confirmationTime = booking.confirmedTime || additionalInfo?.time;
+      const meetingPoint = booking.confirmedMeetingPoint || booking.meetingPoint;
       const adminNotes = booking.adminNotes || '-';
+
+      if (!confirmationDate || !confirmationTime || !meetingPoint) {
+        return res.status(400).json({
+          message:
+            "Confirmation date, time, and meeting point are required before sending confirmation email.",
+        });
+      }
+
+      const timeValid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(String(confirmationTime));
+      const dateValid = !Number.isNaN(new Date(String(confirmationDate)).getTime());
+      if (!timeValid || !dateValid) {
+        return res.status(400).json({
+          message:
+            "Invalid confirmation date/time format. Expected date parseable by server and time as HH:mm.",
+        });
+      }
       
       await sendBookingConfirmationEmail({
         to: booking.customerEmail,
@@ -1063,9 +1079,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       await storage.updateBooking(bookingId, { paymentStatus: "confirmed" });
       
       res.json({ message: "Confirmation email sent successfully" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending confirmation email:", error);
-      res.status(500).json({ message: "Failed to send confirmation email" });
+      res.status(500).json({ message: error?.message || "Failed to send confirmation email" });
     }
   });
 

@@ -310,19 +310,29 @@ export async function sendBookingConfirmationEmail(options: ConfirmationEmailOpt
     language
   } = options;
   
+  const timeMatch = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
+  if (!timeMatch) {
+    throw new Error(`Invalid confirmation time format: "${time}". Expected HH:mm`);
+  }
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    throw new Error(`Invalid confirmation date value: "${date}"`);
+  }
+
   // Get translations for the specified language
   const t = getEmailTranslations(language);
   
   // Format the date based on language
   const locale = language?.startsWith('pt') ? 'pt-PT' : 'en-US';
-  const formattedDate = new Date(date).toLocaleDateString(locale, {
+  const formattedDate = parsedDate.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
   // Create the event datetime for the ICS file
-  const [hours, minutes] = time.split(':').map(Number);
-  const eventDate = new Date(date);
+  const hours = Number(timeMatch[1]);
+  const minutes = Number(timeMatch[2]);
+  const eventDate = new Date(parsedDate);
   eventDate.setHours(hours, minutes, 0, 0);
   
   // Generate ICS file content
