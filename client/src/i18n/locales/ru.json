@@ -154,7 +154,7 @@
         "tourNamePlaceholder": "Историческая пешеходная экскурсия",
         "description": "Описание",
         "duration": "Продолжительность",
-        "durationPlaceholder": "2 часа",
+        "durationPlaceholder": "2",
         "maxGroupSize": "Макс. размер группы",
         "difficulty": "Сложность",
         "selectDifficulty": "Выберите сложность",

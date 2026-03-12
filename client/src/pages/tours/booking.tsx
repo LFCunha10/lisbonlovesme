@@ -15,6 +15,7 @@ import PaymentForm from "@/components/booking/PaymentForm";
 import RequestSent from "@/components/booking/RequestSent";
 import { Link } from "wouter";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { formatDurationHours } from "@shared/duration";
 
 interface BookingData {
   date: string;
@@ -281,7 +282,7 @@ export default function Booking() {
                         {getLocalizedText(tour.name)}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {getLocalizedText(tour.duration)}
+                        {formatDurationHours(tour.duration, i18n.language)}
                       </p>
                       {tour.badge && getLocalizedText(tour.badge) && (
                         <Badge className="text-xs mt-1" variant="secondary">

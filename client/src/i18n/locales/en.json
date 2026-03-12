@@ -154,7 +154,7 @@
         "tourNamePlaceholder": "Historic Walking Tour",
         "description": "Description",
         "duration": "Duration",
-        "durationPlaceholder": "2 hours",
+        "durationPlaceholder": "2",
         "maxGroupSize": "Maximum Group Size",
         "difficulty": "Difficulty",
         "selectDifficulty": "Select difficulty",

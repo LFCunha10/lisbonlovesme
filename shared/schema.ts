@@ -35,7 +35,7 @@ export const tours = pgTable("tours", {
     .default({ en: "", pt: "", ru: "" }),
   description: json("description").$type<{ en: string; pt: string; ru: string }>().notNull(),
   imageUrl: text("image_url").notNull(),
-  duration: json("duration").$type<{ en: string; pt: string; ru: string }>().notNull(),
+  duration: integer("duration").notNull().default(1),
   maxGroupSize: integer("max_group_size").notNull(),
   difficulty: json("difficulty").$type<{ en: string; pt: string; ru: string }>().notNull(),
   price: integer("price").notNull(),
@@ -59,7 +59,7 @@ export type TourTranslations = {
   name: MultilingualText;
   shortDescription: MultilingualText;
   description: MultilingualText;
-  duration: MultilingualText;
+  duration: number;
   difficulty: MultilingualText;
   badge: MultilingualText;
 };

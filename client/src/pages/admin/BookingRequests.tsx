@@ -51,7 +51,7 @@ interface BookingRequest {
   };
   tour?: {
     name: string | { en: string; pt: string; ru: string };
-    duration: string | { en: string; pt: string; ru: string };
+    duration: number;
   };
 }
 

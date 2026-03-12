@@ -16,11 +16,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Globe, Save, Eye, ImageIcon, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getLocalizedText, convertToMultilingual } from "@/lib/tour-utils";
+import { convertToMultilingual } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { parseDurationHours } from "@shared/duration";
 
 // Multilingual form schema
 const multilingualTourSchema = z.object({
@@ -39,11 +40,7 @@ const multilingualTourSchema = z.object({
     pt: z.string().optional(),
     ru: z.string().optional(),
   }).optional(),
-  duration: z.object({
-    en: z.string().min(1, "English duration is required"),
-    pt: z.string().min(1, "Portuguese duration is required"),
-    ru: z.string().min(1, "Russian duration is required"),
-  }),
+  duration: z.number().int().min(1, "Duration must be at least 1 hour"),
   difficulty: z.object({
     en: z.string().min(1, "English difficulty is required"),
     pt: z.string().min(1, "Portuguese difficulty is required"),
@@ -94,7 +91,7 @@ export default function EditTourPage() {
       name: { en: "", pt: "", ru: "" },
       description: { en: "", pt: "", ru: "" },
       shortDescription: { en: "", pt: "", ru: "" },
-      duration: { en: "", pt: "", ru: "" },
+      duration: 1,
       difficulty: { en: "", pt: "", ru: "" },
       badge: { en: "", pt: "", ru: "" },
       price: 0,
@@ -118,7 +115,7 @@ export default function EditTourPage() {
         name: coerceML(tour.name),
         description: coerceML(tour.description),
         shortDescription: coerceML(tour.shortDescription || ''),
-        duration: coerceML(tour.duration),
+        duration: parseDurationHours(tour.duration, 1),
         difficulty: coerceML(tour.difficulty),
         badge: typeof tour.badge === 'string' ? convertToMultilingual(tour.badge) : coerceML(tour.badge),
         price: tour.price / 100, // Convert from cents
@@ -364,14 +361,17 @@ export default function EditTourPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
-                            name={`duration.${lang}`}
+                            name="duration"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Duration</FormLabel>
                                 <FormControl>
                                   <Input 
-                                    placeholder={`e.g., "2 hours" in ${lang === 'en' ? 'English' : lang === 'pt' ? 'Portuguese' : 'Russian'}`}
-                                    {...field}
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    value={field.value}
+                                    onChange={(e) => field.onChange(parseDurationHours(e.target.value, 1))}
                                   />
                                 </FormControl>
                                 <FormMessage />

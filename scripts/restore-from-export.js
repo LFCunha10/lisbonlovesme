@@ -60,7 +60,7 @@ async function main() {
     // Copy order: tours -> availabilities -> bookings -> testimonials
     // Note: We intentionally do NOT overwrite closed_days or admin_settings.
 
-    // Tours: map TEXT fields to JSON objects for multilingual columns
+    // Tours: map legacy text fields to current multilingual/integer columns
     await client.query(`
       INSERT INTO public.tours (
         id, name, short_description, description, image_url,
@@ -73,7 +73,16 @@ async function main() {
         json_build_object('en', short_description, 'pt', '', 'ru', ''),
         json_build_object('en', description, 'pt', '', 'ru', ''),
         image_url,
-        json_build_object('en', duration, 'pt', '', 'ru', ''),
+        COALESCE(
+          (
+            SELECT GREATEST(
+              1,
+              round(replace(m[1], ',', '.')::numeric)::integer
+            )
+            FROM regexp_match(duration, '([0-9]+(?:[.,][0-9]+)?)') AS m
+          ),
+          1
+        ),
         max_group_size,
         json_build_object('en', difficulty, 'pt', '', 'ru', ''),
         price,
@@ -154,4 +163,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

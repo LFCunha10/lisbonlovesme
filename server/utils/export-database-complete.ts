@@ -179,7 +179,7 @@ CREATE TABLE tours (
   short_description TEXT DEFAULT '',
   description TEXT NOT NULL,
   image_url TEXT NOT NULL,
-  duration TEXT NOT NULL,
+  duration INTEGER NOT NULL,
   max_group_size INTEGER NOT NULL,
   difficulty TEXT NOT NULL,
   price INTEGER NOT NULL,

@@ -5,6 +5,7 @@ import { Tour } from "@shared/schema";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { formatDurationHours } from "@shared/duration";
 
 interface TourCardProps {
   tour: Tour;
@@ -58,7 +59,7 @@ export default function TourCard({ tour }: TourCardProps) {
         
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
-            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {getLocalizedText(tour.duration, i18n.language)}
+            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {formatDurationHours(tour.duration, i18n.language)}
           </span>
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
             <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.maxGroupSize}

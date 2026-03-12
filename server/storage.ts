@@ -263,6 +263,7 @@ export class MemStorage implements IStorage {
     const newTour: Tour = {
       ...tour,
       id,
+      duration: tour.duration ?? 1,
       shortDescription: tour.shortDescription ?? null,
       isActive: tour.isActive ?? true,
       priceType: tour.priceType ?? null,

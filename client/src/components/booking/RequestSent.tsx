@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar, Users, Euro, Mail, Phone, Home, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { formatDurationHours } from "@shared/duration";
 import type { Tour } from "@shared/schema";
 
 interface BookingData {
@@ -78,7 +79,7 @@ export default function RequestSent({ tour, bookingData, bookingReference, total
                 {getLocalizedText(tour.name, i18n.language)}
               </h4>
               <p className="text-gray-500 dark:text-gray-400 mb-2">
-                {getLocalizedText(tour.duration, i18n.language)} • {getLocalizedText(tour.difficulty, i18n.language)}
+                {formatDurationHours(tour.duration, i18n.language)} • {getLocalizedText(tour.difficulty, i18n.language)}
               </p>
               {tour.badge && getLocalizedText(tour.badge, i18n.language) && (
                 <Badge variant="secondary">

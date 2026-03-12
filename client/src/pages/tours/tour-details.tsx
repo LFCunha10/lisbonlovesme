@@ -2,6 +2,7 @@ import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { formatDurationHours } from "@shared/duration";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -160,7 +161,7 @@ export default function TourDetailsPage() {
                     {t('tours.duration')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {getLocalizedText(tour.duration, i18n.language)}
+                    {formatDurationHours(tour.duration, i18n.language)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -209,7 +210,7 @@ export default function TourDetailsPage() {
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                         {t('tours.duration')}
                       </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration, i18n.language)}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Users className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -247,7 +248,7 @@ export default function TourDetailsPage() {
                       <h3 className="font-medium text-gray-900 dark:text-white">
                         {t('tours.duration')}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.duration, i18n.language)}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -360,7 +361,7 @@ export default function TourDetailsPage() {
                       {t('tours.duration')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {getLocalizedText(tour.duration, i18n.language)}
+                      {formatDurationHours(tour.duration, i18n.language)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm">

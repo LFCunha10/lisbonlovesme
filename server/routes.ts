@@ -18,6 +18,7 @@ import bcrypt from "bcryptjs";
 import { initNotificationsWebSocketServer } from "./websocket";
 import type { DiscountCode } from "@shared/schema";
 import { resolveUploadDir } from "./utils/uploads-path";
+import { formatDurationHours, parseDurationHours } from "@shared/duration";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
@@ -66,6 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ru: typeof src?.ru === 'string' ? src.ru : (typeof src?.en === 'string' ? src.en : ''),
     };
   };
+  const toDurationHours = (v: any): number => parseDurationHours(v, 1);
 
   // CSRF protection
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
@@ -479,7 +481,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         shortDescription: b.shortDescription ? toML(b.shortDescription) : { en: '', pt: '', ru: '' },
         description: toML(b.description),
         imageUrl: b.imageUrl,
-        duration: toML(b.duration),
+        duration: toDurationHours(b.duration),
         maxGroupSize: b.maxGroupSize,
         difficulty: toML(b.difficulty),
         price: b.price,
@@ -600,7 +602,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       if (b.shortDescription !== undefined) update.shortDescription = toML(b.shortDescription);
       if (b.description !== undefined) update.description = toML(b.description);
       if (b.imageUrl !== undefined) update.imageUrl = b.imageUrl;
-      if (b.duration !== undefined) update.duration = toML(b.duration);
+      if (b.duration !== undefined) update.duration = toDurationHours(b.duration);
       if (b.maxGroupSize !== undefined) update.maxGroupSize = b.maxGroupSize;
       if (b.difficulty !== undefined) update.difficulty = toML(b.difficulty);
       if (b.price !== undefined) update.price = b.price;
@@ -1029,7 +1031,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         discountAmount: (booking as any).additionalInfo?.pricing?.discount?.appliedAmount ? `${(Number((booking as any).additionalInfo.pricing.discount.appliedAmount) / 100).toFixed(2)}` : undefined,
         discountCode: (booking as any).additionalInfo?.pricing?.discount?.code,
         meetingPoint: meetingPoint,
-        duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
+        duration: formatDurationHours(tour.duration, booking.language || 'en'),
         adminNotes: adminNotes,
         language: booking.language || 'en'
       });
@@ -1151,7 +1153,7 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           discountAmount: ((discountAmount || 0) / 100).toFixed(2),
           discountCode: discountInfo?.code,
           meetingPoint: booking.meetingPoint || "To be announced",
-          duration: getLocalizedText(tour.duration, booking.language || 'en') ?? undefined,
+          duration: formatDurationHours(tour.duration, booking.language || 'en'),
           language: booking.language || 'en'
         });
         

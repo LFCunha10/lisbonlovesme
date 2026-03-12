@@ -11,6 +11,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { marked } from "marked";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { formatDurationHours, parseDurationHours } from "@shared/duration";
 
 import {
   Card,
@@ -96,7 +97,7 @@ const tourSchema = z.object({
   imageUrl: z
     .string()
     .url({ message: "Please enter a valid URL for the image" }),
-  duration: z.string().min(2, { message: "Please enter a valid duration" }),
+  duration: z.coerce.number().int().min(1, { message: "Please enter a valid duration in hours" }),
   maxGroupSize: z.coerce
     .number()
     .min(1, { message: "Group size must be at least 1" }),
@@ -220,7 +221,7 @@ export default function AdminTours() {
       name: "",
       description: "",
       imageUrl: "",
-      duration: "",
+      duration: 1,
       maxGroupSize: 10,
       difficulty: "Moderate",
       price: 4500,
@@ -253,7 +254,7 @@ export default function AdminTours() {
         shortDescription: getLocalizedText(selectedTour.shortDescription as any, i18n.language),
         description: getLocalizedText(selectedTour.description as any, i18n.language),
         imageUrl: selectedTour.imageUrl || "",
-        duration: getLocalizedText(selectedTour.duration as any, i18n.language),
+        duration: parseDurationHours(selectedTour.duration),
         maxGroupSize: selectedTour.maxGroupSize,
         difficulty: getLocalizedText(selectedTour.difficulty as any, i18n.language),
         price: selectedTour.price, // already in cents
@@ -732,7 +733,7 @@ export default function AdminTours() {
                               <FormItem>
                                 <FormLabel>Duration</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="3 hours" {...field} />
+                                  <Input type="number" min="1" step="1" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -888,7 +889,7 @@ export default function AdminTours() {
                         <div>
                           <div className="font-medium">{getLocalizedText(tour.name, i18n.language)}</div>
                           <div className="text-xs text-gray-500">
-                            {getLocalizedText(tour.duration, i18n.language)} • €{(tour.price / 100).toFixed(2)}
+                            {formatDurationHours(tour.duration, i18n.language)} • €{(tour.price / 100).toFixed(2)}
                           </div>
                         </div>
                         {!tour.isActive && (
@@ -922,7 +923,7 @@ export default function AdminTours() {
                       <div>
                         <CardTitle>{getLocalizedText(selectedTour.name, i18n.language)}</CardTitle>
                         <CardDescription>
-                          {getLocalizedText(selectedTour.duration, i18n.language)} • €
+                          {formatDurationHours(selectedTour.duration, i18n.language)} • €
                           {(selectedTour.price / 100).toFixed(2)}
                         </CardDescription>
                       </div>
@@ -1061,7 +1062,7 @@ export default function AdminTours() {
                                       <FormItem>
                                         <FormLabel>Duration</FormLabel>
                                         <FormControl>
-                                          <Input placeholder="3 hours" {...field} />
+                                          <Input type="number" min="1" step="1" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
@@ -1285,7 +1286,7 @@ export default function AdminTours() {
                               <div>
                                 <h3 className="font-medium">Duration</h3>
                                 <p className="text-sm text-gray-600 mt-1">
-                                  {getLocalizedText(selectedTour.duration, i18n.language)}
+                                  {formatDurationHours(selectedTour.duration, i18n.language)}
                                 </p>
                               </div>
                               <div>
