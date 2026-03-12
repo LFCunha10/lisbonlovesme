@@ -6,6 +6,7 @@ const DEFAULT_LANGUAGE: SupportedLanguage = "en";
 const SUPPORTED_LANGUAGE_SET = new Set<string>(SUPPORTED_LANGUAGES);
 const EXCLUDED_PATH_PREFIXES = ["/admin", "/api", "/uploads"];
 const EXTERNAL_PROTOCOL_PATTERN = /^[a-zA-Z][a-zA-Z\d+.-]*:/;
+const LANGUAGE_SESSION_COOKIE = "llm_lang_session";
 
 function splitPath(value: string): { pathname: string; search: string; hash: string } {
   const hashIndex = value.indexOf("#");
@@ -86,14 +87,16 @@ export function getPreferredLanguage(
     return normalizeLanguage(fallbackLanguage);
   }
 
-  if (typeof window !== "undefined") {
-    try {
-      const storedLanguage = localStorage.getItem("i18nextLng");
-      if (storedLanguage) {
-        return normalizeLanguage(storedLanguage);
-      }
-    } catch {
-      // Ignore localStorage read failures (private mode, restricted environments).
+  if (typeof document !== "undefined") {
+    const cookiePrefix = `${LANGUAGE_SESSION_COOKIE}=`;
+    const storedLanguage = document.cookie
+      .split(";")
+      .map((cookiePart) => cookiePart.trim())
+      .find((cookiePart) => cookiePart.startsWith(cookiePrefix))
+      ?.slice(cookiePrefix.length);
+
+    if (storedLanguage) {
+      return normalizeLanguage(decodeURIComponent(storedLanguage));
     }
   }
 

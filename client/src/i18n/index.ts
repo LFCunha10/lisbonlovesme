@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { SUPPORTED_LANGUAGES } from '@/lib/language-routing';
+import { LANGUAGE_SESSION_COOKIE } from '@/lib/language-session';
 
 // Import translations
 import enTranslations from './locales/en.json';
@@ -30,11 +31,10 @@ i18n
     },
     detection: {
       // Order of detection methods
-      order: ['path', 'localStorage', 'navigator', 'htmlTag'],
-      // Cache the language selection in localStorage
-      caches: ['localStorage'],
-      // Look for languages in these formats
-      lookupLocalStorage: 'i18nextLng',
+      order: ['path', 'cookie', 'htmlTag'],
+      // Use a session cookie to persist language for the current browser session
+      caches: [],
+      lookupCookie: LANGUAGE_SESSION_COOKIE,
       lookupFromPathIndex: 0,
       lookupFromSubdomainIndex: 0,
       // Convert country codes to language codes

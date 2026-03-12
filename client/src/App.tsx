@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { useBrowserLocation } from "wouter/use-browser-location";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,15 +9,19 @@ import HomePage from "@/pages/home";
 import AdminPage from "@/pages/admin";
 import NavBar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
+import LanguagePreferenceModal from "@/components/language-preference-modal";
 import AdminProtectedRoute from "@/components/admin/protected-route";
 import {
   getLanguageFromPath,
   getPreferredLanguage,
   isLanguageExcludedPath,
   normalizeLanguage,
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
   stripLanguageFromPath,
   withLanguagePrefix,
 } from "@/lib/language-routing";
+import { getSessionLanguageCookie, setSessionLanguageCookie } from "@/lib/language-session";
 
 function useLocalizedBrowserLocation(): [string, (path: string, options?: { replace?: boolean; state?: unknown }) => void] {
   const [pathname, navigate] = useBrowserLocation();
@@ -358,6 +362,10 @@ function Router() {
 
 function LanguageAwareApp() {
   const { i18n } = useTranslation();
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const initialPathnameRef = useRef(
+    typeof window !== "undefined" ? window.location.pathname : "/",
+  );
   
   // Update HTML lang attribute when language changes
   useEffect(() => {
@@ -458,6 +466,58 @@ function LanguageAwareApp() {
     };
   }, []);
 
+  useEffect(() => {
+    const currentPathname = window.location.pathname;
+    const initialPathname = initialPathnameRef.current;
+    if (isLanguageExcludedPath(currentPathname)) {
+      return;
+    }
+
+    const pathLanguage = getLanguageFromPath(initialPathname);
+    if (pathLanguage) {
+      setSessionLanguageCookie(pathLanguage);
+      setIsLanguageModalOpen(false);
+      return;
+    }
+
+    const cookieLanguage = getSessionLanguageCookie();
+    if (cookieLanguage) {
+      if (normalizeLanguage(i18n.resolvedLanguage || i18n.language) !== cookieLanguage) {
+        i18n.changeLanguage(cookieLanguage);
+      }
+      setIsLanguageModalOpen(false);
+      return;
+    }
+
+    const hostname = window.location.hostname.toLowerCase();
+    const isLisbonLovesMeDomain =
+      hostname === "lisbonlovesme.com" || hostname === "www.lisbonlovesme.com";
+
+    if (isLisbonLovesMeDomain && normalizeLanguage(i18n.resolvedLanguage || i18n.language) !== "en") {
+      i18n.changeLanguage("en");
+    }
+
+    setIsLanguageModalOpen(true);
+  }, [i18n, i18n.language, i18n.resolvedLanguage]);
+
+  const handleLanguageSelection = (language: SupportedLanguage) => {
+    if (!SUPPORTED_LANGUAGES.includes(language)) {
+      return;
+    }
+
+    const selectedLanguage = setSessionLanguageCookie(language);
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const localizedPath = withLanguagePrefix(currentPath, selectedLanguage);
+
+    if (localizedPath !== currentPath) {
+      window.history.replaceState(window.history.state, "", localizedPath);
+      window.dispatchEvent(new Event("replaceState"));
+    }
+
+    i18n.changeLanguage(selectedLanguage);
+    setIsLanguageModalOpen(false);
+  };
+
   return (
     <WouterRouter hook={useLocalizedBrowserLocation} hrefs={formatLocalizedHref}>
       <LanguagePathSync />
@@ -470,6 +530,10 @@ function LanguageAwareApp() {
           <Footer />
         </div>
         <Toaster />
+        <LanguagePreferenceModal
+          isOpen={isLanguageModalOpen}
+          onSelectLanguage={handleLanguageSelection}
+        />
       </TooltipProvider>
     </WouterRouter>
   );

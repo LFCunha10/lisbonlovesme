@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { normalizeLanguage, withLanguagePrefix } from '@/lib/language-routing';
+import { setSessionLanguageCookie } from '@/lib/language-session';
 
 const languageNames = {
   'en': 'English',
@@ -26,7 +27,7 @@ export default function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
 
   const changeLanguage = (value: string) => {
-    const selectedLanguage = normalizeLanguage(value);
+    const selectedLanguage = setSessionLanguageCookie(value);
     const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const localizedPath = withLanguagePrefix(currentPath, selectedLanguage);
 
@@ -35,7 +36,7 @@ export default function LanguageSwitcher({ className }: LanguageSwitcherProps) {
       window.dispatchEvent(new Event('replaceState'));
     }
 
-    i18n.changeLanguage(selectedLanguage);
+    i18n.changeLanguage(normalizeLanguage(selectedLanguage));
   };
 
   // Get current language, handle variations like en-US -> en

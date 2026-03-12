@@ -25,6 +25,10 @@
       "articles": "Articles",
       "language": "Language"
     },
+    "languagePrompt": {
+      "title": "Choose your language",
+      "description": "Select your preferred language to continue."
+    },
     "aboutUs": {
       "title": "Local Guides with Passion for Lisbon",
       "description": "Our team consists of certified local guides who are passionate about sharing Lisbon's rich history, vibrant culture, and hidden gems with visitors from around the world.",
