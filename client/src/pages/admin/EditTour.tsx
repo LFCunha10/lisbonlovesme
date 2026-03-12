@@ -58,7 +58,11 @@ const multilingualTourSchema = z.object({
   badgeColor: z.string().optional(),
   featured: z.boolean().optional(),
   isActive: z.boolean().optional(),
-  hideDuration: z.boolean().optional(),
+  displayDurationInCard: z.boolean().optional(),
+  displayGroupSizeInCard: z.boolean().optional(),
+  displayChildrenInCard: z.boolean().optional(),
+  displayConductedByInCard: z.boolean().optional(),
+  displayDifficultyInCard: z.boolean().optional(),
   childrenPolicy: z.enum(["not_allowed", "allowed", "allowed_above_12"]).default("allowed"),
   conductedBy: z.enum(["walking", "electric_mercedes_benz_car"]).default("walking"),
 });
@@ -104,7 +108,11 @@ export default function EditTourPage() {
       badgeColor: "primary",
       featured: false,
       isActive: true,
-      hideDuration: false,
+      displayDurationInCard: true,
+      displayGroupSizeInCard: true,
+      displayChildrenInCard: true,
+      displayConductedByInCard: true,
+      displayDifficultyInCard: true,
       childrenPolicy: "allowed",
       conductedBy: "walking",
     },
@@ -131,7 +139,11 @@ export default function EditTourPage() {
         badgeColor: tour.badgeColor || "primary",
         featured: tour.featured || false,
         isActive: tour.isActive ?? true,
-        hideDuration: (tour as any).hideDuration ?? false,
+        displayDurationInCard: (tour as any).displayDurationInCard ?? true,
+        displayGroupSizeInCard: (tour as any).displayGroupSizeInCard ?? true,
+        displayChildrenInCard: (tour as any).displayChildrenInCard ?? true,
+        displayConductedByInCard: (tour as any).displayConductedByInCard ?? true,
+        displayDifficultyInCard: (tour as any).displayDifficultyInCard ?? true,
         childrenPolicy: (tour as any).childrenPolicy ?? "allowed",
         conductedBy: (tour as any).conductedBy ?? "walking",
       };
@@ -477,23 +489,96 @@ export default function EditTourPage() {
                           />
                         </div>
 
-                        <FormField
-                          control={form.control}
-                          name="hideDuration"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Hide Duration On Tour Cards</FormLabel>
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value ?? false}
-                                  onChange={(e) => field.onChange(e.target.checked)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div className="space-y-2">
+                          <FormLabel>Display In Tour Cards</FormLabel>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <FormField
+                              control={form.control}
+                              name="displayDurationInCard"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                                  <FormLabel className="mb-0">Duration</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value ?? true}
+                                      onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="displayGroupSizeInCard"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                                  <FormLabel className="mb-0">Group Size</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value ?? true}
+                                      onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="displayChildrenInCard"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                                  <FormLabel className="mb-0">Children</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value ?? true}
+                                      onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="displayConductedByInCard"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                                  <FormLabel className="mb-0">Conducted By</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value ?? true}
+                                      onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="displayDifficultyInCard"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                                  <FormLabel className="mb-0">Difficulty</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value ?? true}
+                                      onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
 
                         <Card>
                           <CardHeader>

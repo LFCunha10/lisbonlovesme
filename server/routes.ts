@@ -76,6 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (v === "electric_mercedes_benz_car") return v;
     return "walking";
   };
+  const toCardDisplay = (v: any): boolean => v !== false;
 
   // CSRF protection
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
@@ -490,7 +491,11 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         description: toML(b.description),
         imageUrl: b.imageUrl,
         duration: toDurationHours(b.duration),
-        hideDuration: b.hideDuration === true,
+        displayDurationInCard: toCardDisplay(b.displayDurationInCard),
+        displayGroupSizeInCard: toCardDisplay(b.displayGroupSizeInCard),
+        displayChildrenInCard: toCardDisplay(b.displayChildrenInCard),
+        displayConductedByInCard: toCardDisplay(b.displayConductedByInCard),
+        displayDifficultyInCard: toCardDisplay(b.displayDifficultyInCard),
         childrenPolicy: toChildrenPolicy(b.childrenPolicy),
         conductedBy: toConductedBy(b.conductedBy),
         maxGroupSize: b.maxGroupSize,
@@ -614,7 +619,11 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       if (b.description !== undefined) update.description = toML(b.description);
       if (b.imageUrl !== undefined) update.imageUrl = b.imageUrl;
       if (b.duration !== undefined) update.duration = toDurationHours(b.duration);
-      if (b.hideDuration !== undefined) update.hideDuration = b.hideDuration === true;
+      if (b.displayDurationInCard !== undefined) update.displayDurationInCard = toCardDisplay(b.displayDurationInCard);
+      if (b.displayGroupSizeInCard !== undefined) update.displayGroupSizeInCard = toCardDisplay(b.displayGroupSizeInCard);
+      if (b.displayChildrenInCard !== undefined) update.displayChildrenInCard = toCardDisplay(b.displayChildrenInCard);
+      if (b.displayConductedByInCard !== undefined) update.displayConductedByInCard = toCardDisplay(b.displayConductedByInCard);
+      if (b.displayDifficultyInCard !== undefined) update.displayDifficultyInCard = toCardDisplay(b.displayDifficultyInCard);
       if (b.childrenPolicy !== undefined) update.childrenPolicy = toChildrenPolicy(b.childrenPolicy);
       if (b.conductedBy !== undefined) update.conductedBy = toConductedBy(b.conductedBy);
       if (b.maxGroupSize !== undefined) update.maxGroupSize = b.maxGroupSize;
