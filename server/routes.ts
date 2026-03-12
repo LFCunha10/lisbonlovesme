@@ -68,6 +68,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
   };
   const toDurationHours = (v: any): number => parseDurationHours(v, 1);
+  const toChildrenPolicy = (v: any): "not_allowed" | "allowed" | "allowed_above_12" => {
+    if (v === "not_allowed" || v === "allowed_above_12") return v;
+    return "allowed";
+  };
+  const toConductedBy = (v: any): "walking" | "electric_mercedes_benz_car" => {
+    if (v === "electric_mercedes_benz_car") return v;
+    return "walking";
+  };
 
   // CSRF protection
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {
@@ -482,6 +490,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
         description: toML(b.description),
         imageUrl: b.imageUrl,
         duration: toDurationHours(b.duration),
+        hideDuration: b.hideDuration === true,
+        childrenPolicy: toChildrenPolicy(b.childrenPolicy),
+        conductedBy: toConductedBy(b.conductedBy),
         maxGroupSize: b.maxGroupSize,
         difficulty: toML(b.difficulty),
         price: b.price,
@@ -603,6 +614,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
       if (b.description !== undefined) update.description = toML(b.description);
       if (b.imageUrl !== undefined) update.imageUrl = b.imageUrl;
       if (b.duration !== undefined) update.duration = toDurationHours(b.duration);
+      if (b.hideDuration !== undefined) update.hideDuration = b.hideDuration === true;
+      if (b.childrenPolicy !== undefined) update.childrenPolicy = toChildrenPolicy(b.childrenPolicy);
+      if (b.conductedBy !== undefined) update.conductedBy = toConductedBy(b.conductedBy);
       if (b.maxGroupSize !== undefined) update.maxGroupSize = b.maxGroupSize;
       if (b.difficulty !== undefined) update.difficulty = toML(b.difficulty);
       if (b.price !== undefined) update.price = b.price;

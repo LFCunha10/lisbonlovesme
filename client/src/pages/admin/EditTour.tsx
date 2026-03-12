@@ -58,6 +58,9 @@ const multilingualTourSchema = z.object({
   badgeColor: z.string().optional(),
   featured: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  hideDuration: z.boolean().optional(),
+  childrenPolicy: z.enum(["not_allowed", "allowed", "allowed_above_12"]).default("allowed"),
+  conductedBy: z.enum(["walking", "electric_mercedes_benz_car"]).default("walking"),
 });
 
 type MultilingualTourForm = z.infer<typeof multilingualTourSchema>;
@@ -101,6 +104,9 @@ export default function EditTourPage() {
       badgeColor: "primary",
       featured: false,
       isActive: true,
+      hideDuration: false,
+      childrenPolicy: "allowed",
+      conductedBy: "walking",
     },
   });
   const watchedImageUrl = form.watch('imageUrl');
@@ -125,6 +131,9 @@ export default function EditTourPage() {
         badgeColor: tour.badgeColor || "primary",
         featured: tour.featured || false,
         isActive: tour.isActive ?? true,
+        hideDuration: (tour as any).hideDuration ?? false,
+        childrenPolicy: (tour as any).childrenPolicy ?? "allowed",
+        conductedBy: (tour as any).conductedBy ?? "walking",
       };
       form.reset(tourData);
       if (tour.imageUrl) {
@@ -420,6 +429,71 @@ export default function EditTourPage() {
                             )}
                           />
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="childrenPolicy"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Children</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select children policy" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="not_allowed">Not allowed</SelectItem>
+                                    <SelectItem value="allowed">Allowed</SelectItem>
+                                    <SelectItem value="allowed_above_12">Allowed above 12 years</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="conductedBy"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>How It Will Be Conducted</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select how this tour is conducted" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="walking">Walking</SelectItem>
+                                    <SelectItem value="electric_mercedes_benz_car">By electric Mercedes-Benz car</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name="hideDuration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Hide Duration On Tour Cards</FormLabel>
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value ?? false}
+                                  onChange={(e) => field.onChange(e.target.checked)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
                         <Card>
                           <CardHeader>

@@ -18,7 +18,9 @@
     "import:blog:urls": "tsx scripts/import-wix-blog-urls.ts",
     "articles:cleanup": "tsx scripts/cleanup-articles.ts",
     "articles:list": "tsx scripts/list-articles.ts",
-    "ci:check-fcm": "tsx scripts/ci-check-fcm.ts"
+    "ci:check-fcm": "tsx scripts/ci-check-fcm.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -60,13 +62,13 @@
     "@tiptap/extension-image": "^2.22.0",
     "@tiptap/extension-link": "^2.22.0",
     "@tiptap/extension-placeholder": "^2.22.3",
+    "@tiptap/extension-table": "^2.22.0",
+    "@tiptap/extension-table-cell": "^2.22.0",
+    "@tiptap/extension-table-header": "^2.22.0",
+    "@tiptap/extension-table-row": "^2.22.0",
     "@tiptap/extension-text-align": "^2.22.3",
     "@tiptap/extension-text-style": "^2.22.0",
     "@tiptap/extension-underline": "^2.22.0",
-    "@tiptap/extension-table": "^2.22.0",
-    "@tiptap/extension-table-row": "^2.22.0",
-    "@tiptap/extension-table-cell": "^2.22.0",
-    "@tiptap/extension-table-header": "^2.22.0",
     "@tiptap/react": "^2.22.0",
     "@tiptap/starter-kit": "^2.22.0",
     "@types/multer": "^1.4.12",
@@ -86,6 +88,7 @@
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
     "express-session": "^1.18.2",
+    "firebase-admin": "^12.7.0",
     "framer-motion": "^11.13.1",
     "helmet": "^8.1.0",
     "i18next": "^25.2.0",
@@ -122,7 +125,6 @@
     "ws": "^8.18.0",
     "zod": "^3.24.2",
     "zod-validation-error": "^3.4.0",
-    "firebase-admin": "^12.7.0",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
@@ -155,7 +157,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "vitest": "^4.0.18"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

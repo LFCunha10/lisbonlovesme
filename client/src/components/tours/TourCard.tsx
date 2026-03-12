@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Clock, Users, Activity } from "lucide-react";
+import { Clock, Users, Activity, Baby, Ban, Footprints, CarFront } from "lucide-react";
 import { Tour } from "@shared/schema";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,9 @@ interface TourCardProps {
 
 export default function TourCard({ tour }: TourCardProps) {
   const { t, i18n } = useTranslation();
+  const hideDuration = (tour as any).hideDuration === true;
+  const childrenPolicy = ((tour as any).childrenPolicy as string) || "allowed";
+  const conductedBy = ((tour as any).conductedBy as string) || "walking";
   
 
 
@@ -58,14 +61,38 @@ export default function TourCard({ tour }: TourCardProps) {
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
-            <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {formatDurationHours(tour.duration, i18n.language)}
-          </span>
+          {!hideDuration && (
+            <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+              <Clock className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {formatDurationHours(tour.duration, i18n.language)}
+            </span>
+          )}
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
             <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {tour.maxGroupSize}
           </span>
           <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
             <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {t(`tours.${getLocalizedText(tour.difficulty, i18n.language).toLowerCase()}`)}
+          </span>
+          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+            {childrenPolicy === "not_allowed" ? (
+              <Ban className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+            ) : (
+              <Baby className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+            )}
+            {childrenPolicy === "not_allowed"
+              ? t("tours.childrenNotAllowed")
+              : childrenPolicy === "allowed_above_12"
+                ? t("tours.childrenAllowedAbove12")
+                : t("tours.childrenAllowed")}
+          </span>
+          <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
+            {conductedBy === "electric_mercedes_benz_car" ? (
+              <CarFront className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+            ) : (
+              <Footprints className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+            )}
+            {conductedBy === "electric_mercedes_benz_car"
+              ? t("tours.conductedByElectricCar")
+              : t("tours.conductedByWalking")}
           </span>
         </div>
         
