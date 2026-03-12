@@ -165,6 +165,7 @@ export const insertClosedDaySchema = createInsertSchema(closedDays).omit({
 export const adminSettings = pgTable("admin_settings", {
   id: serial("id").primaryKey(),
   autoCloseDay: boolean("auto_close_day").default(false),
+  heroBannerImageUrl: text("hero_banner_image_url"),
   lastUpdated: timestamp("last_updated").defaultNow(),
 });
 

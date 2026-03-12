@@ -98,6 +98,13 @@ export default function AdminIndexPage() {
             linkTo="/admin/gallery"
             linkText="Manage Images"
           />
+          <DashboardCard
+            title="Homepage Banner"
+            description="Update the first banner image on homepage"
+            icon={<Image className="w-8 h-8" />}
+            linkTo="/admin/hero-banner"
+            linkText="Manage Banner"
+          />
           <DashboardCard 
             title="Documents" 
             description="Upload and share documents"

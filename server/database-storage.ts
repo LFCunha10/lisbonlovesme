@@ -231,31 +231,44 @@ export class DatabaseStorage implements IStorage {
   async getAdminSettings(): Promise<AdminSetting | undefined> {
     const [settings] = await db.select().from(adminSettings);
     if (!settings) {
-      // Create default settings if none exist
-      return this.updateAdminSettings({ autoCloseDay: false });
+      const [created] = await db
+        .insert(adminSettings)
+        .values({
+          id: 1,
+          autoCloseDay: false,
+          heroBannerImageUrl: null,
+          lastUpdated: new Date(),
+        })
+        .returning();
+      return created;
     }
     return settings;
   }
 
   async updateAdminSettings(data: Partial<AdminSetting>): Promise<AdminSetting> {
-  const [updated] = await db
-    .insert(adminSettings)
-    .values({
-      id: 1,
-      autoCloseDay: data.autoCloseDay ?? false,
-      lastUpdated: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: [adminSettings.id],
-      set: {
-        autoCloseDay: data.autoCloseDay ?? false,
+    const current = await this.getAdminSettings();
+    const [updated] = await db
+      .insert(adminSettings)
+      .values({
+        id: 1,
+        autoCloseDay: data.autoCloseDay ?? current?.autoCloseDay ?? false,
+        heroBannerImageUrl:
+          data.heroBannerImageUrl ?? current?.heroBannerImageUrl ?? null,
         lastUpdated: new Date(),
-      },
-    })
-    .returning();
+      })
+      .onConflictDoUpdate({
+        target: [adminSettings.id],
+        set: {
+          autoCloseDay: data.autoCloseDay ?? current?.autoCloseDay ?? false,
+          heroBannerImageUrl:
+            data.heroBannerImageUrl ?? current?.heroBannerImageUrl ?? null,
+          lastUpdated: new Date(),
+        },
+      })
+      .returning();
 
-  return updated;
-}
+    return updated;
+  }
 
   async getAutoCloseDaySetting(): Promise<boolean> {
     const settings = await this.getAdminSettings();

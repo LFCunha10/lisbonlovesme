@@ -110,6 +110,13 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
+  private adminSettingsMem: AdminSetting = {
+    id: 1,
+    autoCloseDay: false,
+    heroBannerImageUrl: null,
+    lastUpdated: new Date(),
+  };
+
   // Closed Days operations
   async getClosedDays(): Promise<ClosedDay[]> {
     return [];
@@ -133,16 +140,16 @@ export class MemStorage implements IStorage {
 
   // Admin Settings operations
   async getAdminSettings(): Promise<AdminSetting | undefined> {
-    return undefined;
+    return this.adminSettingsMem;
   }
 
   async updateAdminSettings(settings: Partial<InsertAdminSetting>): Promise<AdminSetting> {
-    return { 
-      id: 0, 
+    this.adminSettingsMem = {
+      ...this.adminSettingsMem,
       ...settings,
-      lastUpdated: null,
-      autoCloseDay: null
+      lastUpdated: new Date(),
     };
+    return this.adminSettingsMem;
   }
 
   async getAutoCloseDaySetting(): Promise<boolean> {
