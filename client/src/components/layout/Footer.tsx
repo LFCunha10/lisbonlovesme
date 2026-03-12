@@ -51,7 +51,7 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">{t('common.ourTours')}</h4>
             <ul className="space-y-2">
               {tours?.map((tour: any) => (
-                <FooterLink key={tour.id} href={`/tours/${tour.id}`}>{getLocalizedText(tour.name, i18n.language)}</FooterLink>
+                <FooterLink key={tour.id} href={`/tour/${tour.id}`}>{getLocalizedText(tour.name, i18n.language)}</FooterLink>
               ))} 
             </ul>
           </div>
@@ -100,9 +100,13 @@ interface FooterLinkProps {
 }
 
 function FooterLink({ href, children }: FooterLinkProps) {
+  const handleClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <li>
-      <Link href={href} className="text-white/70 hover:text-white">
+      <Link href={href} className="text-white/70 hover:text-white" onClick={handleClick}>
         {children}
       </Link>
     </li>

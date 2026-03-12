@@ -82,7 +82,7 @@ export default function NavBar() {
                       setCloseTimeout(timeout);
                     }}
                   >
-                    {"Articles"}
+                    {t('nav.articles')}
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                   {articlesOpen && (
@@ -147,7 +147,7 @@ export default function NavBar() {
                   onClick={() => setArticlesMobileOpen((o) => !o)}
                   aria-expanded={articlesMobileOpen}
                 >
-                  <span className="text-sm font-medium text-gray-700">Articles</span>
+                  <span className="text-sm font-medium text-gray-700">{t('nav.articles')}</span>
                   <ChevronDown className={cn("h-4 w-4 transition-transform", articlesMobileOpen && "rotate-180")} />
                 </button>
                 {articlesMobileOpen && (
