@@ -19,6 +19,7 @@ import { initNotificationsWebSocketServer } from "./websocket";
 import type { DiscountCode } from "@shared/schema";
 import { resolveUploadDir } from "./utils/uploads-path";
 import { formatDurationHours, parseDurationHours } from "@shared/duration";
+import { normalizeCardDisplayFlag } from "./utils/card-display";
 
 // Session augmentation for custom session properties
 declare module "express-session" {
@@ -76,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (v === "electric_mercedes_benz_car") return v;
     return "walking";
   };
-  const toCardDisplay = (v: any): boolean => v !== false;
+  const toCardDisplay = (v: any): boolean => normalizeCardDisplayFlag(v);
 
   // CSRF protection
   app.get("/api/csrf-token", csrfProtection, (req: Request, res: Response) => {

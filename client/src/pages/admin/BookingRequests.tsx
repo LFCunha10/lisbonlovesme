@@ -14,6 +14,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { getLocalizedText, useLocalizedTourText } from "@/lib/tour-utils";
+import {
+  formatEditableConfirmationDate,
+  formatEditableConfirmationTime,
+  normalizeConfirmationDate,
+  normalizeConfirmationTime,
+} from "@/lib/booking-confirmation-inputs";
 import { 
   Eye, 
   Check, 
@@ -313,8 +319,8 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
-    confirmedDate: request.confirmedDate || request.additionalInfo?.date || '',
-    confirmedTime: request.confirmedTime || request.additionalInfo?.time || '',
+    confirmedDate: formatEditableConfirmationDate(request.confirmedDate || request.additionalInfo?.date || ''),
+    confirmedTime: formatEditableConfirmationTime(request.confirmedTime || request.additionalInfo?.time || ''),
     confirmedMeetingPoint: request.confirmedMeetingPoint || '',
     adminNotes: request.adminNotes || '',
   });
@@ -370,18 +376,54 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
     },
   });
 
+  const getNormalizedConfirmationDetails = () => {
+    const normalizedDate = normalizeConfirmationDate(formData.confirmedDate);
+    const normalizedTime = normalizeConfirmationTime(formData.confirmedTime);
+
+    if (!normalizedDate) {
+      toast({
+        title: "Error",
+        description: "Confirmed date must be valid. Use YYYY-MM-DD.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    if (!normalizedTime) {
+      toast({
+        title: "Error",
+        description: "Confirmed time must be valid. Use HH:MM or HH:MM AM/PM.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    return {
+      confirmedDate: normalizedDate,
+      confirmedTime: normalizedTime,
+      confirmedMeetingPoint: formData.confirmedMeetingPoint,
+      adminNotes: formData.adminNotes,
+    };
+  };
+
   const handleSaveAndConfirm = async () => {
-    console.log("Confirming booking with data:", formData);
+    const normalizedDetails = getNormalizedConfirmationDetails();
+    if (!normalizedDetails) {
+      return;
+    }
+
+    console.log("Confirming booking with data:", {
+      ...formData,
+      confirmedDate: normalizedDetails.confirmedDate,
+      confirmedTime: normalizedDetails.confirmedTime,
+    });
     try {
       // First update the booking
       await updateRequestMutation.mutateAsync({
         id: request.id,
         updates: {
           paymentStatus: "confirmed",
-          confirmedDate: formData.confirmedDate,
-          confirmedTime: formData.confirmedTime,
-          confirmedMeetingPoint: formData.confirmedMeetingPoint,
-          adminNotes: formData.adminNotes,
+          ...normalizedDetails,
         },
       });
       
@@ -392,8 +434,42 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
     }
   };
 
-  const handleSendConfirmation = () => {
-    sendConfirmationMutation.mutate(request.id);
+  const handleSendConfirmation = async () => {
+    const normalizedDetails = getNormalizedConfirmationDetails();
+    if (!normalizedDetails) {
+      return;
+    }
+
+    try {
+      await updateRequestMutation.mutateAsync({
+        id: request.id,
+        updates: normalizedDetails,
+      });
+
+      await sendConfirmationMutation.mutateAsync(request.id);
+    } catch (error) {
+      console.error("Error saving confirmation details:", error);
+    }
+  };
+
+  const handleConfirmedDateBlur = () => {
+    const normalizedDate = normalizeConfirmationDate(formData.confirmedDate);
+    if (!normalizedDate) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      confirmedDate: formatEditableConfirmationDate(normalizedDate),
+    }));
+  };
+
+  const handleConfirmedTimeBlur = () => {
+    const normalizedTime = normalizeConfirmationTime(formData.confirmedTime);
+    if (!normalizedTime) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      confirmedTime: formatEditableConfirmationTime(normalizedTime),
+    }));
   };
 
   return (
@@ -474,18 +550,20 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
                 <Label htmlFor="confirmedDate">{t('admin.requests.confirmedDate')}</Label>
                 <Input
                   id="confirmedDate"
-                  type="date"
                   value={formData.confirmedDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmedDate: e.target.value }))}
+                  onBlur={handleConfirmedDateBlur}
+                  placeholder="2026-03-13"
                 />
               </div>
               <div>
                 <Label htmlFor="confirmedTime">{t('admin.requests.confirmedTime')}</Label>
                 <Input
                   id="confirmedTime"
-                  type="time"
                   value={formData.confirmedTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmedTime: e.target.value }))}
+                  onBlur={handleConfirmedTimeBlur}
+                  placeholder="03:30 PM"
                 />
               </div>
             </div>
