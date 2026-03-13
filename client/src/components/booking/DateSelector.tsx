@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useCalendar } from "@/hooks/use-calendar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { isPastDate, formatTime } from "@/lib/utils";
 import { Availability } from "@shared/schema";
 
@@ -17,6 +18,7 @@ interface DateSelectorProps {
   selectedDate?: string;
   selectedTime?: string;
   selectedAvailabilityId?: number;
+  tourName?: string;
 }
 
 export default function DateSelector({
@@ -28,7 +30,8 @@ export default function DateSelector({
   onSelect,
   selectedDate = "",
   selectedTime = "",
-  selectedAvailabilityId = 0
+  selectedAvailabilityId = 0,
+  tourName = ""
 }: DateSelectorProps) {
   const { t } = useTranslation();
   const [date, setDate] = useState<Date | undefined>(
@@ -184,24 +187,31 @@ export default function DateSelector({
             </h5>
             
             {date && (
-              <div className="grid grid-cols-3 gap-3">
-                {availableTimeSlots.map((slot) => (
-                  <button
-                    key={`${slot.time}-${slot.availabilityId}`}
-                    className={`time-slot border py-3 px-4 rounded-md transition-colors font-medium text-sm ${
-                      time === slot.time 
-                        ? "border-primary bg-primary text-white shadow-md" 
-                        : "border-gray-300 bg-white text-gray-700 hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
-                    onClick={() => handleTimeSelect(slot.time, slot.availabilityId)}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">{formatTime(slot.time)}</div>
-                      <div className="text-xs opacity-75">({slot.spotsLeft} {t('booking.spots')})</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <TooltipProvider delayDuration={150}>
+                <div className="grid grid-cols-3 gap-3">
+                  {availableTimeSlots.map((slot) => (
+                    <Tooltip key={`${slot.time}-${slot.availabilityId}`}>
+                      <TooltipTrigger asChild>
+                        <button
+                          className={`time-slot border py-3 px-4 rounded-md transition-colors font-medium text-sm ${
+                            time === slot.time 
+                              ? "border-primary bg-primary text-white shadow-md" 
+                              : "border-gray-300 bg-white text-gray-700 hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                          }`}
+                          onClick={() => handleTimeSelect(slot.time, slot.availabilityId)}
+                          title={tourName || undefined}
+                        >
+                          <div className="text-center">
+                            <div className="font-semibold">{formatTime(slot.time)}</div>
+                            <div className="text-xs opacity-75">({slot.spotsLeft} {t('booking.spots')})</div>
+                          </div>
+                        </button>
+                      </TooltipTrigger>
+                      {tourName ? <TooltipContent>{tourName}</TooltipContent> : null}
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
             )}
           </>
         )}

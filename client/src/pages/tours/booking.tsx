@@ -223,6 +223,7 @@ export default function Booking() {
                       selectedDate={bookingData.date}
                       selectedTime={bookingData.time}
                       selectedAvailabilityId={bookingData.availabilityId}
+                      tourName={getLocalizedText(tour.name, i18n.language)}
                     />
                   )}
                   
