@@ -1096,6 +1096,10 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     if (!tour) {
       return res.status(404).json({ success: false, message: "Tour not found" });
     }
+    const availabilityBeforeBooking = await storage.getAvailability(parseInt(body.availabilityId));
+    if (!availabilityBeforeBooking) {
+      return res.status(404).json({ success: false, message: "Availability not found" });
+    }
     const participants = parseInt(body.numberOfParticipants);
     const originalAmount = tour.priceType === 'per_group' ? tour.price : (participants * tour.price);
     let discountInfo: any = undefined;
@@ -1139,15 +1143,9 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     };
     const booking = await storage.createBooking(bookingData);
 
-    // 2. Fetch availability
-    const availability = await storage.getAvailability(booking.availabilityId);
-    if (!availability) {
-      return res.status(404).json({ success: false, message: "Availability not found" });
-    }
-
     // 3. Update spots left
-    const spotsRemaining = Math.max(0, availability.spotsLeft - booking.numberOfParticipants);
-    await storage.updateAvailability(availability.id, { spotsLeft: spotsRemaining });
+    const spotsRemaining = Math.max(0, availabilityBeforeBooking.spotsLeft - booking.numberOfParticipants);
+    await storage.updateAvailability(availabilityBeforeBooking.id, { spotsLeft: spotsRemaining });
     
 
     // 4. Auto-close day if needed
@@ -1155,11 +1153,11 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
     const autoCloseSetting = await storage.getAutoCloseDaySetting();
     
     if (autoCloseSetting) {
-      await storage.addClosedDay(availability.date, "Auto-closed due to booking");
+      await storage.addClosedDay(availabilityBeforeBooking.date, "Auto-closed due to booking");
       
     }
     if (spotsRemaining <= 0) {
-      await storage.addClosedDay(availability.date, "Closed due to lack of spots");
+      await storage.addClosedDay(availabilityBeforeBooking.date, "Closed due to lack of spots");
       
     }
  
@@ -1185,8 +1183,8 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           name: `${booking.customerFirstName} ${booking.customerLastName}`,
           bookingReference: booking.bookingReference,
           tourName: getLocalizedText(tour.name, booking.language || 'en'),
-          date: availability.date,
-          time: availability.time,
+          date: availabilityBeforeBooking.date,
+          time: availabilityBeforeBooking.time,
           participants: booking.numberOfParticipants,
           totalAmount: (booking.totalAmount / 100).toFixed(2),
           originalAmount: (originalAmount / 100).toFixed(2),
@@ -1203,8 +1201,8 @@ app.post("/api/admin/create-user", async (req: Request, res: Response) => {
           customerEmail: booking.customerEmail,
           customerPhone: booking.customerPhone,
           tourName: getLocalizedText(tour.name, booking.language || 'en'),
-          date: availability.date,
-          time: availability.time,
+          date: availabilityBeforeBooking.date,
+          time: availabilityBeforeBooking.time,
           participants: booking.numberOfParticipants,
           specialRequests: booking.specialRequests ?? undefined,
           bookingReference: booking.bookingReference,

@@ -18,7 +18,7 @@ import {
   type ContactMessage, type InsertContactMessage,
   type DiscountCode, type InsertDiscountCode
 } from "@shared/schema";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
@@ -481,9 +481,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-  
-
-  const bookingReference = `LT-${nanoid(7).toUpperCase()}`;
+  const generateBookingReferenceId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+  const bookingReference = `LT-${generateBookingReferenceId()}`;
 
   try {
     const [newBooking] = await db

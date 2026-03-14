@@ -9,6 +9,112 @@
       "unavailable": "Arquivo ainda não disponível neste idioma.",
       "currentLanguage": "Idioma selecionado"
     },
+    "alfamaLoungeSuites": {
+      "hotelName": "Alfama Lounge Suites",
+      "locationLabel": "Alfama • Lisboa",
+      "heroDescription": "Uma base tranquila no bairro mais antigo de Lisboa, onde fachadas de azulejo, ruas íngremes e a luz do rio definem o ritmo do dia.",
+      "slideButtonLabel": "Ir para o slide {{index}}",
+      "tourMetaSeparator": "h · ",
+      "tourFromLisbonLovesMe": "Tour Lisbonlovesme",
+      "viewTour": "Ver tour",
+      "slides": {
+        "room1Alt": "Quarto do Alfama Lounge Suites com tons neutros e quentes",
+        "room1Eyebrow": "Estadia",
+        "room1Title": "Quartos luminosos com um estilo calmo e discreto",
+        "room2Alt": "Interior de quarto no Alfama Lounge Suites com cama e luz natural",
+        "room2Eyebrow": "Quartos",
+        "room2Title": "Espaços confortáveis pensados para um ritmo mais lento em Lisboa",
+        "room3Alt": "Quarto de hóspedes no Alfama Lounge Suites com detalhes texturizados",
+        "room3Eyebrow": "Atmosfera",
+        "room3Title": "Uma base simples e repousante no coração de Alfama"
+      },
+      "welcomeLabel": "Bem-vindo",
+      "welcomeTitle": "Bem-vindo à sua estadia em Alfama, onde Lisboa continua íntima, local e inconfundivelmente viva.",
+      "welcomeBody": "Este guia foi preparado para ajudá-lo a instalar-se rapidamente, passear com confiança e aproveitar o bairro como os locais fazem: devagar, com curiosidade e com tempo para mais um café ou mais um miradouro.",
+      "specialLabel": "Porque Alfama é tão especial",
+      "specialBody1": "Alfama é a parte mais antiga de Lisboa e continua a ser o bairro mais atmosférico da cidade. As suas ruas estreitas foram desenhadas muito antes dos carros, por isso a zona parece feita para caminhar, escutar e perder-se com prazer.",
+      "specialBody2": "A cada esquina, a cidade muda de escala. Num momento passa por portas silenciosas e roupa estendida; no seguinte chega a um miradouro sobre telhados de terracota e o rio Tejo. Esse contraste é o que torna Alfama inesquecível.",
+      "specialBody3": "É também a casa espiritual do fado. Ao cair da noite, a música sai das tascas antigas e das salas iluminadas por velas, dando ao bairro uma profundidade que vai além da arquitetura ou da paisagem. Alfama não é apenas bonita; tem alma, memória e uma identidade local muito forte.",
+      "firstDayLabel": "Um bom primeiro dia",
+      "firstDayTips": {
+        "tip1": "Comece com um café e um passeio lento pelas ruas em redor de Santa Luzia.",
+        "tip2": "Pare nas Portas do Sol antes de subir em direção ao Castelo de Sao Jorge.",
+        "tip3": "Faça uma pausa para almoçar num pátio com sombra e reserve tempo para uma sesta ou um passeio junto ao rio.",
+        "tip4": "Volte ao pôr do sol para um copo de vinho e termine a noite com fado ao vivo."
+      },
+      "recommendationsLabel": "Recomendações",
+      "recommendationsTitle": "Favoritos do bairro para ter sempre à mão",
+      "recommendationsBody": "Abra cada secção para ver uma lista curta e prática de lugares para comer, beber, ouvir música, fazer compras e explorar em Alfama.",
+      "proximityNote": "Todas as sugestões abaixo ficam na zona imediata de Alfama e foram escolhidas para serem acessíveis a pé a partir do hotel.",
+      "categories": {
+        "cafes": "Cafes",
+        "restaurants": "Restaurantes",
+        "bars": "Bares",
+        "fado": "Fado",
+        "attractions": "Atrações turísticas",
+        "viewpoints": "Miradouros",
+        "supermarkets": "Supermercados",
+        "guidedTours": "Melhores visitas guiadas"
+      },
+      "recommendations": {
+        "cafes": {
+          "poisCafe": "Um favorito de longa data em Alfama para pequeno-almoço, pastelaria e café num espaço acolhedor rodeado de livros.",
+          "copenhagenCoffeeLab": "Café de especialidade na rota do elétrico, com um pátio verde escondido do movimento.",
+          "quaseCafe": "Uma paragem descontraída para smoothies, refeições leves e café a poucos minutos do rio.",
+          "audreys": "Um café elegante perto do castelo, ideal para um brunch mais demorado ou uma pausa à tarde.",
+          "dearBreakfast": "Uma opção cuidada de brunch perto da Sé para quem quer café, ovos e uma pausa confortável."
+        },
+        "restaurants": {
+          "bela": "Conhecido pelos petiscos, pelo vinho e pelo fado noturno, num espaço procurado tanto por locais como por visitantes.",
+          "caisNaPreguica": "Um endereço local clássico muito perto do hotel para cozinha portuguesa caseira num ambiente pequeno de Alfama.",
+          "travessaDoFado": "Uma opção prática nas Escolas Gerais quando quer uma refeição simples sem sair da zona imediata do hotel.",
+          "baiuca": "Uma opção tradicional do bairro escondida nas ruelas de Alfama, boa para um jantar com ambiente logo ali perto.",
+          "pateo13": "Uma escolha fiável para brunch e almoço na parte alta de Alfama, ainda assim a uma caminhada fácil do hotel."
+        },
+        "bars": {
+          "memmo": "A escolha mais elegante para o pôr do sol, com vinhos de Lisboa e uma das melhores vistas do bairro.",
+          "craftyCorner": "Uma ótima opção para cerveja artesanal portuguesa, tábuas de degustação e um ambiente mais social.",
+          "ulysses": "Um pequeno bar de cocktails por reserva, ideal para uma bebida mais tranquila e cuidada ao fim da noite.",
+          "tejoBar": "Informal, íntimo e muitas vezes musical, com a energia improvisada que Alfama sabe ter.",
+          "portoAlfama": "Uma paragem focada em vinho se quiser Porto e um copo mais calmo antes ou depois do jantar."
+        },
+        "fado": {
+          "mesaDeFrades": "Uma das casas de fado mais conhecidas de Lisboa, íntima e memorável dentro de uma antiga capela.",
+          "clubeDeFado": "Um endereço clássico de jantar com fado junto à Sé, ótimo para uma primeira noite de fado tradicional.",
+          "parreirinha": "Uma histórica casa de fados ligada a atuações tradicionais de Lisboa e a uma atmosfera antiga.",
+          "baiuca": "Pequena e informal, conhecida pelo fado vadio, o lado mais espontâneo e amador da tradição.",
+          "tascaDaBela": "Boa escolha para quem quer vinho, bacalhau e uma noite de fado com espírito mais de bairro."
+        },
+        "attractions": {
+          "cathedral": "A catedral românica da cidade e um dos marcos essenciais no caminho para Alfama.",
+          "castelo": "O grande monumento no alto da colina, com muralhas, pavões e vistas panorâmicas sobre a cidade antiga.",
+          "museuDoFado": "A melhor paragem museológica para compreender a música, os instrumentos e a história emocional do fado.",
+          "pantheon": "Um monumento importante com terraço no topo e amplas vistas sobre a zona ribeirinha de Lisboa.",
+          "saoVicente": "Um conjunto de mosteiro e igreja que vale a visita pelos claustros, azulejos e detalhe histórico mais tranquilo."
+        },
+        "viewpoints": {
+          "santaLuzia": "Terraços emoldurados por azulejos e buganvílias, com uma das vistas mais fotogénicas de Lisboa.",
+          "portasDoSol": "O miradouro clássico da hora dourada, onde Alfama se abre inteira em direção ao Tejo.",
+          "recolhimento": "Um miradouro mais tranquilo e com menos movimento, ideal para ver os telhados sem multidão.",
+          "santoEstevao": "Um terraço mais escondido no bairro, especialmente agradável ao início da noite.",
+          "saoVicente": "Uma paragem mais calma com amplas vistas sobre a cidade e o rio depois da zona do mosteiro e do Panteão."
+        },
+        "supermarkets": {
+          "pingoSantaApolonia": "A opção completa mais prática nas proximidades para básicos, produtos frescos e tudo o que precisa no apartamento.",
+          "pingoChaoDoLoureiro": "Uma loja compacta perto dali para água, snacks, vinho e reabastecimentos rápidos.",
+          "meuSuperSantaApolonia": "Útil se já estiver a explorar a parte alta e quiser um supermercado a sério antes de regressar.",
+          "meuSuperFanqueiros": "Prático quando estiver entre a Baixa e Alfama e precisar de uma paragem central para compras.",
+          "minimercadoDoAli": "Uma opção central conveniente para uma compra rápida no regresso pela parte baixa da cidade."
+        },
+        "guidedTours": {
+          "discoverLisbon": "Uma visita focada no bairro que começa perto do hotel e ajuda a perceber Alfama antes de passear sozinho.",
+          "guruWalk": "Boa opção para quem quer um percurso guiado por Alfama com pontos de encontro normalmente próximos da zona do hotel.",
+          "boostPortugal": "Uma escolha forte se quiser os destaques da cidade antiga com menos caminhada e acesso de recolha perto de Alfama.",
+          "justTourIt": "Desenhada especificamente em torno de Alfama, útil para quem quer um percurso curto e concentrado com partida próxima.",
+          "divaTukTours": "Uma forma confortável de percorrer miradouros e ruas antigas com recolha fácil em zonas centrais perto do hotel."
+        }
+      }
+    },
     "nav": {
       "home": "Início",
       "tours": "Passeios",

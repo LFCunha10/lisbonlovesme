@@ -10,7 +10,9 @@ import {
   articles, type Article, type InsertArticle,
   documents, type Document, type InsertDocument
 } from "@shared/schema";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
+
+const generateBookingReferenceId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
 
 // modify the interface with any CRUD methods
 // you might need
@@ -372,7 +374,7 @@ export class MemStorage implements IStorage {
   async createBooking(booking: InsertBooking): Promise<Booking> {
     const id = this.bookingCurrentId++;
     // Generate a unique booking reference
-    const bookingReference = `LT-${nanoid(8).toUpperCase()}`;
+    const bookingReference = `LT-${generateBookingReferenceId()}`;
     
     const newBooking: Booking = {
       ...booking,

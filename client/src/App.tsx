@@ -116,6 +116,16 @@ function Router() {
           );
         }}
       </Route>
+      <Route path="/alfama-lounge-suites">
+        {() => {
+          const AlfamaLoungeSuitesPage = React.lazy(() => import("@/pages/alfama-lounge-suites"));
+          return (
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <AlfamaLoungeSuitesPage />
+            </React.Suspense>
+          );
+        }}
+      </Route>
       <Route path="/review/:bookingReference">
         {() => {
           const ReviewPage = React.lazy(() => import("@/pages/review"));

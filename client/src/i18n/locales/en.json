@@ -9,6 +9,112 @@
       "unavailable": "File not available for this language yet.",
       "currentLanguage": "Selected language"
     },
+    "alfamaLoungeSuites": {
+      "hotelName": "Alfama Lounge Suites",
+      "locationLabel": "Alfama • Lisbon",
+      "heroDescription": "A calm base in Lisbon's oldest quarter, where tiled facades, steep lanes, and river light set the rhythm of the day.",
+      "slideButtonLabel": "Go to slide {{index}}",
+      "tourMetaSeparator": "h · ",
+      "tourFromLisbonLovesMe": "Lisbonlovesme tour",
+      "viewTour": "View tour",
+      "slides": {
+        "room1Alt": "Alfama Lounge Suites bedroom with warm neutral tones",
+        "room1Eyebrow": "Stay",
+        "room1Title": "Bright rooms with a calm, understated style",
+        "room2Alt": "Interior room at Alfama Lounge Suites with bed and natural light",
+        "room2Eyebrow": "Rooms",
+        "room2Title": "Comfortable spaces designed for a slower Lisbon rhythm",
+        "room3Alt": "Guest room at Alfama Lounge Suites with textured details",
+        "room3Eyebrow": "Atmosphere",
+        "room3Title": "A simple, restful base in the middle of Alfama"
+      },
+      "welcomeLabel": "Welcome",
+      "welcomeTitle": "Welcome to your stay in Alfama, where Lisbon still feels intimate, local, and unmistakably alive.",
+      "welcomeBody": "This guide was put together to help you settle in quickly, wander with confidence, and enjoy the neighborhood the way locals do: slowly, curiously, and with time for one more coffee or one more viewpoint.",
+      "specialLabel": "Why Alfama Is So Special",
+      "specialBody1": "Alfama is the oldest part of Lisbon and still the city's most atmospheric neighborhood. Its narrow streets were shaped long before cars, so the area feels made for walking, listening, and getting pleasantly lost.",
+      "specialBody2": "Around every corner, the city changes scale. One minute you are passing quiet doorways and laundry lines, and the next you arrive at a lookout over terracotta rooftops and the Tagus River. That contrast is what makes Alfama unforgettable.",
+      "specialBody3": "It is also the spiritual home of fado. In the evenings, music drifts out of old taverns and candlelit dining rooms, giving the neighborhood a sense of depth that goes beyond architecture or scenery. Alfama is not only beautiful; it has mood, memory, and a strong local identity.",
+      "firstDayLabel": "A Good First Day",
+      "firstDayTips": {
+        "tip1": "Start with coffee and a slow walk through the lanes around Santa Luzia.",
+        "tip2": "Pause at Portas do Sol before heading uphill to Sao Jorge Castle.",
+        "tip3": "Break for lunch in a shaded courtyard and save time for a nap or a river stroll.",
+        "tip4": "Return at sunset for a glass of wine, then end the night with live fado."
+      },
+      "recommendationsLabel": "Recommendations",
+      "recommendationsTitle": "Neighborhood favorites worth keeping nearby",
+      "recommendationsBody": "Open each section for a short, practical list of places to eat, drink, listen, shop, and explore around Alfama.",
+      "proximityNote": "All of the suggestions below are in the immediate Alfama area and intended to be reachable from the hotel on foot.",
+      "categories": {
+        "cafes": "Cafes",
+        "restaurants": "Restaurants",
+        "bars": "Bars",
+        "fado": "Fado",
+        "attractions": "Touristic Attractions",
+        "viewpoints": "Viewpoints",
+        "supermarkets": "Supermarkets",
+        "guidedTours": "Best Guided Tours"
+      },
+      "recommendations": {
+        "cafes": {
+          "poisCafe": "A long-running Alfama favorite for breakfast, pastries, and coffee in a warm, book-lined room.",
+          "copenhagenCoffeeLab": "Specialty coffee on the tram line, with a leafy courtyard that feels tucked away from the crowds.",
+          "quaseCafe": "A relaxed stop for smoothies, light lunches, and coffee just a short climb from the river.",
+          "audreys": "An elegant all-day cafe near the castle, good for a slower brunch or afternoon break.",
+          "dearBreakfast": "A polished brunch option near the cathedral when you want coffee, eggs, and a comfortable reset."
+        },
+        "restaurants": {
+          "bela": "Known for petiscos, wine, and late-night fado in a place that locals and visitors both seek out.",
+          "caisNaPreguica": "A classic local address very close to the hotel for homestyle Portuguese cooking in a small Alfama setting.",
+          "travessaDoFado": "A practical nearby stop on Escolas Gerais when you want a simple meal without leaving the immediate hotel area.",
+          "baiuca": "A traditional neighborhood option tucked into Alfama's lanes, good for an atmospheric dinner close by.",
+          "pateo13": "A reliable nearby brunch and lunch pick in the hilltop part of Alfama, still an easy walk from the hotel."
+        },
+        "bars": {
+          "memmo": "The polished sunset choice, with Lisbon wines and one of the best terrace views in the neighborhood.",
+          "craftyCorner": "A strong pick for Portuguese craft beer, tasting paddles, and a more social bar atmosphere.",
+          "ulysses": "A tiny reservation-led cocktail bar for a quieter, more curated late-night drink.",
+          "tejoBar": "Informal, intimate, and often musical, with the kind of improvised energy Alfama does well.",
+          "portoAlfama": "A wine-focused stop if you want Port and a calmer glass before or after dinner."
+        },
+        "fado": {
+          "mesaDeFrades": "One of Lisbon's best-known fado houses, intimate and memorable inside a former chapel.",
+          "clubeDeFado": "A polished dinner-and-fado address near the cathedral, strong for a first classic fado night.",
+          "parreirinha": "A historic casa de fados associated with traditional Lisbon performances and old-school atmosphere.",
+          "baiuca": "Small, informal, and known for fado vadio, the more spontaneous and amateur side of the tradition.",
+          "tascaDaBela": "A good fit if you want wine, codfish, and a more neighborhood-feeling fado evening."
+        },
+        "attractions": {
+          "cathedral": "The city's Romanesque cathedral and one of the essential landmarks on the way into Alfama.",
+          "castelo": "The hilltop landmark for battlements, peacocks, and panoramic views over the old city.",
+          "museuDoFado": "The best museum stop for understanding the music, instruments, and emotional history of fado.",
+          "pantheon": "A major monument with a rooftop terrace and wide views over the river side of Lisbon.",
+          "saoVicente": "A monastery and church complex worth visiting for cloisters, tilework, and quieter historic detail."
+        },
+        "viewpoints": {
+          "santaLuzia": "Tile-framed terraces, bougainvillea, and one of the most photogenic views in Lisbon.",
+          "portasDoSol": "The classic golden-hour lookout where the whole of Alfama opens toward the Tagus.",
+          "recolhimento": "A quieter viewpoint with much less traffic, ideal if you want the rooftops without the crowd.",
+          "santoEstevao": "A more hidden terrace tucked into the neighborhood, especially pleasant in the early evening.",
+          "saoVicente": "A calmer stop with broad city and river views after visiting the monastery and Pantheon area."
+        },
+        "supermarkets": {
+          "pingoSantaApolonia": "The most practical full-size option nearby for staples, fresh food, and apartment essentials.",
+          "pingoChaoDoLoureiro": "A compact nearby store for water, snacks, wine, and quick restocks.",
+          "meuSuperSantaApolonia": "Useful if you are already exploring uphill and want a proper supermarket before heading back.",
+          "meuSuperFanqueiros": "Handy when you are moving between Baixa and Alfama and need a central grocery stop.",
+          "minimercadoDoAli": "A convenient central option for a quick grocery stop when returning through the lower part of town."
+        },
+        "guidedTours": {
+          "discoverLisbon": "A focused neighborhood tour that starts close to the hotel and helps you understand Alfama before wandering on your own.",
+          "guruWalk": "Good for travelers who want a guided route through Alfama with meeting points typically near the hotel area.",
+          "boostPortugal": "A strong option when you want old-town highlights with less walking and pickup access close to Alfama.",
+          "justTourIt": "Built specifically around Alfama and useful if you want a short, concentrated neighborhood ride starting nearby.",
+          "divaTukTours": "A comfortable way to cover viewpoints and old-town streets with easy pickup from central areas close to the hotel."
+        }
+      }
+    },
     "nav": {
       "home": "Home",
       "tours": "Tours",
