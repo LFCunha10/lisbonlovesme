@@ -299,7 +299,7 @@ const hotelSlides = [
 export default function AlfamaLoungeSuitesPage() {
   const { t, i18n } = useTranslation();
   const { tours } = useTours();
-  const [openCategory, setOpenCategory] = useState<string>("bars");
+  const [openCategory, setOpenCategory] = useState<string>("");
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [selectedSlide, setSelectedSlide] = useState(0);
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
