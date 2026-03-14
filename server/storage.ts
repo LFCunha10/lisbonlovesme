@@ -646,8 +646,20 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Import DatabaseStorage
-import { DatabaseStorage } from "./database-storage";
+const isTestRuntime =
+  process.env.NODE_ENV === "test" ||
+  process.env.VITEST === "true" ||
+  process.env.VITEST === "1";
 
-// Use DatabaseStorage instead of MemStorage
-export const storage = new DatabaseStorage();
+export const storage: IStorage = await (async () => {
+  if (isTestRuntime) {
+    return new MemStorage();
+  }
+
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
+  }
+
+  const { DatabaseStorage } = await import("./database-storage");
+  return new DatabaseStorage();
+})();
