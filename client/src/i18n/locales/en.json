@@ -229,6 +229,8 @@
         "maxPeople": "Max People",
         "freeBooking": "Free booking & cancellation",
         "sendYourRequest": "Request this tour",
+        "childrenPolicyLabel": "Children",
+        "conductedByLabel": "Conducted by",
         "childrenPolicy": {
           "notAllowed": "Children: not allowed",
           "allowed": "Children: allowed",

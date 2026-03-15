@@ -1,14 +1,27 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { getLocalizedText } from "@/lib/tour-utils";
+import { getLocalizedText, getTourDifficultyLabelKey } from "@/lib/tour-utils";
 import { formatDurationHours } from "@shared/duration";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Users, MapPin, Star, Send, ArrowLeft, Euro } from "lucide-react";
+import {
+  Clock,
+  Users,
+  Activity,
+  Baby,
+  Ban,
+  Footprints,
+  CarFront,
+  Star,
+  Send,
+  ArrowLeft,
+  Euro,
+  type LucideIcon,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Tour, Testimonial } from "@shared/schema";
 import { renderMarkdownToSafeHtml } from "@/lib/safe-html";
@@ -79,6 +92,63 @@ export default function TourDetailsPage() {
   const averageRating = tourTestimonials.length > 0 
     ? tourTestimonials.reduce((sum, t) => sum + t.rating, 0) / tourTestimonials.length 
     : 0;
+  const childrenPolicy = (tour as any).childrenPolicy ?? "allowed";
+  const conductedBy = (tour as any).conductedBy ?? "walking";
+  const difficultyLabelKey = getTourDifficultyLabelKey(tour.difficulty, i18n.language);
+  const difficultyLabel = difficultyLabelKey
+    ? t(difficultyLabelKey)
+    : getLocalizedText(tour.difficulty, i18n.language);
+  const childrenPolicyLabel = childrenPolicy === "not_allowed"
+    ? t("tours.detail.childrenPolicy.notAllowed")
+    : childrenPolicy === "allowed_above_12"
+      ? t("tours.detail.childrenPolicy.allowedAbove12")
+      : t("tours.detail.childrenPolicy.allowed");
+  const conductedByLabel = conductedBy === "electric_mercedes_benz_car"
+    ? t("tours.detail.conductedBy.electricCar")
+    : t("tours.detail.conductedBy.walking");
+  const detailItems: Array<{
+    key: string;
+    icon: LucideIcon;
+    label: string;
+    value: string;
+  }> = [
+    {
+      key: "duration",
+      icon: Clock,
+      label: t("tours.detail.duration"),
+      value: formatDurationHours(tour.duration, i18n.language),
+    },
+    {
+      key: "groupSize",
+      icon: Users,
+      label: t("tours.detail.groupSize"),
+      value: `${tour.maxGroupSize} ${t("tours.detail.people")}`,
+    },
+    {
+      key: "difficulty",
+      icon: Activity,
+      label: t("tours.detail.difficulty"),
+      value: difficultyLabel,
+    },
+    {
+      key: "price",
+      icon: Euro,
+      label: t("tours.detail.price"),
+      value: `${formatCurrency(tour.price)}${tour.priceType === "per_group" ? t("tours.detail.perGroupShort") : t("tours.detail.perPersonShort")}`,
+    },
+    {
+      key: "childrenPolicy",
+      icon: childrenPolicy === "not_allowed" ? Ban : Baby,
+      label: t("tours.detail.childrenPolicyLabel"),
+      value: childrenPolicyLabel,
+    },
+    {
+      key: "conductedBy",
+      icon: conductedBy === "electric_mercedes_benz_car" ? CarFront : Footprints,
+      label: t("tours.detail.conductedByLabel"),
+      value: conductedByLabel,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -177,7 +247,7 @@ export default function TourDetailsPage() {
                     {t('tours.detail.difficulty')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {getLocalizedText(tour.difficulty, i18n.language)}
+                    {difficultyLabel}
                   </span>
                 </div>
               </div>
@@ -202,86 +272,42 @@ export default function TourDetailsPage() {
                   {t('tours.detail.tourDetails')}
                 </h2>
                 
-                {/* Mobile: 2x2 Table Layout */}
+                {/* Mobile metadata grid */}
                 <div className="lg:hidden">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.detail.duration')}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <Users className="w-5 h-5 text-primary mx-auto mb-2" />
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.detail.groupSize')}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {tour.maxGroupSize} {t('tours.detail.people')}
-                      </p>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <MapPin className="w-5 h-5 text-primary mx-auto mb-2" />
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.detail.difficulty')}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
-                      <Euro className="w-5 h-5 text-primary mx-auto mb-2" />
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.detail.price')}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)}{tour.priceType === "per_group" ? t('tours.detail.perGroupShort') : t('tours.detail.perPersonShort')}
-                      </p>
-                    </div>
+                    {detailItems.map((item) => {
+                      const Icon = item.icon;
+
+                      return (
+                        <div key={item.key} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
+                          <Icon className="w-5 h-5 text-primary mx-auto mb-2" />
+                          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                            {item.label}
+                          </h3>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{item.value}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Desktop: Original Layout */}
-                <div className="hidden lg:grid lg:grid-cols-2 gap-6">
-                  <div className="flex items-center space-x-3">
-                    <Clock className="w-6 h-6 text-primary" />
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.detail.duration')}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Users className="w-6 h-6 text-primary" />
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.detail.groupSize')}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {tour.maxGroupSize} {t('tours.detail.people')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-6 h-6 text-primary" />
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.detail.difficulty')}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Euro className="w-6 h-6 text-primary" />
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.detail.price')}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)} {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
-                      </p>
-                    </div>
-                  </div>
+                {/* Desktop metadata grid */}
+                <div className="hidden lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {detailItems.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <div key={item.key} className="flex items-center space-x-3">
+                        <Icon className="w-6 h-6 text-primary shrink-0" />
+                        <div>
+                          <h3 className="font-medium text-gray-900 dark:text-white">
+                            {item.label}
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400">{item.value}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -341,56 +367,58 @@ export default function TourDetailsPage() {
           </div>
 
           {/* Desktop Booking Sidebar - Hidden on mobile */}
-          <div className="hidden lg:block lg:col-span-1">
-            <Card className="sticky" style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}>
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {formatCurrency(tour.price)}
+          <div className="hidden lg:block lg:col-span-1 lg:self-start">
+            <div className="sticky h-fit" style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                      {formatCurrency(tour.price)}
+                    </div>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                      {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
+                    </p>
                   </div>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                    {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
-                  </p>
-                </div>
 
-                <Separator className="my-6" />
+                  <Separator className="my-6" />
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.detail.duration')}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {formatDurationHours(tour.duration, i18n.language)}
-                    </span>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        {t('tours.detail.duration')}
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {formatDurationHours(tour.duration, i18n.language)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        {t('tours.detail.groupSize')}
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {tour.maxGroupSize} {t('tours.detail.people')}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        {t('tours.detail.difficulty')}
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {difficultyLabel}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.detail.groupSize')}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {tour.maxGroupSize} {t('tours.detail.people')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.detail.difficulty')}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {getLocalizedText(tour.difficulty, i18n.language)}
-                    </span>
-                  </div>
-                </div>
 
-                <Link href={`/book/${tour.id}`}>
-                  <Button className="w-full text-lg py-6" size="lg">
-                    <Send className="w-5 h-5 mr-2" />
-                    {t('tours.detail.sendYourRequest')}
-                  </Button>
-                </Link>
+                  <Link href={`/book/${tour.id}`}>
+                    <Button className="w-full text-lg py-6" size="lg">
+                      <Send className="w-5 h-5 mr-2" />
+                      {t('tours.detail.sendYourRequest')}
+                    </Button>
+                  </Link>
 
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

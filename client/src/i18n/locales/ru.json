@@ -229,6 +229,8 @@
         "maxPeople": "Макс. количество людей",
         "freeBooking": "Бесплатное бронирование и отмена",
         "sendYourRequest": "Оставить запрос на тур",
+        "childrenPolicyLabel": "Дети",
+        "conductedByLabel": "Как проводится",
         "childrenPolicy": {
           "notAllowed": "Дети: запрещено",
           "allowed": "Дети: разрешено",

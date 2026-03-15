@@ -229,6 +229,8 @@
         "maxPeople": "Máx. de Pessoas",
         "freeBooking": "Reserva e cancelamento gratuitos",
         "sendYourRequest": "Solicitar este passeio",
+        "childrenPolicyLabel": "Crianças",
+        "conductedByLabel": "Como é realizado",
         "childrenPolicy": {
           "notAllowed": "Crianças: não permitido",
           "allowed": "Crianças: permitido",
