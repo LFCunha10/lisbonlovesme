@@ -1,40 +1,11 @@
-import { useEffect, useState, ReactNode } from "react";
-import { useLocation } from "wouter";
+import type { ReactNode } from "react";
+import { useAdminSession } from "@/hooks/use-admin-session";
 
 export default function AdminProtectedRoute({ children }: { children: ReactNode }) {
-  const [, setLocation] = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/admin/session", {
-          credentials: "include",
-        });
-        
-        if (!res.ok) {
-          throw new Error("Not authenticated");
-        }
-
-        const data = await res.json();
-        
-        if (data.isAuthenticated && data.isAdmin) {
-          setIsAuthenticated(true);
-        } else {
-          throw new Error("Not authorized");
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        setIsAuthenticated(false);
-        setLocation("/admin/login");
-      }
-    };
-
-    checkAuth();
-  }, [setLocation]);
+  const { isAuthenticated, isLoading } = useAdminSession({ redirectToLogin: true });
 
   // Show loading while checking authentication
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

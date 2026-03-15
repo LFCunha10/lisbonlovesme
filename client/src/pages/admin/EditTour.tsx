@@ -18,10 +18,11 @@ import { ArrowLeft, Globe, Save, Eye, ImageIcon, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { convertToMultilingual } from "@/lib/tour-utils";
 import type { Tour } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { apiJson, apiRequest } from "@/lib/queryClient";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { parseDurationHours } from "@shared/duration";
+import { uploadImage } from "@/lib/uploads";
 
 // Multilingual form schema
 const multilingualTourSchema = z.object({
@@ -88,7 +89,7 @@ export default function EditTourPage() {
   // Fetch tour data if editing
   const { data: tour, isLoading } = useQuery({
     queryKey: [`/api/tours/${tourId}`],
-    queryFn: () => fetch(`/api/tours/${tourId}`).then(res => res.json()),
+    queryFn: () => apiJson<Tour>(`/api/tours/${tourId}`),
     enabled: isEditing,
   });
 
@@ -133,11 +134,11 @@ export default function EditTourPage() {
         difficulty: coerceML(tour.difficulty),
         badge: typeof tour.badge === 'string' ? convertToMultilingual(tour.badge) : coerceML(tour.badge),
         price: tour.price / 100, // Convert from cents
-        priceType: tour.priceType || "per_person",
+        priceType: (tour.priceType === "per_group" ? "per_group" : "per_person") as MultilingualTourForm["priceType"],
         maxGroupSize: tour.maxGroupSize || 1,
         imageUrl: tour.imageUrl || "",
         badgeColor: tour.badgeColor || "primary",
-        featured: tour.featured || false,
+        featured: false,
         isActive: tour.isActive ?? true,
         displayDurationInCard: (tour as any).displayDurationInCard ?? true,
         displayGroupSizeInCard: (tour as any).displayGroupSizeInCard ?? true,
@@ -147,7 +148,7 @@ export default function EditTourPage() {
         childrenPolicy: (tour as any).childrenPolicy ?? "allowed",
         conductedBy: (tour as any).conductedBy ?? "walking",
       };
-      form.reset(tourData);
+      form.reset(tourData satisfies MultilingualTourForm);
       if (tour.imageUrl) {
         setImagePreview(tour.imageUrl);
       }
@@ -157,13 +158,6 @@ export default function EditTourPage() {
   // Create/Update tour mutation
   const tourMutation = useMutation({
     mutationFn: async (data: MultilingualTourForm) => {
-      // Get CSRF token
-      const csrfResponse = await fetch("/api/csrf-token", {
-        credentials: "include",
-      });
-      const { csrfToken } = await csrfResponse.json();
-
-      // Remove unsupported fields and ensure payload has the right shape
       const payload = {
         ...data,
         price: Math.round(data.price * 100), // Convert to cents
@@ -175,21 +169,8 @@ export default function EditTourPage() {
 
       const url = isEditing ? `/api/tours/${tourId}` : "/api/tours";
       const method = isEditing ? "PUT" : "POST";
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 
-          'Content-Type': 'application/json',
-          'CSRF-Token': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify(sanitized),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to ${isEditing ? 'update' : 'create'} tour`);
-      }
-      
+
+      const response = await apiRequest(method, url, sanitized);
       return response.json();
     },
     onSuccess: () => {
@@ -225,15 +206,10 @@ export default function EditTourPage() {
         badge: form.getValues("badge.en") || "",
       };
 
-      const response = await fetch("/api/translate-tour", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          sourceData,
-          sourceLang: "en",
-          targetLangs: [targetLang],
-        }),
+      const response = await apiRequest("POST", "/api/translate-tour", {
+        sourceData,
+        sourceLang: "en",
+        targetLangs: [targetLang],
       });
 
       if (!response.ok) {
@@ -286,17 +262,9 @@ export default function EditTourPage() {
     setImagePreview(previewUrl);
 
     setUploadingImage(true);
-    const formDataUpload = new FormData();
-    formDataUpload.append("image", file);
-
     try {
-      const response = await fetch("/api/upload-image", {
-        method: "POST",
-        body: formDataUpload,
-      });
-      if (!response.ok) throw new Error("Failed to upload image");
-      const data = await response.json();
-      form.setValue("imageUrl", data.imageUrl, { shouldDirty: true });
+      const imageUrl = await uploadImage(file);
+      form.setValue("imageUrl", imageUrl, { shouldDirty: true });
       toast({ title: "Success", description: "Image uploaded successfully" });
     } catch (error) {
       toast({

@@ -1,107 +1,110 @@
-import { Request, Response, NextFunction } from 'express';
-import passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
-import bcrypt from 'bcryptjs';
-import { storage } from './storage';
-import { User } from '@shared/schema';
+import type { NextFunction, Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import { storage } from "./storage";
+import type { User } from "@shared/schema";
+import type { SessionUser } from "./session";
 
-interface SerializedUser {
-  id: number;
-  username: string;
-  isAdmin: boolean;
-}
-// Session augmentation for custom session properties
-declare module "express-session" {
-  interface SessionData {
-    isAuthenticated: boolean;
-    isAdmin: boolean;
-    user?: {
-      id: number;
-      username: string;
-      isAdmin: boolean;
-    };
-  }
-}
+const isProduction = process.env.NODE_ENV === "production";
 
-// Configure local strategy for use by Passport
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      // Retrieve user from database
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        return done(null, false, { message: 'Invalid username or password' });
-      }
-
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        return done(null, false, { message: 'Invalid username or password' });
-      }
-
-      // Only allow admin users to login to the admin panel
-      if (!user.isAdmin) {
-        return done(null, false, { message: 'You do not have admin privileges' });
-      }
-
-      return done(null, {
-        id: user.id,
-        username: user.username,
-        isAdmin: user.isAdmin
-      });
-    } catch (error) {
-      return done(error);
-    }
-  })
-);
-
-// Configure Passport authenticated session persistence
-passport.serializeUser((user: any, done) => {
-  done(null, user);
-});
-
-passport.deserializeUser((user: SerializedUser, done) => {
-  done(null, user);
-});
-
-// Middleware to check if user is authenticated
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  if (req.session?.isAuthenticated) {
+  if (hasAuthenticatedSession(req)) {
     return next();
   }
-  res.status(401).json({ message: 'Unauthorized' });
+
+  res.status(401).json({ message: "Unauthorized" });
 }
 
-// Middleware to check if user is an admin
 export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.session?.isAuthenticated && req.session.user?.isAdmin) {
+  if (hasAuthenticatedAdminSession(req)) {
     return next();
   }
-  res.status(403).json({ message: 'Forbidden - Admin access required' });
+
+  res.status(403).json({ message: "Forbidden - Admin access required" });
 }
 
-// Helper function to hash passwords
+export function hasAuthenticatedSession(req: Request): boolean {
+  return Boolean(req.session?.isAuthenticated && req.session.user);
+}
+
+export function hasAuthenticatedAdminSession(req: Request): boolean {
+  return Boolean(req.session?.isAuthenticated && req.session.user?.isAdmin);
+}
+
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 10;
-  return bcrypt.hash(password, saltRounds);
+  return bcrypt.hash(password, 10);
 }
 
-// Helper function to create admin user during initialization
+export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
+}
+
+export async function authenticateAdminCredentials(
+  username: string,
+  password: string,
+): Promise<User | undefined> {
+  const user = await storage.getUserByUsername(username);
+  if (!user?.isAdmin) {
+    return undefined;
+  }
+
+  const isValidPassword = await verifyPassword(password, user.password);
+  if (!isValidPassword) {
+    return undefined;
+  }
+
+  return user;
+}
+
+export function buildSessionUser(user: User): SessionUser {
+  return {
+    id: user.id,
+    username: user.username,
+    isAdmin: Boolean(user.isAdmin),
+  };
+}
+
+export function setAuthenticatedAdminSession(req: Request, user: User) {
+  req.session.isAuthenticated = true;
+  req.session.user = buildSessionUser(user);
+}
+
+export async function updateAdminPassword(userId: number, newPassword: string) {
+  const hashedPassword = await hashPassword(newPassword);
+  return storage.updateUser(userId, { password: hashedPassword });
+}
+
 export async function createAdminUserIfNotExists() {
   try {
-    const adminUsername = 'admin';
+    const adminUsername = process.env.ADMIN_USERNAME?.trim() || "admin";
+    const adminPassword = process.env.ADMIN_PASSWORD?.trim();
     const existingAdmin = await storage.getUserByUsername(adminUsername);
-    
-    if (!existingAdmin) {
-      const hashedPassword = await hashPassword('adminpassword');
+
+    if (existingAdmin) {
+      return;
+    }
+
+    if (!adminPassword) {
+      if (isProduction) {
+        console.warn(
+          `Skipping bootstrap admin creation because ADMIN_PASSWORD is not configured for "${adminUsername}".`,
+        );
+        return;
+      }
+
       await storage.createUser({
         username: adminUsername,
-        password: hashedPassword,
-        isAdmin: true
+        password: await hashPassword("adminpassword"),
+        isAdmin: true,
       });
-      
+      return;
     }
+
+    await storage.createUser({
+      username: adminUsername,
+      password: await hashPassword(adminPassword),
+      isAdmin: true,
+    });
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error("Error creating admin user:", error);
   }
 }

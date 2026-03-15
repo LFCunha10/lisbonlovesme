@@ -14,6 +14,7 @@ import {
   FileText
 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { apiRequest } from "@/lib/queryClient";
 
 
 interface AdminLayoutProps {
@@ -72,20 +73,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                   <button
                     onClick={async () => {
                       try {
-                        const res = await fetch("/api/csrf-token", {
-                          credentials: "include",
-                        });
-                        const data = await res.json();
-
-                        await fetch("/api/admin/logout", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            "CSRF-Token": data.csrfToken,
-                          },
-                          credentials: "include",
-                        });
-
+                        await apiRequest("POST", "/api/admin/logout");
                         setLocation("/admin/login");
                       } catch (error) {
                         console.error("Logout failed", error);

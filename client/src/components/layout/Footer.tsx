@@ -38,12 +38,12 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('common.quickLinks')}</h4>
             <ul className="space-y-2">
-              <FooterLink key="home" href="/">{t('nav.home')}</FooterLink>
-              <FooterLink key="tours" href="/#tours">{t('nav.tours')}</FooterLink>
-              <FooterLink key="about" href="/#about">{t('nav.about')}</FooterLink>
-              <FooterLink key="reviews" href="/#reviews">{t('reviews.title')}</FooterLink>
-              <FooterLink key="contact" href="/#contact">{t('nav.contact')}</FooterLink>
-              <FooterLink key="booking" href="/tours">{t('nav.booking')}</FooterLink>
+              <FooterLink key="home" href="/">{t('navigation.main.home')}</FooterLink>
+              <FooterLink key="tours" href="/#tours">{t('navigation.main.tours')}</FooterLink>
+              <FooterLink key="about" href="/#about">{t('navigation.main.about')}</FooterLink>
+              <FooterLink key="reviews" href="/#reviews">{t('navigation.main.reviews')}</FooterLink>
+              <FooterLink key="contact" href="/#contact">{t('navigation.main.contact')}</FooterLink>
+              <FooterLink key="booking" href="/tours">{t('navigation.main.bookTour')}</FooterLink>
             </ul>
           </div>
 

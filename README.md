@@ -18,7 +18,7 @@ A full-stack tour booking application for Lisbon tourism, built with React, Node
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Shadcn/UI
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Passport.js with sessions
+- **Authentication**: Session-based admin auth with CSRF protection and scoped API keys for internal clients
 - **Email**: Nodemailer
 - **Payments**: Stripe
 - **Deployment**: Ready for Railway, Render, Heroku
@@ -57,6 +57,11 @@ DATABASE_URL=postgresql://username:password@host:port/database
 
 # Session
 SESSION_SECRET=your-super-secret-session-key
+
+# Scoped API keys for internal clients and push registration
+# Example:
+# API_KEYS=[{"id":"ops","value":"replace-with-a-long-random-secret","scopes":["admin:read","admin:write"]},{"id":"ios-push","value":"replace-with-a-second-long-random-secret","scopes":["push:register"]}]
+API_KEYS=
 
 # Email (Gmail)
 EMAIL_HOST=smtp.gmail.com

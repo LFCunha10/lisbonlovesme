@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User } from "lucide-react";
 import { Link } from "wouter";
 import { getLocalizedText } from "@/lib/tour-utils";
+import { sanitizeHtml } from "@/lib/safe-html";
 
 interface Article {
   id: number;
@@ -73,6 +74,7 @@ export default function Article() {
   const localizedTitle = getLocalizedText(article.title, i18n.language);
   const localizedContent = getLocalizedText(article.content, i18n.language);
   const localizedExcerpt = article.excerpt ? getLocalizedText(article.excerpt, i18n.language) : null;
+  const sanitizedContent = sanitizeHtml(localizedContent);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -122,7 +124,7 @@ export default function Article() {
           <CardContent className="p-8">
             <div 
               className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: localizedContent }}
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
           </CardContent>
         </Card>

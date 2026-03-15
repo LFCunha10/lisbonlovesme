@@ -65,7 +65,7 @@ export default function NavBar() {
 
           {!isAdminPage && (
             <div className="hidden md:flex items-center space-x-6">
-              <NavLink href="/tours" isActive={location === "/"}>{t('nav.tours')}</NavLink>
+              <NavLink href="/tours" isActive={location === "/"}>{t('navigation.main.tours')}</NavLink>
               
               {publishedArticles.length > 0 && (
                 <div className="relative">
@@ -82,7 +82,7 @@ export default function NavBar() {
                       setCloseTimeout(timeout);
                     }}
                   >
-                    {t('nav.articles')}
+                    {t('navigation.main.articles')}
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                   {articlesOpen && (
@@ -113,9 +113,9 @@ export default function NavBar() {
                 </div>
               )}
               
-              <NavLink href="/#about" isActive={location === "/"}>{t('nav.about')}</NavLink>
-              <NavLink href="/#reviews" isActive={location === "/"}>{t('reviews.title')}</NavLink>
-              <NavLink href="/#contact" isActive={location === "/"}>{t('nav.contact')}</NavLink>
+              <NavLink href="/#about" isActive={location === "/"}>{t('navigation.main.about')}</NavLink>
+              <NavLink href="/#reviews" isActive={location === "/"}>{t('navigation.main.reviews')}</NavLink>
+              <NavLink href="/#contact" isActive={location === "/"}>{t('navigation.main.contact')}</NavLink>
               <LanguageSwitcher />
             </div>
           )}
@@ -139,7 +139,7 @@ export default function NavBar() {
 
         {isOpen && !isAdminPage && (
           <div className="md:hidden mt-4 pb-4 space-y-2">
-            <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('nav.tours')}</MobileNavLink>
+            <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('navigation.main.tours')}</MobileNavLink>
             {publishedArticles.length > 0 && (
               <div className="ml-2">
                 <button
@@ -147,7 +147,7 @@ export default function NavBar() {
                   onClick={() => setArticlesMobileOpen((o) => !o)}
                   aria-expanded={articlesMobileOpen}
                 >
-                  <span className="text-sm font-medium text-gray-700">{t('nav.articles')}</span>
+                  <span className="text-sm font-medium text-gray-700">{t('navigation.main.articles')}</span>
                   <ChevronDown className={cn("h-4 w-4 transition-transform", articlesMobileOpen && "rotate-180")} />
                 </button>
                 {articlesMobileOpen && (
@@ -165,9 +165,9 @@ export default function NavBar() {
                 )}
               </div>
             )}
-            <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('nav.about')}</MobileNavLink>
-            <MobileNavLink href="/#reviews" onClick={() => setIsOpen(false)}>{t('reviews.title')}</MobileNavLink>
-            <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>{t('nav.contact')}</MobileNavLink>
+            <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('navigation.main.about')}</MobileNavLink>
+            <MobileNavLink href="/#reviews" onClick={() => setIsOpen(false)}>{t('navigation.main.reviews')}</MobileNavLink>
+            <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>{t('navigation.main.contact')}</MobileNavLink>
             <div className="pt-2 border-t border-gray-200">
               <LanguageSwitcher className="w-full" />
             </div>

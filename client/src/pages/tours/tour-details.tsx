@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Users, MapPin, Star, Send, ArrowLeft, Euro } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Tour, Testimonial } from "@shared/schema";
-import { marked } from 'marked';
+import { renderMarkdownToSafeHtml } from "@/lib/safe-html";
 
 export default function TourDetailsPage() {
   const { id } = useParams();
@@ -130,7 +130,7 @@ export default function TourDetailsPage() {
                   {averageRating.toFixed(1)}
                 </span>
                 <span className="text-gray-200 text-sm sm:text-base">
-                  ({tourTestimonials.length} {tourTestimonials.length === 1 ? t('tours.review') : t('tours.reviews')})
+                  ({tourTestimonials.length} {tourTestimonials.length === 1 ? t('tours.detail.reviewSingular') : t('tours.detail.reviews')})
                 </span>
                 </div>
                 
@@ -149,7 +149,7 @@ export default function TourDetailsPage() {
                   {formatCurrency(tour.price)}
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  {tour.priceType === "per_group" ? t('tours.perGroup') : t('tours.perPerson')}
+                  {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
                 </p>
               </div>
 
@@ -158,7 +158,7 @@ export default function TourDetailsPage() {
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
-                    {t('tours.duration')}
+                    {t('tours.detail.duration')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {formatDurationHours(tour.duration, i18n.language)}
@@ -166,15 +166,15 @@ export default function TourDetailsPage() {
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
-                    {t('tours.groupSize')}
+                    {t('tours.detail.groupSize')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {tour.maxGroupSize} {t('tours.people')}
+                    {tour.maxGroupSize} {t('tours.detail.people')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
-                    {t('tours.difficulty')}
+                    {t('tours.detail.difficulty')}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {getLocalizedText(tour.difficulty, i18n.language)}
@@ -185,7 +185,7 @@ export default function TourDetailsPage() {
               <Link href={`/book/${tour.id}`}>
                 <Button className="w-full text-lg py-6" size="lg">
                   <Send className="w-5 h-5 mr-2" />
-                  {t('tours.sendYourRequest')}
+                  {t('tours.detail.sendYourRequest')}
                 </Button>
               </Link>
             </CardContent>
@@ -199,7 +199,7 @@ export default function TourDetailsPage() {
             <Card>
               <CardContent className="p-4 sm:p-6">
                 <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 text-center">
-                  {t('tours.tourDetails')}
+                  {t('tours.detail.tourDetails')}
                 </h2>
                 
                 {/* Mobile: 2x2 Table Layout */}
@@ -208,33 +208,33 @@ export default function TourDetailsPage() {
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Clock className="w-5 h-5 text-primary mx-auto mb-2" />
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.duration')}
+                        {t('tours.detail.duration')}
                       </h3>
                       <p className="text-xs text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Users className="w-5 h-5 text-primary mx-auto mb-2" />
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.groupSize')}
+                        {t('tours.detail.groupSize')}
                       </h3>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {tour.maxGroupSize} {t('tours.people')}
+                        {tour.maxGroupSize} {t('tours.detail.people')}
                       </p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <MapPin className="w-5 h-5 text-primary mx-auto mb-2" />
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.difficulty')}
+                        {t('tours.detail.difficulty')}
                       </h3>
                       <p className="text-xs text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                       <Euro className="w-5 h-5 text-primary mx-auto mb-2" />
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                        {t('tours.price')}
+                        {t('tours.detail.price')}
                       </h3>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)}{tour.priceType === "per_group" ? t('tours.perGroupShort') : t('tours.perPersonShort')}
+                        {formatCurrency(tour.price)}{tour.priceType === "per_group" ? t('tours.detail.perGroupShort') : t('tours.detail.perPersonShort')}
                       </p>
                     </div>
                   </div>
@@ -246,7 +246,7 @@ export default function TourDetailsPage() {
                     <Clock className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.duration')}
+                        {t('tours.detail.duration')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">{formatDurationHours(tour.duration, i18n.language)}</p>
                     </div>
@@ -255,10 +255,10 @@ export default function TourDetailsPage() {
                     <Users className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.groupSize')}
+                        {t('tours.detail.groupSize')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {tour.maxGroupSize} {t('tours.people')}
+                        {tour.maxGroupSize} {t('tours.detail.people')}
                       </p>
                     </div>
                   </div>
@@ -266,7 +266,7 @@ export default function TourDetailsPage() {
                     <MapPin className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.difficulty')}
+                        {t('tours.detail.difficulty')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">{getLocalizedText(tour.difficulty, i18n.language)}</p>
                     </div>
@@ -275,10 +275,10 @@ export default function TourDetailsPage() {
                     <Euro className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        {t('tours.price')}
+                        {t('tours.detail.price')}
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {formatCurrency(tour.price)} {tour.priceType === "per_group" ? t('tours.perGroup') : t('tours.perPerson')}
+                        {formatCurrency(tour.price)} {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
                       </p>
                     </div>
                   </div>
@@ -290,11 +290,11 @@ export default function TourDetailsPage() {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  {t('tours.aboutTour')}
+                  {t('tours.detail.aboutTour')}
                 </h2>
                 <div 
                   className="text-gray-600 dark:text-gray-300 leading-relaxed prose prose-gray dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: marked.parse(getLocalizedText(tour.description, i18n.language)) }}
+                  dangerouslySetInnerHTML={{ __html: renderMarkdownToSafeHtml(getLocalizedText(tour.description, i18n.language)) }}
                 />
               </CardContent>
             </Card>
@@ -304,7 +304,7 @@ export default function TourDetailsPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-                    {t('tours.reviews')} ({tourTestimonials.length})
+                    {t('tours.detail.reviews')} ({tourTestimonials.length})
                   </h2>
                   <div className="space-y-6">
                     {tourTestimonials.slice(0, 3).map((testimonial) => (
@@ -349,7 +349,7 @@ export default function TourDetailsPage() {
                     {formatCurrency(tour.price)}
                   </div>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                    {tour.priceType === "per_group" ? t('tours.perGroup') : t('tours.perPerson')}
+                    {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
                   </p>
                 </div>
 
@@ -358,7 +358,7 @@ export default function TourDetailsPage() {
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.duration')}
+                      {t('tours.detail.duration')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
                       {formatDurationHours(tour.duration, i18n.language)}
@@ -366,15 +366,15 @@ export default function TourDetailsPage() {
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.groupSize')}
+                      {t('tours.detail.groupSize')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {tour.maxGroupSize} {t('tours.people')}
+                      {tour.maxGroupSize} {t('tours.detail.people')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {t('tours.difficulty')}
+                      {t('tours.detail.difficulty')}
                     </span>
                     <span className="font-medium text-gray-900 dark:text-white">
                       {getLocalizedText(tour.difficulty, i18n.language)}
@@ -385,7 +385,7 @@ export default function TourDetailsPage() {
                 <Link href={`/book/${tour.id}`}>
                   <Button className="w-full text-lg py-6" size="lg">
                     <Send className="w-5 h-5 mr-2" />
-                    {t('tours.sendYourRequest')}
+                    {t('tours.detail.sendYourRequest')}
                   </Button>
                 </Link>
 

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -20,26 +21,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      const csrfRes = await fetch("/api/csrf-token", {
-        credentials: "include",
-      });
-      const { csrfToken } = await csrfRes.json();
-
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Invalid credentials");
-      }
-
+      const response = await apiRequest("POST", "/api/admin/login", { username, password });
       const userData = await response.json();
       if (!userData || !userData.user || !userData.user.isAdmin) {
         throw new Error("Invalid user data");

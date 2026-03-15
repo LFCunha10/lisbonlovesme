@@ -3,15 +3,16 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { uploadImage } from "@/lib/uploads";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { marked } from "marked";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
 import { formatDurationHours, parseDurationHours } from "@shared/duration";
+import { renderMarkdownToSafeHtml } from "@/lib/safe-html";
 
 import {
   Card,
@@ -143,31 +144,7 @@ export default function AdminTours() {
   const [selectedTab, setSelectedTab] = useState<string>("tours");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [selectedAvailabilityIds, setSelectedAvailabilityIds] = useState<number[]>([]);
-  React.useEffect(() => {
-      const checkAuth = async () => {
-        try {
-          const res = await fetch("/api/admin/me", {
-            credentials: "include",
-          });
-          if (!res.ok) throw new Error("Not authenticated");
-  
-          const user = await res.json();
-          if (user && user.isAdmin) {
-            setIsAuthenticated(true);
-          } else {
-            throw new Error("Invalid user");
-          }
-        } catch (error) {
-          console.error("Tours auth check failed", error);
-          setIsAuthenticated(false);
-          navigate("/admin/login");
-        }
-      };
-  
-      checkAuth();
-    }, []);
 
   // Fetch tours
   const { data: tours, isLoading: isLoadingTours } = useQuery({
@@ -571,13 +548,9 @@ export default function AdminTours() {
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
     setUploadingImage(true);
-    const fd = new FormData();
-    fd.append("image", file);
     try {
-      const res = await fetch("/api/upload-image", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      tourForm.setValue("imageUrl", data.imageUrl, { shouldDirty: true });
+      const imageUrl = await uploadImage(file);
+      tourForm.setValue("imageUrl", imageUrl, { shouldDirty: true });
       toast({ title: "Success", description: "Image uploaded" });
     } catch (err) {
       toast({ title: "Error", description: "Failed to upload image", variant: "destructive" });
@@ -597,9 +570,7 @@ export default function AdminTours() {
   return (
     <AdminLayout title="Tour Management">
       <div>
-        {isAuthenticated && (
-          <div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
               <div>
                 <h1 className="text-2xl font-bold">Tour Management</h1>
                 <p className="text-gray-500">Create, edit, and manage tours</p>
@@ -1277,7 +1248,7 @@ export default function AdminTours() {
                               <div
                                 className="text-sm text-gray-600 mt-1 prose prose-sm max-w-none"
                                 dangerouslySetInnerHTML={{
-                                  __html: marked.parse(getLocalizedText(selectedTour.description, i18n.language)),
+                                  __html: renderMarkdownToSafeHtml(getLocalizedText(selectedTour.description, i18n.language)),
                                 }}
                               />
                             </div>
@@ -1747,9 +1718,7 @@ export default function AdminTours() {
                 )}
               </Card>
             </div>
-          </div>
-        )}
-      </div>
+        </div>
     </AdminLayout>
   );
 }

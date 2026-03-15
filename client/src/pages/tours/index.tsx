@@ -26,15 +26,15 @@ export default function ToursPage() {
           >
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {t('tour.backToHome')}
+              {t('tours.list.backToHome')}
             </Link>
           </Button>
           
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-2">
-            {t('tour.allTours')}
+            {t('tours.list.title')}
           </h1>
           <p className="text-base sm:text-lg text-neutral-dark/80">
-            {t('tour.allToursDescription')}
+            {t('tours.list.description')}
           </p>
         </div>
 

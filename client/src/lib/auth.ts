@@ -4,8 +4,5 @@
 export function getAuthFetchOptions(): RequestInit {
   return {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
   };
 }

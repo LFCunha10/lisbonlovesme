@@ -1,32 +1,29 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { type Request, Response, NextFunction, type RequestHandler } from "express";
-import path from "path";
+import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import migrateData from "./migrate-data";
-import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import passport from "passport";
 import { createAdminUserIfNotExists } from "./auth";
-import cookieParser from "cookie-parser";
-import helmet from "helmet";
-import { pool } from "./db";
 import fs from "fs";
 import { resolveUploadDir } from "./utils/uploads-path";
+import { createHelmetMiddleware, createCorsOptions } from "./security";
+import { createSessionMiddleware } from "./session";
+import { toErrorResponse } from "./http";
+import { validateApiKeyConfiguration } from "./api-keys";
 
 const app = express();
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+app.disable("x-powered-by");
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-app.use(
-  cors({
-    origin: true, // Allow all origins in development and production
-    credentials: true,
-  })
-);
+app.use(cors(createCorsOptions()));
 
 // Serve uploaded files from a consistent directory (supports persistent volumes)
 const UPLOAD_DIR = resolveUploadDir();
@@ -39,58 +36,9 @@ try {
   log(`Uploads directory: ${UPLOAD_DIR} (writable=${canWrite})`);
 } catch {}
 
-app.use(cookieParser());
-
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "https://replit.com", "'unsafe-eval'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
-      fontSrc: ["'self'", "https:", "data:"],
-      connectSrc: ["'self'", "https:"],
-      frameSrc: ["'self'", "https://replit.com"]
-    }
-  })
-);
-
-const PgSession = connectPgSimple(session);
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "lisbonlovesme-session-secret",
-    resave: false,
-    saveUninitialized: false,
-    store: new PgSession({
-      pool: pool,
-      tableName: 'session',
-      createTableIfMissing: true,
-    }),
-    cookie: {
-      httpOnly: true,
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 2, // 2 hours
-      sameSite: "lax"
-    },
-    name: 'connect.sid'
-  }),
-);
-
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  next();
-});
-
-// Initialize Passport
+app.use(createHelmetMiddleware());
+app.use(createSessionMiddleware());
+validateApiKeyConfiguration();
 
 (async () => {
   // Create admin user if not exists
@@ -107,11 +55,9 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
+    const { status, message } = toErrorResponse(err);
+    log(`Unhandled error: ${message}`);
     res.status(status).json({ message });
-    throw err;
   });
 
   // importantly only setup vite in development and after

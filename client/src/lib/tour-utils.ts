@@ -42,3 +42,33 @@ export function convertToMultilingual(text: string): { en: string; pt: string; r
     ru: text
   };
 }
+
+function normalizeTourDifficultyValue(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+export function getTourDifficultyLabelKey(
+  difficulty: string | { en: string; pt: string; ru: string } | undefined,
+  language?: string,
+): string | null {
+  const localizedDifficulty = getLocalizedText(difficulty, language);
+  const normalizedDifficulty = normalizeTourDifficultyValue(localizedDifficulty);
+
+  if (["easy", "facil", "легкий"].includes(normalizedDifficulty)) {
+    return "tours.difficultyLevels.easy";
+  }
+
+  if (["moderate", "medium", "medio", "средний"].includes(normalizedDifficulty)) {
+    return "tours.difficultyLevels.medium";
+  }
+
+  if (["hard", "challenging", "dificil", "сложный"].includes(normalizedDifficulty)) {
+    return "tours.difficultyLevels.hard";
+  }
+
+  return null;
+}

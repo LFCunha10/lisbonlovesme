@@ -23,6 +23,47 @@ import {
 } from "@/lib/language-routing";
 import { getSessionLanguageCookie, setSessionLanguageCookie } from "@/lib/language-session";
 
+const ToursPage = React.lazy(() => import("@/pages/tours"));
+const GalleryPage = React.lazy(() => import("@/pages/gallery"));
+const GuidePage = React.lazy(() => import("@/pages/guide"));
+const AlfamaLoungeSuitesPage = React.lazy(() => import("@/pages/alfama-lounge-suites"));
+const ReviewPage = React.lazy(() => import("@/pages/review"));
+const TourDetailsPage = React.lazy(() => import("@/pages/tours/tour-details"));
+const BookingPage = React.lazy(() => import("@/pages/tours/booking"));
+const AdminLoginPage = React.lazy(() => import("@/pages/admin/login"));
+const AdminDashboardPage = React.lazy(() => import("@/pages/admin/index"));
+const BookingRequestsPage = React.lazy(() => import("@/pages/admin/BookingRequests"));
+const AdminToursPage = React.lazy(() => import("@/pages/admin/tours"));
+const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
+const AdminBookingsPage = React.lazy(() => import("@/pages/admin/bookings"));
+const AdminPaymentsPage = React.lazy(() => import("@/pages/admin/payments"));
+const AdminDiscountsPage = React.lazy(() => import("@/pages/admin/discounts"));
+const AdminGalleryPage = React.lazy(() => import("@/pages/admin/gallery"));
+const AdminHeroBannerPage = React.lazy(() => import("@/pages/admin/hero-banner"));
+const AdminDocumentsPage = React.lazy(() => import("@/pages/admin/documents"));
+const AdminStoragePage = React.lazy(() => import("@/pages/admin/storage"));
+const ManageArticlesPage = React.lazy(() => import("@/pages/admin/ManageArticles"));
+const AdminReviewsPage = React.lazy(() => import("@/pages/admin/reviews"));
+const PasswordChangePage = React.lazy(() => import("@/pages/admin/password"));
+const DatabaseExportPage = React.lazy(() => import("@/pages/admin/database-export"));
+const ArticlePage = React.lazy(() => import("@/pages/admin/Article"));
+
+function RouteFallback() {
+  return <div>Loading...</div>;
+}
+
+function SuspendedRoute({ children }: { children: React.ReactNode }) {
+  return <React.Suspense fallback={<RouteFallback />}>{children}</React.Suspense>;
+}
+
+function ProtectedAdminPage({ children }: { children: React.ReactNode }) {
+  return (
+    <SuspendedRoute>
+      <AdminProtectedRoute>{children}</AdminProtectedRoute>
+    </SuspendedRoute>
+  );
+}
+
 function useLocalizedBrowserLocation(): [string, (path: string, options?: { replace?: boolean; state?: unknown }) => void] {
   const [pathname, navigate] = useBrowserLocation();
   const preferredLanguage = getPreferredLanguage(pathname);
@@ -86,76 +127,13 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route path="/tours">
-        {() => {
-          const ToursPage = React.lazy(() => import("@/pages/tours"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <ToursPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/gallery">
-        {() => {
-          const GalleryPage = React.lazy(() => import("@/pages/gallery"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <GalleryPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/3-day-guide-book">
-        {() => {
-          const GuidePage = React.lazy(() => import("@/pages/guide"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <GuidePage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/alfama-lounge-suites">
-        {() => {
-          const AlfamaLoungeSuitesPage = React.lazy(() => import("@/pages/alfama-lounge-suites"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AlfamaLoungeSuitesPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/review/:bookingReference">
-        {() => {
-          const ReviewPage = React.lazy(() => import("@/pages/review"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <ReviewPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/tour/:id">
-        {() => {
-          const TourDetailsPage = React.lazy(() => import("@/pages/tours/tour-details"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <TourDetailsPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/book/:id">
-        {() => {
-          const BookingPage = React.lazy(() => import("@/pages/tours/booking"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <BookingPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
+      <Route path="/tours">{() => <SuspendedRoute><ToursPage /></SuspendedRoute>}</Route>
+      <Route path="/gallery">{() => <SuspendedRoute><GalleryPage /></SuspendedRoute>}</Route>
+      <Route path="/3-day-guide-book">{() => <SuspendedRoute><GuidePage /></SuspendedRoute>}</Route>
+      <Route path="/alfama-lounge-suites">{() => <SuspendedRoute><AlfamaLoungeSuitesPage /></SuspendedRoute>}</Route>
+      <Route path="/review/:bookingReference">{() => <SuspendedRoute><ReviewPage /></SuspendedRoute>}</Route>
+      <Route path="/tour/:id">{() => <SuspendedRoute><TourDetailsPage /></SuspendedRoute>}</Route>
+      <Route path="/book/:id">{() => <SuspendedRoute><BookingPage /></SuspendedRoute>}</Route>
       <Route path="/admin">
         {() => (
           <AdminProtectedRoute>
@@ -164,219 +142,24 @@ function Router() {
         )}
       </Route>
       
-      <Route path="/admin/login">
-        {() => {
-          // No protection for login page
-          const AdminLoginPage = React.lazy(() => import("@/pages/admin/login"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminLoginPage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/dashboard">
-        {() => {
-          const AdminDashboardPage = React.lazy(() => import("@/pages/admin/index"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/requests">
-        {() => {
-          const BookingRequestsPage = React.lazy(() => import("@/pages/admin/BookingRequests"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <BookingRequestsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/tours">
-        {() => {
-          const AdminToursPage = React.lazy(() => import("@/pages/admin/tours"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminToursPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/tours/create">
-        {() => {
-          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <EditTourPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/tours/edit/:id">
-        {() => {
-          const EditTourPage = React.lazy(() => import("@/pages/admin/EditTour"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <EditTourPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/bookings">
-        {() => {
-          const AdminBookingsPage = React.lazy(() => import("@/pages/admin/bookings"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminBookingsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/payments">
-        {() => {
-          const AdminPaymentsPage = React.lazy(() => import("@/pages/admin/payments"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminPaymentsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/discounts">
-        {() => {
-          const AdminDiscountsPage = React.lazy(() => import("@/pages/admin/discounts"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminDiscountsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/gallery">
-        {() => {
-          const AdminGalleryPage = React.lazy(() => import("@/pages/admin/gallery"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminGalleryPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/hero-banner">
-        {() => {
-          const AdminHeroBannerPage = React.lazy(() => import("@/pages/admin/hero-banner"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminHeroBannerPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/documents">
-        {() => {
-          const AdminDocumentsPage = React.lazy(() => import("@/pages/admin/documents"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminDocumentsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/storage">
-        {() => {
-          const AdminStoragePage = React.lazy(() => import("@/pages/admin/storage"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminStoragePage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/articles">
-        {() => {
-          const ManageArticles = React.lazy(() => import("@/pages/admin/ManageArticles"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <ManageArticles />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/reviews">
-        {() => {
-          const AdminReviewsPage = React.lazy(() => import("@/pages/admin/reviews"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <AdminReviewsPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/password">
-        {() => {
-          const PasswordChangePage = React.lazy(() => import("@/pages/admin/password"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <PasswordChangePage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/admin/database-export">
-        {() => {
-          const DatabaseExportPage = React.lazy(() => import("@/pages/admin/database-export"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <AdminProtectedRoute>
-                <DatabaseExportPage />
-              </AdminProtectedRoute>
-            </React.Suspense>
-          );
-        }}
-      </Route>
-      <Route path="/articles/:slug">
-        {() => {
-          const ArticlePage = React.lazy(() => import("@/pages/admin/Article"));
-          return (
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <ArticlePage />
-            </React.Suspense>
-          );
-        }}
-      </Route>
+      <Route path="/admin/login">{() => <SuspendedRoute><AdminLoginPage /></SuspendedRoute>}</Route>
+      <Route path="/admin/dashboard">{() => <ProtectedAdminPage><AdminDashboardPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/requests">{() => <ProtectedAdminPage><BookingRequestsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/tours">{() => <ProtectedAdminPage><AdminToursPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/tours/create">{() => <ProtectedAdminPage><EditTourPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/tours/edit/:id">{() => <ProtectedAdminPage><EditTourPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/bookings">{() => <ProtectedAdminPage><AdminBookingsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/payments">{() => <ProtectedAdminPage><AdminPaymentsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/discounts">{() => <ProtectedAdminPage><AdminDiscountsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/gallery">{() => <ProtectedAdminPage><AdminGalleryPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/hero-banner">{() => <ProtectedAdminPage><AdminHeroBannerPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/documents">{() => <ProtectedAdminPage><AdminDocumentsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/storage">{() => <ProtectedAdminPage><AdminStoragePage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/articles">{() => <ProtectedAdminPage><ManageArticlesPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/reviews">{() => <ProtectedAdminPage><AdminReviewsPage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/password">{() => <ProtectedAdminPage><PasswordChangePage /></ProtectedAdminPage>}</Route>
+      <Route path="/admin/database-export">{() => <ProtectedAdminPage><DatabaseExportPage /></ProtectedAdminPage>}</Route>
+      <Route path="/articles/:slug">{() => <SuspendedRoute><ArticlePage /></SuspendedRoute>}</Route>
       <Route component={NotFound} />
     </Switch>
   );

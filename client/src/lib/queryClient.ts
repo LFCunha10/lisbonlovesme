@@ -8,34 +8,136 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const cookiePrefix = `${name}=`;
+  const value = document.cookie
+    .split(";")
+    .map((cookiePart) => cookiePart.trim())
+    .find((cookiePart) => cookiePart.startsWith(cookiePrefix))
+    ?.slice(cookiePrefix.length);
+
+  return value ? decodeURIComponent(value) : null;
+}
+
+let csrfTokenPromise: Promise<string | null> | null = null;
+
+export async function getCsrfToken(forceRefresh = false): Promise<string | null> {
+  if (!forceRefresh) {
+    const cookieToken = getCookie("csrfToken");
+    if (cookieToken) {
+      return cookieToken;
+    }
+  }
+
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = fetch("/api/csrf-token", {
+      ...getAuthFetchOptions(),
+    })
+      .then(async (response) => {
+        await throwIfResNotOk(response);
+        const data = await response.json();
+        return typeof data?.csrfToken === "string" ? data.csrfToken : null;
+      })
+      .finally(() => {
+        csrfTokenPromise = null;
+      });
+  }
+
+  return csrfTokenPromise;
+}
+
+function isMutationMethod(method: string) {
+  return !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
-  
-  // Add CSRF token for non-GET requests
-  if (method !== 'GET') {
-    const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('csrfToken='))
-      ?.split('=')[1];
-    
+  const normalizedMethod = method.toUpperCase();
+  const headers = new Headers();
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+
+  if (data !== undefined && !isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const buildBody = (value: unknown) => {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (typeof FormData !== "undefined" && value instanceof FormData) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      return value;
+    }
+
+    return JSON.stringify(value);
+  };
+
+  if (isMutationMethod(normalizedMethod)) {
+    const csrfToken = await getCsrfToken();
     if (csrfToken) {
-      headers['CSRF-Token'] = csrfToken;
+      headers.set("CSRF-Token", csrfToken);
     }
   }
-  
-  const res = await fetch(url, {
+
+  let res = await fetch(url, {
     ...getAuthFetchOptions(),
-    method,
+    method: normalizedMethod,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: buildBody(data),
   });
+
+  if (isMutationMethod(normalizedMethod) && res.status === 403) {
+    const refreshedCsrfToken = await getCsrfToken(true);
+    if (refreshedCsrfToken) {
+      headers.set("CSRF-Token", refreshedCsrfToken);
+      res = await fetch(url, {
+        ...getAuthFetchOptions(),
+        method: normalizedMethod,
+        headers,
+        body: buildBody(data),
+      });
+    }
+  }
 
   await throwIfResNotOk(res);
   return res;
+}
+
+export async function apiJson<T>(
+  url: string,
+  options?: {
+    method?: string;
+    data?: unknown;
+    allowUnauthorized?: boolean;
+  },
+): Promise<T | null> {
+  const method = options?.method ?? "GET";
+  const response = await fetch(url, {
+    ...getAuthFetchOptions(),
+    method,
+  });
+
+  if (options?.allowUnauthorized && response.status === 401) {
+    return null;
+  }
+
+  await throwIfResNotOk(response);
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json() as Promise<T>;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

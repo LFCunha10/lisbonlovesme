@@ -153,7 +153,11 @@
       "explore": "Explore Tours",
       "featuredTours": "Featured Tours",
       "reviews": "What Our Clients Say",
-      "viewAll": "View All Tours"
+      "viewAll": "View All Tours",
+      "reviewsSection": {
+        "title": "What Our Guests Say",
+        "subtitle": "Read what travelers from around the world have to say about their experiences with Lisboa Tours."
+      }
     },
     "tours": {
       "title": "Our Tours",
@@ -194,7 +198,52 @@
       "difícil": "Hard",
       "легкий": "Easy",
       "средний": "Medium",
-      "сложный": "Hard"
+      "сложный": "Hard",
+      "collection": {
+        "title": "Our Tours"
+      },
+      "list": {
+        "backToHome": "Back to Home",
+        "title": "All Tours",
+        "description": "Explore all our available tours and find the perfect experience for your visit to Lisbon."
+      },
+      "detail": {
+        "title": "Our Tours",
+        "viewDetails": "View Details",
+        "availabilities": "Availabilities",
+        "noAvailability": "No availabilities found for this tour",
+        "duration": "Duration",
+        "groupSize": "Group Size",
+        "difficulty": "Difficulty",
+        "price": "Price",
+        "perPerson": "per person",
+        "perGroup": "per group",
+        "perGroupShort": "/group",
+        "perPersonShort": "/person",
+        "people": "people",
+        "meetingPoint": "Meeting Point",
+        "reviews": "Customer Reviews",
+        "reviewSingular": "review",
+        "aboutTour": "About This Tour",
+        "tourDetails": "Tour Details",
+        "maxPeople": "Max People",
+        "freeBooking": "Free booking & cancellation",
+        "sendYourRequest": "Request this tour",
+        "childrenPolicy": {
+          "notAllowed": "Children: not allowed",
+          "allowed": "Children: allowed",
+          "allowedAbove12": "Children: 12+"
+        },
+        "conductedBy": {
+          "walking": "Walking tour",
+          "electricCar": "Electric Mercedes-Benz car"
+        }
+      },
+      "difficultyLevels": {
+        "easy": "Easy",
+        "medium": "Moderate",
+        "hard": "Hard"
+      }
     },
     "review": {
       "loading": "Loading...",
@@ -242,20 +291,6 @@
     },
     "admin": {
       "dashboard": "Admin Dashboard",
-      "tours": "Manage Tours",
-      "bookings": "Bookings",
-      "reviews": "Reviews",
-      "requests": "Booking Requests",
-      "logout": "Logout",
-      "login": "Admin Login",
-      "username": "Username",
-      "password": "Password",
-      "loginButton": "Login",
-      "changePassword": "Change Password",
-      "currentPassword": "Current Password",
-      "newPassword": "New Password",
-      "confirmPassword": "Confirm Password",
-      "updatePassword": "Update Password",
       "tours": {
         "createTour": "Create Tour",
         "editTour": "Edit Tour",
@@ -283,7 +318,6 @@
         "activeStatusDescription": "Make this tour visible to customers",
         "creating": "Creating...",
         "updating": "Updating...",
-        "createTour": "Create Tour",
         "updateTour": "Update Tour",
         "uploadImage": "Upload Image",
         "changeImage": "Change Image",
@@ -291,6 +325,8 @@
         "createTourDescription": "Fill out the form below to create a new tour.",
         "editTourDescription": "Update the details for this tour."
       },
+      "bookings": "Bookings",
+      "reviews": "Reviews",
       "requests": {
         "title": "Booking Requests",
         "subtitle": "Manage customer booking requests",
@@ -315,12 +351,22 @@
         "confirmationSent": "Confirmation email sent successfully",
         "noRequests": "No booking requests found",
         "loading": "Loading requests..."
-      }
+      },
+      "logout": "Logout",
+      "login": "Admin Login",
+      "username": "Username",
+      "password": "Password",
+      "loginButton": "Login",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "updatePassword": "Update Password"
     },
     "footer": {
       "rights": "All Rights Reserved",
       "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service", 
+      "termsOfService": "Terms of Service",
       "cookiePolicy": "Cookie Policy",
       "contactUs": "Contact Us",
       "message": "Authentic guided tours through the heart of Lisbon, showcasing the city's rich history, vibrant culture, and hidden gems."
@@ -383,7 +429,7 @@
       "requestSummary": "Request Summary",
       "steps": {
         "dateTime": "Date & Time",
-        "participants": "Participants", 
+        "participants": "Participants",
         "payment": "Payment",
         "confirmation": "Confirmation",
         "review": "Review",
@@ -399,7 +445,7 @@
       "totalPrice": "Total price",
       "contactInformation": "Contact Information",
       "enterFirstName": "Enter your first name",
-      "enterLastName": "Enter your last name", 
+      "enterLastName": "Enter your last name",
       "enterEmail": "Enter your email",
       "enterPhone": "Enter your phone number",
       "specialRequests": "Tell us whay you expect.",
@@ -490,8 +536,11 @@
       "originalPrice": "Original price",
       "finalPrice": "Final price",
       "discountAmount": "Discount amount",
-      "discountCode": "Discount code"
-
+      "discountCode": "Discount code",
+      "confirmationSentRequest": "Your request was sent!",
+      "confirmationSentRequestSubtitle": "This was a first step for an incredible experience! Soon, we will contact you with more details.",
+      "paymentProcessingError": "There was an error processing your booking",
+      "referenceError": "There was an error processing your booking"
     },
     "whyChooseUs": {
       "title": "Why Choose Lisboa Tours",
@@ -635,19 +684,31 @@
         "emailButton": "Email Customer",
         "thankYouChoosing": "Thank you for choosing Lisbonlovesme!",
         "contactForm": {
-          "subject": "New Contact Form Message - Lisbonlovesme",
+          "subject": "Subject",
           "header": "New Contact Form Message",
           "greeting": "Hello Admin",
           "newMessage": "A new message has been received from the contact form:",
           "messageDetails": "Message Details",
           "name": "Name",
           "email": "Email",
-          "subject": "Subject",
           "message": "Message",
           "respondSoon": "Please respond to this inquiry as soon as possible."
-      },
-      "lookingForward": "We look forward to showing you the best of Lisbon!",
+        },
+        "lookingForward": "We look forward to showing you the best of Lisbon!",
         "questionsContact": "If you have any questions, please contact us at info@lisbonlovesme.com"
+      }
+    },
+    "navigation": {
+      "main": {
+        "home": "Home",
+        "tours": "Tours",
+        "about": "About Us",
+        "articles": "Articles",
+        "reviews": "Reviews",
+        "contact": "Contact",
+        "bookTour": "Book a Tour",
+        "gallery": "Gallery",
+        "language": "Language"
       }
     }
   }

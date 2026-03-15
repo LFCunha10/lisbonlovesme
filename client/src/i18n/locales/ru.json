@@ -153,7 +153,11 @@
       "explore": "Каталог экскурсий",
       "featuredTours": "Избранные авторские экскурсии",
       "reviews": "Отзывы клиентов",
-      "viewAll": "Посмотреть все туры"
+      "viewAll": "Посмотреть все туры",
+      "reviewsSection": {
+        "title": "Мнения наших гостей",
+        "subtitle": "Читайте, что говорят путешественники о Lisbonlovesme Tours."
+      }
     },
     "tours": {
       "title": "Наши Туры",
@@ -194,7 +198,52 @@
       "difícil": "Сложный",
       "легкий": "Легкий",
       "средний": "Средний",
-      "сложный": "Сложный"
+      "сложный": "Сложный",
+      "collection": {
+        "title": "Наши Туры"
+      },
+      "list": {
+        "backToHome": "Вернуться на главную",
+        "title": "Все туры",
+        "description": "Ознакомьтесь со всеми нашими турами и выберите идеальный вариант для вашего визита в Лиссабон."
+      },
+      "detail": {
+        "title": "Наши Туры",
+        "viewDetails": "Подробнее",
+        "availabilities": "Доступные даты",
+        "noAvailability": "Нет доступных дат для этого тура",
+        "duration": "Продолжительность",
+        "groupSize": "Размер группы",
+        "difficulty": "Сложность",
+        "price": "Цена",
+        "perPerson": "за человека",
+        "perGroup": "за группу",
+        "perGroupShort": "/группа",
+        "perPersonShort": "/чел.",
+        "people": "человек",
+        "meetingPoint": "Место встречи",
+        "reviews": "Отзывы клиентов",
+        "reviewSingular": "отзыв",
+        "aboutTour": "О туре",
+        "tourDetails": "Детали тура",
+        "maxPeople": "Макс. количество людей",
+        "freeBooking": "Бесплатное бронирование и отмена",
+        "sendYourRequest": "Оставить запрос на тур",
+        "childrenPolicy": {
+          "notAllowed": "Дети: запрещено",
+          "allowed": "Дети: разрешено",
+          "allowedAbove12": "Дети: от 12 лет"
+        },
+        "conductedBy": {
+          "walking": "Пешком",
+          "electricCar": "Электрокар Mercedes-Benz"
+        }
+      },
+      "difficultyLevels": {
+        "easy": "Лёгкий",
+        "medium": "Средний",
+        "hard": "Сложный"
+      }
     },
     "reviews": {
       "title": "Отзывы",
@@ -242,20 +291,6 @@
     },
     "admin": {
       "dashboard": "Админ-панель",
-      "tours": "Управление турами",
-      "bookings": "Бронирования",
-      "reviews": "Отзывы",
-      "requests": "Запросы на бронирование",
-      "logout": "Выйти",
-      "login": "Вход администратора",
-      "username": "Имя пользователя",
-      "password": "Пароль",
-      "loginButton": "Войти",
-      "changePassword": "Изменить пароль",
-      "currentPassword": "Текущий пароль",
-      "newPassword": "Новый пароль",
-      "confirmPassword": "Подтвердите пароль",
-      "updatePassword": "Обновить пароль",
       "tours": {
         "createTour": "Создать тур",
         "editTour": "Редактировать тур",
@@ -283,7 +318,6 @@
         "activeStatusDescription": "Сделать этот тур доступным для клиентов",
         "creating": "Создание...",
         "updating": "Обновление...",
-        "createTour": "Создать тур",
         "updateTour": "Обновить тур",
         "uploadImage": "Загрузить изображение",
         "changeImage": "Изменить изображение",
@@ -291,6 +325,8 @@
         "createTourDescription": "Заполните форму ниже, чтобы создать новый тур.",
         "editTourDescription": "Обновите информацию о туре."
       },
+      "bookings": "Бронирования",
+      "reviews": "Отзывы",
       "requests": {
         "title": "Запросы на бронирование",
         "subtitle": "Управление запросами клиентов на бронирование",
@@ -315,7 +351,17 @@
         "confirmationSent": "Email с подтверждением успешно отправлен",
         "noRequests": "Запросы на бронирование не найдены",
         "loading": "Загрузка запросов..."
-      }
+      },
+      "logout": "Выйти",
+      "login": "Вход администратора",
+      "username": "Имя пользователя",
+      "password": "Пароль",
+      "loginButton": "Войти",
+      "changePassword": "Изменить пароль",
+      "currentPassword": "Текущий пароль",
+      "newPassword": "Новый пароль",
+      "confirmPassword": "Подтвердите пароль",
+      "updatePassword": "Обновить пароль"
     },
     "footer": {
       "rights": "Все права защищены",
@@ -490,7 +536,11 @@
       "selectDateToSeeAvailableTimes": "Выберите дату, чтобы увидеть доступное время",
       "spots": "мест",
       "nextStep": "Следующий шаг",
-      "pricePerGroup": "Цена за группу"
+      "pricePerGroup": "Цена за группу",
+      "confirmationSentRequest": "Ваш запрос отправлен!",
+      "confirmationSentRequestSubtitle": "Первый шаг сделан! Мы скоро свяжемся с вами с подробностями.",
+      "paymentProcessingError": "Произошла ошибка при бронировании",
+      "referenceError": "Произошла ошибка при бронировании"
     },
     "whyChooseUs": {
       "title": "Почему выбирают Lisbonlovesme Tours?",
@@ -634,19 +684,31 @@
         "emailButton": "Отправить Email",
         "thankYouChoosing": "Спасибо, что выбрали Lisbonlovesme!",
         "contactForm": {
-          "subject": "Новое сообщение из контактной формы - Lisbonlovesme",
+          "subject": "Тема",
           "header": "Новое сообщение из контактной формы",
           "greeting": "Здравствуйте, Администратор",
           "newMessage": "Получено новое сообщение из контактной формы:",
           "messageDetails": "Детали сообщения",
           "name": "Имя",
           "email": "Email",
-          "subject": "Тема",
           "message": "Сообщение",
           "respondSoon": "Пожалуйста, ответьте на этот запрос как можно скорее."
-      },
-      "lookingForward": "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
+        },
+        "lookingForward": "Мы с нетерпением ждем встречи с вами и покажем лучшее в Лиссабоне!",
         "questionsContact": "Если у вас есть вопросы, свяжитесь с нами по адресу info@lisbonlovesme.com"
+      }
+    },
+    "navigation": {
+      "main": {
+        "home": "Главная",
+        "tours": "Туры",
+        "about": "О нас",
+        "articles": "Статьи",
+        "reviews": "Отзывы",
+        "contact": "Контакты",
+        "bookTour": "Забронировать тур",
+        "gallery": "Галерея",
+        "language": "Язык"
       }
     }
   }

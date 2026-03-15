@@ -15,6 +15,7 @@ import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableHeader from '@tiptap/extension-table-header'
 import TableCell from '@tiptap/extension-table-cell'
+import { uploadImage } from '@/lib/uploads'
 
 import {
   Bold, Italic, Underline as UnderlineIcon, Paintbrush,
@@ -166,26 +167,7 @@ export function RichTextEditor({ value, onChange }: Props) {
 
   const insertUpload = () => fileRef.current?.click()
 
-  const uploadImageFile = useCallback(async (file: File) => {
-    const formData = new FormData()
-    formData.append('image', file)
-
-    const response = await fetch('/api/upload-image', {
-      method: 'POST',
-      body: formData,
-    })
-
-    if (!response.ok) {
-      throw new Error(`Upload failed with status ${response.status}`)
-    }
-
-    const data = await response.json()
-    if (!data?.imageUrl) {
-      throw new Error('Upload response missing image URL')
-    }
-
-    return data.imageUrl as string
-  }, [])
+  const uploadImageFile = useCallback(async (file: File) => uploadImage(file), [])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]

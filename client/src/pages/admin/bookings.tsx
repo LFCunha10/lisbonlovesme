@@ -55,7 +55,7 @@ export default function BookingsCalendar() {
 
   // Fetch bookings
   const { data: bookings, isLoading: isLoadingBookings } = useQuery({
-    queryKey: ['/api/bookings'],
+    queryKey: ['/api/admin/bookings'],
     select: (data) => {
       const allBookings = data as any[];
       if (selectedTourId && selectedTourId !== "all") {

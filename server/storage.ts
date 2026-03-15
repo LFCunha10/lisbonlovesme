@@ -14,6 +14,11 @@ import { customAlphabet } from "nanoid";
 
 const generateBookingReferenceId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
 
+export type BookingReservationResult = {
+  booking: Booking;
+  availability: Availability;
+};
+
 // modify the interface with any CRUD methods
 // you might need
 
@@ -46,6 +51,7 @@ export interface IStorage {
   getBooking(id: number): Promise<Booking | undefined>;
   getBookingByReference(reference: string): Promise<Booking | undefined>;
   createBooking(booking: InsertBooking): Promise<Booking>;
+  createBookingReservation(booking: InsertBooking): Promise<BookingReservationResult>;
   updateBooking(id: number, booking: Partial<InsertBooking>): Promise<Booking | undefined>;
   updatePaymentStatus(id: number, paymentStatus: string, stripePaymentIntentId?: string): Promise<Booking | undefined>;
   
@@ -207,6 +213,7 @@ export class MemStorage implements IStorage {
 
   private articles: Map<number, Article> = new Map();
   private articleCurrentId = 1;
+  private availabilityReservationLocks: Map<number, Promise<void>> = new Map();
 
   constructor() {
     this.users = new Map();
@@ -404,6 +411,53 @@ export class MemStorage implements IStorage {
     }
     
     return newBooking;
+  }
+
+  async createBookingReservation(booking: InsertBooking): Promise<BookingReservationResult> {
+    return this.withAvailabilityReservationLock(booking.availabilityId, async () => {
+      const availability = await this.getAvailability(booking.availabilityId);
+      if (!availability) {
+        throw Object.assign(new Error("Availability not found"), { status: 404 });
+      }
+
+      if (availability.spotsLeft < booking.numberOfParticipants) {
+        throw Object.assign(new Error("Not enough spots available"), { status: 409 });
+      }
+
+      const createdBooking = await this.createBooking(booking);
+      const updatedAvailability = await this.getAvailability(booking.availabilityId);
+
+      return {
+        booking: createdBooking,
+        availability: updatedAvailability ?? availability,
+      };
+    });
+  }
+
+  private async withAvailabilityReservationLock<T>(
+    availabilityId: number,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.availabilityReservationLocks.get(availabilityId) ?? Promise.resolve();
+    const waitForTurn = previous.catch(() => undefined);
+
+    let release: (() => void) | undefined;
+    const ready = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const queueEntry = waitForTurn.then(() => ready);
+    this.availabilityReservationLocks.set(availabilityId, queueEntry);
+
+    await waitForTurn;
+
+    try {
+      return await operation();
+    } finally {
+      release?.();
+      if (this.availabilityReservationLocks.get(availabilityId) === queueEntry) {
+        this.availabilityReservationLocks.delete(availabilityId);
+      }
+    }
   }
 
   async updateBooking(id: number, booking: Partial<InsertBooking>): Promise<Booking | undefined> {

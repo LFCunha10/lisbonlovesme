@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
 type DiscountCode = {
   id: number;
@@ -41,8 +42,7 @@ export default function AdminDiscountsPage() {
       };
       if (form.validUntil) payload.validUntil = form.validUntil;
       if (form.oneTime) payload.oneTime = true; else if (form.usageLimit) payload.usageLimit = Number(form.usageLimit);
-      const res = await fetch('/api/admin/discounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'include' });
-      if (!res.ok) throw new Error(await res.text());
+      const res = await apiRequest('POST', '/api/admin/discounts', payload);
       return res.json();
     },
     onSuccess: () => {
@@ -56,8 +56,7 @@ export default function AdminDiscountsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/discounts/${id}`, { method: 'DELETE', credentials: 'include' });
-      if (!res.ok) throw new Error(await res.text());
+      await apiRequest('DELETE', `/api/admin/discounts/${id}`);
       return true;
     },
     onSuccess: () => {

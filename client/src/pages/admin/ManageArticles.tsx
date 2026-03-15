@@ -17,7 +17,6 @@ import { getLocalizedText } from "@/lib/tour-utils";
 import { PlusIcon, EditIcon, TrashIcon, FolderIcon, FileTextIcon, Loader2 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
-import { useLocation } from "wouter";
 
 interface Article {
   id: number;
@@ -42,34 +41,7 @@ export default function ManageArticles() {
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
-  const [selectedParent, setSelectedParent] = useState<number | undefined>();
-  const [html, setHtml] = useState('');
-  const [, navigate] = useLocation();
   const [translatingLang, setTranslatingLang] = useState<null | 'pt' | 'ru'>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  React.useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/admin/me", {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Not authenticated");
-
-        const user = await res.json();
-        if (user && user.isAdmin) {
-          setIsAuthenticated(true);
-        } else {
-          throw new Error("Invalid user");
-        }
-      } catch (error) {
-        console.error("Booking Request auth check failed", error);
-        setIsAuthenticated(false);
-        navigate("/admin/login");
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -86,31 +58,14 @@ export default function ManageArticles() {
   // Fetch articles
   const { data: articles, isLoading } = useQuery({
     queryKey: ['/api/articles/tree'],
-    queryFn: () =>
-      fetch('/api/articles/tree', {
-        headers: {
-          "CSRF-Token": document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrfToken='))
-            ?.split('=')[1] || ''
-        },
-        credentials: "include",
-      }).then(res => res.json()),
   });
 
   // Create article mutation
   const createMutation = useMutation({
-    mutationFn: (data: any) => fetch("/api/articles", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "CSRF-Token": document.cookie
-          .split('; ')
-          .find(row => row.startsWith('csrfToken='))
-          ?.split('=')[1] || ''
-      },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/articles", data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/articles/tree'] });
       setShowCreateDialog(false);
@@ -131,18 +86,10 @@ export default function ManageArticles() {
 
   // Update article mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
-      fetch(`/api/articles/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "CSRF-Token": document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrfToken='))
-            ?.split('=')[1] || ''
-        },
-        body: JSON.stringify(data),
-      }).then(res => res.json()),
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const response = await apiRequest("PUT", `/api/articles/${id}`, data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/articles/tree'] });
       setEditingArticle(null);
@@ -163,17 +110,10 @@ export default function ManageArticles() {
 
   // Delete article mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: number) =>
-      fetch(`/api/articles/${id}`, {
-        method: "DELETE",
-        headers: {
-          "CSRF-Token": document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrfToken='))
-            ?.split('=')[1] || ''
-        },
-        credentials: "include",
-      }).then(res => res.json()),
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/articles/${id}`);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/articles/tree'] });
       toast({
@@ -252,15 +192,10 @@ export default function ManageArticles() {
         content: formData.content.en || "",
       };
 
-      const response = await fetch("/api/translate-tour", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          sourceData,
-          sourceLang: "en",
-          targetLangs: [targetLang],
-        }),
+      const response = await apiRequest("POST", "/api/translate-tour", {
+        sourceData,
+        sourceLang: "en",
+        targetLangs: [targetLang],
       });
 
       if (!response.ok) {
@@ -317,78 +252,71 @@ export default function ManageArticles() {
   };
 
   
-  const renderArticleTree = (articles: (Article & { children?: Article[] })[], level = 0) => {
-    if (isAuthenticated) {
-      return articles
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((article) => {
-          const hasChildren = article.children && article.children.length > 0;
-          return (
-            <div key={article.id} className={`${level > 0 ? 'ml-8' : ''}`}>
-              <Card className="mb-2">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {hasChildren ? (
-                        <FolderIcon className="h-4 w-4 text-blue-500" />
-                      ) : (
-                        <FileTextIcon className="h-4 w-4 text-gray-500" />
-                      )}
-                      <div>
-                        <h3 className="font-medium">
-                          {getLocalizedText(article.title, currentLanguage)}
-                        </h3>
-                        <p className="text-sm text-gray-500">/{article.slug}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Badge variant={article.isPublished ? "default" : "secondary"}>
-                          {article.isPublished ? "Published" : "Draft"}
-                        </Badge>
-                      </div>
+  const renderArticleTree = (articles: (Article & { children?: Article[] })[], level = 0) =>
+    articles
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((article) => {
+        const hasChildren = article.children && article.children.length > 0;
+        return (
+          <div key={article.id} className={`${level > 0 ? 'ml-8' : ''}`}>
+            <Card className="mb-2">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    {hasChildren ? (
+                      <FolderIcon className="h-4 w-4 text-blue-500" />
+                    ) : (
+                      <FileTextIcon className="h-4 w-4 text-gray-500" />
+                    )}
+                    <div>
+                      <h3 className="font-medium">
+                        {getLocalizedText(article.title, currentLanguage)}
+                      </h3>
+                      <p className="text-sm text-gray-500">/{article.slug}</p>
                     </div>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(article)}
-                      >
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => deleteMutation.mutate(article.id)}
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </Button>
+                      <Badge variant={article.isPublished ? "default" : "secondary"}>
+                        {article.isPublished ? "Published" : "Draft"}
+                      </Badge>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              {hasChildren && renderArticleTree(article.children!, level + 1)}
-            </div>
-          );
-        });
-    }
-  };
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(article)}
+                    >
+                      <EditIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteMutation.mutate(article.id)}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {hasChildren && renderArticleTree(article.children!, level + 1)}
+          </div>
+        );
+      });
 
   if (isLoading) {
-    if (isAuthenticated) {
-      return (
-        <AdminLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-lg">Loading articles...</div>
-          </div>
-        </AdminLayout>
-      );
-  }
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading articles...</div>
+        </div>
+      </AdminLayout>
+    );
   }
 
   return (
     <AdminLayout>
-      <div>
-        {isAuthenticated && (
-          <div className="space-y-6">
+      <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold">Manage Articles</h1>
               <Dialog open={showCreateDialog || !!editingArticle} onOpenChange={(open) => {
@@ -605,9 +533,7 @@ export default function ManageArticles() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        )}
-    </div>
+      </div>
     </AdminLayout>
   );
 }

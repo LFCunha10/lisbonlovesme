@@ -32,7 +32,6 @@ import {
   MessageSquare,
   StickyNote
 } from "lucide-react";
-import { navigate } from "wouter/use-browser-location";
 
 interface BookingRequest {
   id: number;
@@ -61,37 +60,22 @@ interface BookingRequest {
   };
 }
 
+async function updateBookingRequest(id: number, updates: Partial<BookingRequest>) {
+  const response = await apiRequest("PUT", `/api/admin/requests/${id}`, updates);
+  return response.json();
+}
+
+async function sendBookingRequestConfirmation(id: number) {
+  const response = await apiRequest("POST", `/api/admin/requests/${id}/confirm`);
+  return response.json();
+}
+
 export default function BookingRequests() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState<BookingRequest | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  React.useEffect(() => {
-        const checkAuth = async () => {
-          try {
-            const res = await fetch("/api/admin/me", {
-              credentials: "include",
-            });
-            if (!res.ok) throw new Error("Not authenticated");
-    
-            const user = await res.json();
-            if (user && user.isAdmin) {
-              setIsAuthenticated(true);
-            } else {
-              throw new Error("Invalid user");
-            }
-          } catch (error) {
-            console.error("Booking Request auth check failed", error);
-            setIsAuthenticated(false);
-            navigate("/admin/login");
-          }
-        };
-    
-        checkAuth();
-      }, []);
 
   const { data: requests, isLoading } = useQuery({
     queryKey: ['/api/admin/requests'],
@@ -100,21 +84,7 @@ export default function BookingRequests() {
 
   const updateRequestMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<BookingRequest> }) => {
-      console.log("Sending update request:", data);
-      const response = await fetch(`/api/admin/requests/${data.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data.updates),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update request');
-      }
-      
-      return response.json();
+      return updateBookingRequest(data.id, data.updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
@@ -136,19 +106,7 @@ export default function BookingRequests() {
 
   const sendConfirmationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/requests/${id}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send confirmation');
-      }
-      
-      return response.json();
+      return sendBookingRequestConfirmation(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
@@ -215,99 +173,95 @@ export default function BookingRequests() {
 
   return (
     <AdminLayout title={t('admin.requests.title')}>
-      <div>
-        {isAuthenticated && (
-          <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight">{t('admin.requests.title')}</h2>
-                <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
-              </div>
-            </div>
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{t('admin.requests.title')}</h2>
+            <p className="text-muted-foreground">{t('admin.requests.subtitle')}</p>
+          </div>
+        </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="pending">{t('admin.requests.pending')} ({requests?.filter(r => r.paymentStatus === "requested").length || 0})</TabsTrigger>
-                <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({requests?.filter(r => r.paymentStatus === "confirmed").length || 0})</TabsTrigger>
-                <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({requests?.filter(r => r.paymentStatus === "cancelled").length || 0})</TabsTrigger>
-              </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="pending">{t('admin.requests.pending')} ({requests?.filter(r => r.paymentStatus === "requested").length || 0})</TabsTrigger>
+            <TabsTrigger value="confirmed">{t('admin.requests.confirmed')} ({requests?.filter(r => r.paymentStatus === "confirmed").length || 0})</TabsTrigger>
+            <TabsTrigger value="cancelled">{t('admin.requests.cancelled')} ({requests?.filter(r => r.paymentStatus === "cancelled").length || 0})</TabsTrigger>
+          </TabsList>
 
-              <TabsContent value={activeTab} className="space-y-4">
-                {filteredRequests.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center">
-                      <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
+          <TabsContent value={activeTab} className="space-y-4">
+            {filteredRequests.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">{t('admin.requests.noRequests')}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {filteredRequests.map((request) => (
+                  <Card key={request.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">
+                            {request.customerFirstName} {request.customerLastName}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            {t('booking.referenceNumber')}: {request.bookingReference}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(request.paymentStatus)}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedRequest(request)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                {t('admin.requests.viewDetails')}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                              {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.customerEmail}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span>{request.customerPhone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>
+                            {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
+                              ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}`
+                              : request.additionalInfo?.date
+                                ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}`
+                                : 'TBD'
+                            }
+                          </span>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
-                ) : (
-                  <div className="grid gap-4">
-                    {filteredRequests.map((request) => (
-                      <Card key={request.id} className="hover:shadow-md transition-shadow">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-lg">
-                                {request.customerFirstName} {request.customerLastName}
-                              </CardTitle>
-                              <p className="text-sm text-muted-foreground">
-                                {t('booking.referenceNumber')}: {request.bookingReference}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {getStatusBadge(request.paymentStatus)}
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => setSelectedRequest(request)}
-                                  >
-                                    <Eye className="h-4 w-4 mr-1" />
-                                    {t('admin.requests.viewDetails')}
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                                  {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-muted-foreground" />
-                              <span>{request.customerEmail}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span>{request.customerPhone}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4 text-muted-foreground" />
-                              <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span>
-                                {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
-                                  ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}` 
-                                  : request.additionalInfo?.date 
-                                    ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}` 
-                                    : 'TBD'
-                                }
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
@@ -327,20 +281,7 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
 
   const updateRequestMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<BookingRequest> }) => {
-      const response = await fetch(`/api/admin/requests/${data.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data.updates),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update request');
-      }
-      
-      return response.json();
+      return updateBookingRequest(data.id, data.updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
@@ -353,19 +294,7 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
 
   const sendConfirmationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/requests/${id}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send confirmation');
-      }
-      
-      return response.json();
+      return sendBookingRequestConfirmation(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/requests'] });
@@ -507,7 +436,7 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
           <h3 className="font-semibold mb-3">{t('admin.requests.tourDetails')}</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <Label className="text-muted-foreground">{t('tours.title')}</Label>
+              <Label className="text-muted-foreground">{t('tours.collection.title')}</Label>
               <p>{request.tour ? getText(request.tour.name) : 'Tour not found'}</p>
             </div>
             <div>

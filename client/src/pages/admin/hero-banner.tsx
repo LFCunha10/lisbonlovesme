@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { apiJson, apiRequest } from "@/lib/queryClient";
+import { uploadImage } from "@/lib/uploads";
 import { ImageIcon, Loader2 } from "lucide-react";
 
 export default function AdminHeroBannerPage() {
@@ -15,7 +17,7 @@ export default function AdminHeroBannerPage() {
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/admin/settings"],
-    queryFn: () => fetch("/api/admin/settings").then((res) => res.json()),
+    queryFn: () => apiJson<{ heroBannerImageUrl?: string | null }>("/api/admin/settings"),
   });
 
   useEffect(() => {
@@ -24,17 +26,9 @@ export default function AdminHeroBannerPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          heroBannerImageUrl: imageUrl || null,
-        }),
+      const response = await apiRequest("PUT", "/api/admin/settings", {
+        heroBannerImageUrl: imageUrl || null,
       });
-      if (!response.ok) {
-        throw new Error("Failed to save hero banner settings");
-      }
       return response.json();
     },
     onSuccess: () => {
@@ -67,19 +61,10 @@ export default function AdminHeroBannerPage() {
     }
 
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append("image", file);
 
     try {
-      const response = await fetch("/api/upload-image", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
-      const data = await response.json();
-      setImageUrl(data.imageUrl);
+      const uploadedImageUrl = await uploadImage(file);
+      setImageUrl(uploadedImageUrl);
       toast({
         title: "Image uploaded",
         description: "Click Save Changes to apply this image to the homepage banner.",

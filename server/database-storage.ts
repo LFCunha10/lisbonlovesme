@@ -19,7 +19,26 @@ import {
   type DiscountCode, type InsertDiscountCode
 } from "@shared/schema";
 import { customAlphabet } from "nanoid";
-import { IStorage } from "./storage";
+import { IStorage, type BookingReservationResult } from "./storage";
+
+const generateBookingReferenceId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+
+function buildBookingInsertValues(booking: InsertBooking, bookingReference: string) {
+  return {
+    ...booking,
+    bookingReference,
+    specialRequests: booking.specialRequests ?? null,
+    paymentStatus: booking.paymentStatus ?? null,
+    stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
+    additionalInfo: booking.additionalInfo ?? null,
+    meetingPoint: booking.meetingPoint ?? null,
+    confirmedDate: booking.confirmedDate ?? null,
+    confirmedTime: booking.confirmedTime ?? null,
+    confirmedMeetingPoint: booking.confirmedMeetingPoint ?? null,
+    adminNotes: booking.adminNotes ?? null,
+    language: booking.language ?? null,
+  };
+}
 
 export class DatabaseStorage implements IStorage {
   private async ensureDiscountCodesTable() {
@@ -481,36 +500,62 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-  const generateBookingReferenceId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-  const bookingReference = `LT-${generateBookingReferenceId()}`;
+    const bookingReference = `LT-${generateBookingReferenceId()}`;
 
-  try {
-    const [newBooking] = await db
-      .insert(bookings)
-      .values({
-        ...booking,
-        bookingReference,
-        specialRequests: booking.specialRequests ?? null,
-        paymentStatus: booking.paymentStatus ?? null,
-        stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
-        additionalInfo: booking.additionalInfo ?? null,
-        meetingPoint: booking.meetingPoint ?? null,
-        confirmedDate: booking.confirmedDate ?? null,
-        confirmedTime: booking.confirmedTime ?? null,
-        confirmedMeetingPoint: booking.confirmedMeetingPoint ?? null,
-        adminNotes: booking.adminNotes ?? null,
-        language: booking.language ?? null,
-      })
-      .returning();
+    try {
+      const [newBooking] = await db
+        .insert(bookings)
+        .values(buildBookingInsertValues(booking, bookingReference))
+        .returning();
 
-    
-    return newBooking;
-
-  } catch (error) {
-    console.error("Error creating booking:", error);
-    throw error;
+      return newBooking;
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      throw error;
+    }
   }
-}
+
+  async createBookingReservation(booking: InsertBooking): Promise<BookingReservationResult> {
+    const bookingReference = `LT-${generateBookingReferenceId()}`;
+
+    return db.transaction(async (tx) => {
+      const [existingAvailability] = await tx
+        .select()
+        .from(availabilities)
+        .where(eq(availabilities.id, booking.availabilityId));
+
+      if (!existingAvailability) {
+        throw Object.assign(new Error("Availability not found"), { status: 404 });
+      }
+
+      const [updatedAvailability] = await tx
+        .update(availabilities)
+        .set({
+          spotsLeft: sql`${availabilities.spotsLeft} - ${booking.numberOfParticipants}` as any,
+        })
+        .where(
+          and(
+            eq(availabilities.id, booking.availabilityId),
+            sql`${availabilities.spotsLeft} >= ${booking.numberOfParticipants}`,
+          ),
+        )
+        .returning();
+
+      if (!updatedAvailability) {
+        throw Object.assign(new Error("Not enough spots available"), { status: 409 });
+      }
+
+      const [newBooking] = await tx
+        .insert(bookings)
+        .values(buildBookingInsertValues(booking, bookingReference))
+        .returning();
+
+      return {
+        booking: newBooking,
+        availability: updatedAvailability,
+      };
+    });
+  }
 
   async updateBooking(
     id: number,

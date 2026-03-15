@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { uploadImage } from "@/lib/uploads";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -145,22 +146,9 @@ export default function AdminGallery() {
   const handleImageUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const formData = new FormData();
-    formData.append('image', files[0]);
-
     try {
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const result = await response.json();
-      console.log('Upload result:', result); // Debug log
-      form.setValue('imageUrl', result.url || result.imageUrl || result.path);
+      const imageUrl = await uploadImage(files[0]);
+      form.setValue('imageUrl', imageUrl);
       
       toast({
         title: "Image Uploaded",

@@ -5,16 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import AdminProtectedRoute from "@/components/admin/protected-route";
 import { Link } from "wouter";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function ChangePasswordPage() {
-  return (
-    <AdminProtectedRoute>
-      <PasswordChangeForm />
-    </AdminProtectedRoute>
-  );
+  return <PasswordChangeForm />;
 }
 
 function PasswordChangeForm() {
@@ -31,14 +27,6 @@ function PasswordChangeForm() {
     setIsLoading(true);
 
     try {
-      // Validate current password
-      if (currentPassword !== "lisbonlovesme123") {
-        setError("Current password is incorrect");
-        setIsLoading(false);
-        return;
-      }
-
-      // Validate new password
       if (newPassword.length < 8) {
         setError("New password must be at least 8 characters long");
         setIsLoading(false);
@@ -52,22 +40,21 @@ function PasswordChangeForm() {
         return;
       }
 
-      // In a real application, we would update the password in the database
-      // For this demo, we'll just update it in localStorage
-      localStorage.setItem("adminPassword", newPassword);
+      await apiRequest("POST", "/api/admin/password", {
+        currentPassword,
+        newPassword,
+      });
 
-      // Show success message
       toast({
         title: "Password Updated",
         description: "Your admin password has been successfully changed.",
       });
 
-      // Clear form
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError("An error occurred while updating your password.");
+      setError(err instanceof Error ? err.message : "An error occurred while updating your password.");
       console.error("Password update error:", err);
     } finally {
       setIsLoading(false);

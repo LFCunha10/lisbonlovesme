@@ -1,9 +1,7 @@
 import type { Server } from "http";
 import { WebSocketServer, type WebSocket } from "ws";
-import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import { pool } from "./db";
 import type { Notification } from "@shared/schema";
+import { createSessionMiddleware } from "./session";
 
 // Simple hub to manage notification websocket connections
 let wss: WebSocketServer | undefined;
@@ -32,24 +30,7 @@ export function broadcastNotification(note: Notification) {
 export function initNotificationsWebSocketServer(server: Server) {
   if (wss) return wss;
 
-  const PgSession = connectPgSimple(session);
-  const sessionParser = session({
-    secret: process.env.SESSION_SECRET || "lisbonlovesme-session-secret",
-    resave: false,
-    saveUninitialized: false,
-    store: new PgSession({
-      pool: pool,
-      tableName: "session",
-      createTableIfMissing: true,
-    }),
-    cookie: {
-      httpOnly: true,
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 2,
-      sameSite: "lax",
-    },
-    name: "connect.sid",
-  });
+  const sessionParser = createSessionMiddleware();
 
   wss = new WebSocketServer({ noServer: true });
 
@@ -62,7 +43,7 @@ export function initNotificationsWebSocketServer(server: Server) {
     // Parse session for auth check
     sessionParser(req as any, {} as any, () => {
       const isAuthed = (req as any).session?.isAuthenticated;
-      const isAdmin = (req as any).session?.isAdmin || (req as any).session?.user?.isAdmin;
+      const isAdmin = (req as any).session?.user?.isAdmin;
       if (!isAuthed || !isAdmin) {
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         try { socket.destroy(); } catch {}
@@ -109,4 +90,3 @@ export function initNotificationsWebSocketServer(server: Server) {
 
   return wss;
 }
-

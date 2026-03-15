@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Trash2, Upload, Link as LinkIcon } from "lucide-react";
 
 type Doc = {
@@ -19,13 +20,6 @@ type Doc = {
   size: number;
   createdAt?: string | null;
 };
-
-function getCsrfTokenFromCookie(): string | undefined {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrfToken='))
-    ?.split('=')[1];
-}
 
 export default function AdminDocumentsPage() {
   const { toast } = useToast();
@@ -49,18 +43,7 @@ export default function AdminDocumentsPage() {
       form.append('slug', slug);
       if (title) form.append('title', title);
 
-      const res = await fetch('/api/documents', {
-        method: 'POST',
-        headers: {
-          'CSRF-Token': getCsrfTokenFromCookie() || '',
-        },
-        body: form,
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || 'Failed to upload document');
-      }
+      const res = await apiRequest('POST', '/api/documents', form);
       return res.json();
     },
     onSuccess: () => {
@@ -78,12 +61,7 @@ export default function AdminDocumentsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/documents/${id}`, {
-        method: 'DELETE',
-        headers: { 'CSRF-Token': getCsrfTokenFromCookie() || '' },
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error(await res.text());
+      await apiRequest('DELETE', `/api/documents/${id}`);
       return true;
     },
     onSuccess: () => {
@@ -180,4 +158,3 @@ export default function AdminDocumentsPage() {
     </AdminLayout>
   );
 }
-

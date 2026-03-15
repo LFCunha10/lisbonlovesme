@@ -53,6 +53,12 @@ actor APIClient {
     }
 
     func logout() async {
+        if let token = csrfToken ?? (try? await fetchCSRFToken()) {
+            _ = try? await request("/api/admin/logout", method: "POST", headers: ["x-csrf-token": token])
+            csrfToken = nil
+            return
+        }
+
         _ = try? await request("/api/admin/logout", method: "POST")
     }
 
@@ -247,7 +253,16 @@ actor APIClient {
     // MARK: - Push registration
     func registerDevice(platform: String, token: String) async {
         struct Body: Encodable { let platform: String; let token: String }
-        _ = try? await request("/api/notifications/device", method: "POST", jsonBody: Body(platform: platform, token: token))
+        var headers: [String: String] = [:]
+        if let apiKey = AppConfig.pushRegistrationAPIKey, !apiKey.isEmpty {
+            headers["x-api-key"] = apiKey
+        }
+        _ = try? await request(
+            "/api/notifications/device",
+            method: "POST",
+            jsonBody: Body(platform: platform, token: token),
+            headers: headers,
+        )
     }
 }
 

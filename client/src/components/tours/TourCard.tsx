@@ -4,7 +4,7 @@ import { Clock, Users, Activity, Baby, Ban, Footprints, CarFront } from "lucide-
 import { Tour } from "@shared/schema";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import { getLocalizedText } from "@/lib/tour-utils";
+import { getLocalizedText, getTourDifficultyLabelKey } from "@/lib/tour-utils";
 import { formatDurationHours } from "@shared/duration";
 
 interface TourCardProps {
@@ -20,6 +20,7 @@ export default function TourCard({ tour }: TourCardProps) {
   const displayDifficultyInCard = (tour as any).displayDifficultyInCard ?? true;
   const childrenPolicy = ((tour as any).childrenPolicy as string) || "allowed";
   const conductedBy = ((tour as any).conductedBy as string) || "walking";
+  const difficultyLabelKey = getTourDifficultyLabelKey(tour.difficulty, i18n.language);
   
 
 
@@ -77,7 +78,7 @@ export default function TourCard({ tour }: TourCardProps) {
           )}
           {displayDifficultyInCard && (
             <span className="bg-neutral-light px-2 py-1 rounded-full text-xs sm:text-sm flex items-center">
-              <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {t(`tours.${getLocalizedText(tour.difficulty, i18n.language).toLowerCase()}`)}
+              <Activity className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> {difficultyLabelKey ? t(difficultyLabelKey) : getLocalizedText(tour.difficulty, i18n.language)}
             </span>
           )}
           {displayChildrenInCard && (
@@ -88,10 +89,10 @@ export default function TourCard({ tour }: TourCardProps) {
                 <Baby className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               )}
               {childrenPolicy === "not_allowed"
-                ? t("tours.childrenNotAllowed")
+                ? t("tours.detail.childrenPolicy.notAllowed")
                 : childrenPolicy === "allowed_above_12"
-                  ? t("tours.childrenAllowedAbove12")
-                  : t("tours.childrenAllowed")}
+                  ? t("tours.detail.childrenPolicy.allowedAbove12")
+                  : t("tours.detail.childrenPolicy.allowed")}
             </span>
           )}
           {displayConductedByInCard && (
@@ -102,8 +103,8 @@ export default function TourCard({ tour }: TourCardProps) {
                 <Footprints className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               )}
               {conductedBy === "electric_mercedes_benz_car"
-                ? t("tours.conductedByElectricCar")
-                : t("tours.conductedByWalking")}
+                ? t("tours.detail.conductedBy.electricCar")
+                : t("tours.detail.conductedBy.walking")}
             </span>
           )}
         </div>
@@ -112,12 +113,12 @@ export default function TourCard({ tour }: TourCardProps) {
           <div className="text-lg sm:text-xl font-semibold text-neutral-dark">
             {formatCurrency(tour.price)}
             <span className="text-xs sm:text-sm font-normal text-neutral-dark/70 block sm:inline">
-              /{tour.priceType === "per_group" ? t('tours.perGroup') : t('tours.perPerson')}
+              /{tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
             </span>
           </div>
           <Link href={`/tour/${tour.id}`} className="w-full sm:w-auto">
             <Button size="sm" className="w-full sm:w-auto">
-              {t('tours.viewDetails')}
+              {t('tours.detail.viewDetails')}
             </Button>
           </Link>
         </div>

@@ -5,10 +5,11 @@ This folder contains a native SwiftUI iOS app that connects to your existing bac
 What’s included
 - SwiftUI app with login (CSRF + session cookies), optional Face ID quick login, and a 5‑tab main UI: Requests, Reviews, Messages, Visits (Feed + Trends), and Personal.
 - Visits feed shows device, time, and location; Trends uses Swift Charts.
-- Push registration (FCM preferred; APNs fallback). The app posts its device token to `POST /api/notifications/device`.
+- Push registration (FCM preferred; APNs fallback). The app posts its device token to `POST /api/notifications/device` with a scoped API key.
 
 Before you run
-1) Backend base URL: Edit `ios/LisbonLovesMe/Sources/AppConfig.swift` and set `AppConfig.baseURL` to your server origin (e.g. `https://your-domain.com`).
+1) Backend base URL: Edit `ios/LisbonLovesMe/AppConfig.swift` and set `AppConfig.baseURL` to your server origin (e.g. `https://your-domain.com`).
+   - Also set `AppConfig.pushRegistrationAPIKey` to a backend key that has the `push:register` scope.
 2) Firebase: In Xcode, add Firebase via Swift Package Manager (recommended) or CocoaPods.
    - SPM: File > Add Packages… and add `https://github.com/firebase/firebase-ios-sdk`. Add at least `FirebaseCore`, `FirebaseMessaging`.
    - Place your `GoogleService-Info.plist` in `ios/LisbonLovesMe` and ensure the app target includes it.
@@ -38,4 +39,3 @@ Notes
   - Reviews: `/api/testimonials?approvedOnly=true`
   - Messages: `/api/admin/messages`
   - Visits: `/api/notifications` filtered by `type === 'visit'`
-

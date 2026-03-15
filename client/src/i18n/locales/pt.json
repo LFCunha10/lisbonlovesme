@@ -153,7 +153,11 @@
       "explore": "Explorar Passeios",
       "featuredTours": "Passeios em Destaque",
       "reviews": "O Que Nossos Clientes Dizem",
-      "viewAll": "Ver Todos os Passeios"
+      "viewAll": "Ver Todos os Passeios",
+      "reviewsSection": {
+        "title": "O Que Nossos Visitantes Dizem",
+        "subtitle": "Veja o que viajantes do mundo inteiro disseram sobre suas experiências com a Lisboa Tours."
+      }
     },
     "tours": {
       "title": "Nossos Passeios",
@@ -194,7 +198,52 @@
       "difícil": "Difícil",
       "легкий": "Fácil",
       "средний": "Médio",
-      "сложный": "Difícil"
+      "сложный": "Difícil",
+      "collection": {
+        "title": "Nossos Passeios"
+      },
+      "list": {
+        "backToHome": "Voltar para Início",
+        "title": "Todos os Passeios",
+        "description": "Explore todos os nossos passeios disponíveis e encontre a experiência perfeita para sua visita a Lisboa."
+      },
+      "detail": {
+        "title": "Nossos Passeios",
+        "viewDetails": "Ver Detalhes",
+        "availabilities": "Disponibilidades",
+        "noAvailability": "Nenhuma disponibilidade encontrada para este passeio",
+        "duration": "Duração",
+        "groupSize": "Tamanho do Grupo",
+        "difficulty": "Dificuldade",
+        "price": "Preço",
+        "perPerson": "por pessoa",
+        "perGroup": "por grupo",
+        "perGroupShort": "/grupo",
+        "perPersonShort": "/pessoa",
+        "people": "pessoas",
+        "meetingPoint": "Ponto de Encontro",
+        "reviews": "Avaliações dos Clientes",
+        "reviewSingular": "avaliação",
+        "aboutTour": "Sobre Este Passeio",
+        "tourDetails": "Detalhes do Passeio",
+        "maxPeople": "Máx. de Pessoas",
+        "freeBooking": "Reserva e cancelamento gratuitos",
+        "sendYourRequest": "Solicitar este passeio",
+        "childrenPolicy": {
+          "notAllowed": "Crianças: não permitido",
+          "allowed": "Crianças: permitido",
+          "allowedAbove12": "Crianças: acima de 12"
+        },
+        "conductedBy": {
+          "walking": "Passeio a pé",
+          "electricCar": "Carro elétrico Mercedes-Benz"
+        }
+      },
+      "difficultyLevels": {
+        "easy": "Fácil",
+        "medium": "Moderado",
+        "hard": "Difícil"
+      }
     },
     "reviews": {
       "title": "Avaliações",
@@ -242,20 +291,6 @@
     },
     "admin": {
       "dashboard": "Painel Administrativo",
-      "tours": "Gerenciar Passeios",
-      "bookings": "Reservas",
-      "reviews": "Avaliações",
-      "requests": "Solicitações de Reserva",
-      "logout": "Sair",
-      "login": "Login do Administrador",
-      "username": "Nome de Usuário",
-      "password": "Senha",
-      "loginButton": "Entrar",
-      "changePassword": "Alterar Senha",
-      "currentPassword": "Senha Atual",
-      "newPassword": "Nova Senha",
-      "confirmPassword": "Confirmar Senha",
-      "updatePassword": "Atualizar Senha",
       "tours": {
         "createTour": "Criar Passeio",
         "editTour": "Editar Passeio",
@@ -283,7 +318,6 @@
         "activeStatusDescription": "Tornar este passeio visível para os clientes",
         "creating": "Criando...",
         "updating": "Atualizando...",
-        "createTour": "Criar Passeio",
         "updateTour": "Atualizar Passeio",
         "uploadImage": "Enviar Imagem",
         "changeImage": "Alterar Imagem",
@@ -291,6 +325,8 @@
         "createTourDescription": "Preencha o formulário abaixo para criar um novo passeio.",
         "editTourDescription": "Atualize os detalhes deste passeio."
       },
+      "bookings": "Reservas",
+      "reviews": "Avaliações",
       "requests": {
         "title": "Solicitações de Reserva",
         "subtitle": "Gerencie solicitações de reserva de clientes",
@@ -315,7 +351,17 @@
         "confirmationSent": "Email de confirmação enviado com sucesso",
         "noRequests": "Nenhuma solicitação de reserva encontrada",
         "loading": "Carregando solicitações..."
-      }
+      },
+      "logout": "Sair",
+      "login": "Login do Administrador",
+      "username": "Nome de Usuário",
+      "password": "Senha",
+      "loginButton": "Entrar",
+      "changePassword": "Alterar Senha",
+      "currentPassword": "Senha Atual",
+      "newPassword": "Nova Senha",
+      "confirmPassword": "Confirmar Senha",
+      "updatePassword": "Atualizar Senha"
     },
     "footer": {
       "rights": "Todos os Direitos Reservados",
@@ -490,7 +536,11 @@
       "selectDateToSeeAvailableTimes": "Selecione uma data para ver os horários disponíveis",
       "spots": "vagas",
       "nextStep": "Próximo Passo",
-      "pricePerGroup": "Preço por grupo"
+      "pricePerGroup": "Preço por grupo",
+      "confirmationSentRequest": "Sua solicitação foi enviada!",
+      "confirmationSentRequestSubtitle": "Esse foi o primeiro passo para uma experiência incrível! Em breve entraremos em contato com mais detalhes.",
+      "paymentProcessingError": "Ocorreu um erro ao processar sua reserva",
+      "referenceError": "Ocorreu um erro ao processar sua reserva"
     },
     "whyChooseUs": {
       "title": "Por Que Escolher Lisboa Tours",
@@ -634,19 +684,31 @@
         "emailButton": "Enviar Email",
         "thankYouChoosing": "Obrigado por escolher a Lisbonlovesme!",
         "contactForm": {
-          "subject": "Nova Mensagem do Formulário de Contacto - Lisbonlovesme",
+          "subject": "Assunto",
           "header": "Nova Mensagem do Formulário de Contacto",
           "greeting": "Olá Admin",
           "newMessage": "Foi recebida uma nova mensagem do formulário de contacto:",
           "messageDetails": "Detalhes da Mensagem",
           "name": "Nome",
           "email": "Email",
-          "subject": "Assunto",
           "message": "Mensagem",
           "respondSoon": "Por favor responda a esta questão o mais breve possível."
-      },
-      "lookingForward": "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
+        },
+        "lookingForward": "Estamos ansiosos por lhe mostrar o melhor de Lisboa!",
         "questionsContact": "Se tiver alguma questão, por favor contacte-nos em info@lisbonlovesme.com"
+      }
+    },
+    "navigation": {
+      "main": {
+        "home": "Início",
+        "tours": "Passeios",
+        "about": "Sobre Nós",
+        "articles": "Artigos",
+        "reviews": "Avaliações",
+        "contact": "Contato",
+        "bookTour": "Reservar um Passeio",
+        "gallery": "Galeria",
+        "language": "Idioma"
       }
     }
   }

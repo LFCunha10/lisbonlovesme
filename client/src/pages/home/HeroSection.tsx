@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 export default function HeroSection() {
   const { t } = useTranslation();
   const { data: adminSettings } = useQuery({
-    queryKey: ["/api/admin/settings"],
-    queryFn: () => fetch("/api/admin/settings").then((res) => res.json()),
+    queryKey: ["/api/settings"],
+    queryFn: () => fetch("/api/settings").then((res) => res.json()),
   });
   const backgroundImage =
     adminSettings?.heroBannerImageUrl ||

@@ -48,28 +48,38 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
   const [isProcessing, setIsProcessing] = useState(false);
 
   const createBooking = useMutation({
-    mutationFn: async (data: any) => {
-      console.log("Creating booking with data:", data);
-      // Send the API request
-      const response = await apiRequest('POST', '/api/bookings', data);
-      // Parse the JSON response
-      const bookingData = await response.json();
-      console.log("Server response:", bookingData);
-      return bookingData;
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/bookings', {
+        tourId: tour.id,
+        availabilityId: bookingData.availabilityId,
+        customerFirstName: bookingData.customerFirstName,
+        customerLastName: bookingData.customerLastName,
+        customerEmail: bookingData.customerEmail,
+        customerPhone: bookingData.customerPhone,
+        numberOfParticipants: bookingData.numberOfParticipants,
+        specialRequests: bookingData.specialRequests || null,
+        discountCode: bookingData.discountCode,
+        language: i18n.language,
+      });
+
+      return response.json();
     },
     onSuccess: (bookingData) => {
-      console.log("Booking successful:", bookingData);
+      setIsProcessing(false);
       toast({
         title: t('booking.requestSent'),
         description: t('booking.requestSentDescription'),
       });
       
       if (bookingData && bookingData.bookingReference) {
-        // Store booking reference in localStorage for retrieval in case of navigation issues
         localStorage.setItem('lastBookingReference', bookingData.bookingReference);
-        console.log("Using booking reference from response:", bookingData.bookingReference);
-        
-        // Create a slight delay to ensure the state is properly updated
+        localStorage.setItem('currentBookingReference', bookingData.bookingReference);
+        localStorage.setItem('currentBookingStep', '4');
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('reference', bookingData.bookingReference);
+        window.history.replaceState({}, '', url.toString());
+
         window.setTimeout(() => {
           onPaymentComplete(bookingData.bookingReference);
         }, 100);
@@ -92,89 +102,10 @@ export default function PaymentForm({ tour, bookingData, totalAmount, onPaymentC
     }
   });
 
-  // Check if we're in test mode (defaulting to true for easier testing)
-  const isTestMode = true;
-
   const handlePayment = async () => {
     setIsProcessing(true);
-    
-    try {
-      // Create the booking data with consistent structure
-      const bookingPayload = {
-        tourId: tour.id,
-        availabilityId: bookingData.availabilityId,
-        customerFirstName: bookingData.customerFirstName,
-        customerLastName: bookingData.customerLastName,
-        customerEmail: bookingData.customerEmail,
-        customerPhone: bookingData.customerPhone,
-        numberOfParticipants: bookingData.numberOfParticipants,
-        specialRequests: bookingData.specialRequests || null,
-        paymentStatus: 'completed',
-        totalAmount,
-        discountCode: bookingData.discountCode,
-        language: i18n.language // Include user's current language
-      };
-      
-      console.log('Using test payment mode - automatic approval');
-      console.log('Second log');
-      
-      try {
-        console.log('Creating booking with payload:', bookingPayload);
-        // Create booking using the more reliable fetch API
-        const response = await fetch('/api/bookings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(bookingPayload),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Server error: ${response.status} - ${errorText}`);
-        }
-        
-        // Parse response
-        const data = await response.json();
-        console.log('Booking created successfully:', data);
-        
-        // Show success message
-        toast({
-          title: t('booking.requestSent'),
-          description: t('booking.requestSentDescription'),
-        });
-        
-        if (data && data.bookingReference) {
-          // 1. Store in localStorage (in case of page refresh)
-          localStorage.setItem('currentBookingReference', data.bookingReference);
-          localStorage.setItem('currentBookingStep', '4');
-          
-          // 2. Save reference in URL
-          const url = new URL(window.location.href);
-          url.searchParams.set('reference', data.bookingReference);
-          window.history.replaceState({}, '', url.toString());
-          
-          // 3. Call completion handler with a slight delay to ensure state update
-          setTimeout(() => {
-            console.log("Advancing to confirmation step with reference:", data.bookingReference);
-            onPaymentComplete(data.bookingReference);
-          }, 250);
-        } else {
-          throw new Error('No booking reference returned from server');
-        }
-      } catch (apiError: any) {
-        console.error('API error creating booking:', apiError);
-        throw new Error(apiError.message || 'Failed to create booking');
-      }
-    } catch (error: any) {
-      console.error('Payment processing error:', error);
-      setIsProcessing(false);
-      toast({
-        title: t('booking.error'),
-        description: error.message || t('booking.paymentProcessingError'),
-        variant: "destructive",
-      });
-    }
+
+    createBooking.mutate();
   };
 
   return (

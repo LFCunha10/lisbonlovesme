@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getLocalizedText } from "@/lib/tour-utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiJson, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Star, CheckCircle, XCircle, Mail, Eye, EyeOff } from "lucide-react";
@@ -44,19 +44,13 @@ export default function AdminReviews() {
   // Fetch all testimonials (including unapproved)
   const { data: allTestimonials, isLoading: testimonialsLoading } = useQuery({
     queryKey: ['/api/testimonials', { approvedOnly: false }],
-    queryFn: async () => {
-      const response = await fetch('/api/testimonials?approvedOnly=false');
-      return response.json();
-    }
+    queryFn: () => apiJson<any[]>('/api/testimonials?approvedOnly=false'),
   });
 
   // Fetch all bookings for sending review emails
   const { data: bookings, isLoading: bookingsLoading } = useQuery({
     queryKey: ['/api/admin/bookings'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/bookings');
-      return response.json();
-    }
+    queryFn: () => apiJson<any[]>('/api/admin/bookings'),
   });
 
   // Approve review mutation
