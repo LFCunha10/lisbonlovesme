@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { CorsOptions } from "cors";
+import type { CorsOptionsDelegate } from "cors";
 import type { Request, RequestHandler, Response } from "express";
 import helmet from "helmet";
 
@@ -25,7 +25,60 @@ export function isLocalhostOrigin(origin: string): boolean {
   }
 }
 
-export function isCorsOriginAllowed(origin: string | undefined, allowedOrigins: Set<string>): boolean {
+function normalizeForwardedProtocol(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const protocol = value.split(",")[0]?.trim().toLowerCase();
+  if (protocol === "http" || protocol === "https") {
+    return `${protocol}:`;
+  }
+
+  return null;
+}
+
+function getRequestOriginCandidates(req: Request): string[] {
+  const hosts = [req.get("x-forwarded-host"), req.get("host")].filter(
+    (value): value is string => typeof value === "string" && value.trim().length > 0,
+  );
+  const protocols = [normalizeForwardedProtocol(req.get("x-forwarded-proto")), req.protocol ? `${req.protocol}:` : null]
+    .filter((value): value is string => Boolean(value));
+
+  const candidates = new Set<string>();
+  for (const protocol of protocols) {
+    for (const host of hosts) {
+      candidates.add(`${protocol}//${host}`);
+    }
+  }
+
+  return Array.from(candidates);
+}
+
+export function isSameOriginRequest(origin: string, req: Request): boolean {
+  try {
+    const requestedOrigin = new URL(origin);
+    return getRequestOriginCandidates(req).some((candidate) => {
+      try {
+        const expectedOrigin = new URL(candidate);
+        return (
+          expectedOrigin.protocol === requestedOrigin.protocol &&
+          expectedOrigin.host === requestedOrigin.host
+        );
+      } catch {
+        return false;
+      }
+    });
+  } catch {
+    return false;
+  }
+}
+
+export function isCorsOriginAllowed(
+  origin: string | undefined,
+  allowedOrigins: Set<string>,
+  req?: Request,
+): boolean {
   if (!origin) {
     return true;
   }
@@ -42,22 +95,30 @@ export function isCorsOriginAllowed(origin: string | undefined, allowedOrigins: 
     return true;
   }
 
+  if (req && isSameOriginRequest(origin, req)) {
+    return true;
+  }
+
   return false;
 }
 
-export function createCorsOptions(): CorsOptions {
+export function createCorsOptions(): CorsOptionsDelegate<Request> {
   const allowedOrigins = getAllowedOrigins();
 
-  return {
-    origin(origin, callback) {
-      if (isCorsOriginAllowed(origin, allowedOrigins)) {
-        callback(null, true);
-        return;
-      }
+  return (req, callback) => {
+    const origin = req.get("origin") ?? undefined;
+    if (isCorsOriginAllowed(origin, allowedOrigins, req)) {
+      callback(null, {
+        origin: true,
+        credentials: true,
+      });
+      return;
+    }
 
-      callback(new Error("Origin is not allowed by CORS"));
-    },
-    credentials: true,
+    callback(new Error("Origin is not allowed by CORS"), {
+      origin: false,
+      credentials: true,
+    });
   };
 }
 
