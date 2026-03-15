@@ -1,6 +1,7 @@
-import session, { type SessionData, type SessionOptions } from "express-session";
+import session, { type SessionData } from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
+import { getSessionCookieName, getSessionCookieOptions, getSessionSecret } from "./session-config";
 
 export type SessionUser = {
   id: number;
@@ -16,34 +17,9 @@ declare module "express-session" {
   }
 }
 
-const isProduction = process.env.NODE_ENV === "production";
-const SESSION_COOKIE_NAME = "connect.sid";
-const DEVELOPMENT_SESSION_SECRET = "lisbonlovesme-session-secret";
-
-function getSessionSecret(): string {
-  const configuredSecret = process.env.SESSION_SECRET?.trim();
-  if (configuredSecret) {
-    return configuredSecret;
-  }
-
-  if (isProduction) {
-    throw new Error("SESSION_SECRET must be configured in production.");
-  }
-
-  return DEVELOPMENT_SESSION_SECRET;
-}
-
-export function getSessionCookieOptions(): SessionOptions["cookie"] {
-  return {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: "lax",
-    maxAge: 1000 * 60 * 60 * 2,
-  };
-}
-
 export function createSessionMiddleware() {
   const PgSession = connectPgSimple(session);
+  const sessionCookieName = getSessionCookieName();
 
   return session({
     secret: getSessionSecret(),
@@ -55,10 +31,6 @@ export function createSessionMiddleware() {
       createTableIfMissing: true,
     }),
     cookie: getSessionCookieOptions(),
-    name: SESSION_COOKIE_NAME,
+    name: sessionCookieName,
   });
-}
-
-export function getSessionCookieName() {
-  return SESSION_COOKIE_NAME;
 }

@@ -8,7 +8,6 @@ import {
   verifyPassword,
 } from "../auth";
 import { getApiKeyPrincipal, requestHasApiKeyScope } from "../api-keys";
-import { getSessionCookieName } from "../session";
 import { createAppError, parseWithSchema, toErrorResponse } from "../http";
 import {
   adminCreateUserSchema,
@@ -16,6 +15,7 @@ import {
   adminPasswordChangeSchema,
 } from "../schemas";
 import { csrfTokenHandler, issueCsrfToken, requireCsrf } from "../security";
+import { getSessionCookieName } from "../session-config";
 import {
   getEmailTransportDiagnostics,
   sendTestEmail,
