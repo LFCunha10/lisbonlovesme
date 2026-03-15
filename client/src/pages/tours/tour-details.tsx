@@ -262,7 +262,7 @@ export default function TourDetailsPage() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Tour Details */}
@@ -367,58 +367,59 @@ export default function TourDetailsPage() {
           </div>
 
           {/* Desktop Booking Sidebar - Hidden on mobile */}
-          <div className="hidden lg:block lg:col-span-1 lg:self-start">
-            <div className="sticky h-fit" style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                      {formatCurrency(tour.price)}
-                    </div>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                      {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
-                    </p>
+          <div
+            className="hidden lg:col-span-1 lg:block lg:self-start lg:sticky lg:z-10"
+            style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}
+          >
+            <Card className="max-h-[calc(100vh-var(--navbar-height,56px)-3rem)] overflow-y-auto">
+              <CardContent className="p-6">
+                <div className="text-center mb-6">
+                  <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {formatCurrency(tour.price)}
                   </div>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                    {tour.priceType === "per_group" ? t('tours.detail.perGroup') : t('tours.detail.perPerson')}
+                  </p>
+                </div>
 
-                  <Separator className="my-6" />
+                <Separator className="my-6" />
 
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {t('tours.detail.duration')}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {formatDurationHours(tour.duration, i18n.language)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {t('tours.detail.groupSize')}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {tour.maxGroupSize} {t('tours.detail.people')}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {t('tours.detail.difficulty')}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {difficultyLabel}
-                      </span>
-                    </div>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.detail.duration')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {formatDurationHours(tour.duration, i18n.language)}
+                    </span>
                   </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.detail.groupSize')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {tour.maxGroupSize} {t('tours.detail.people')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t('tours.detail.difficulty')}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {difficultyLabel}
+                    </span>
+                  </div>
+                </div>
 
-                  <Link href={`/book/${tour.id}`}>
-                    <Button className="w-full text-lg py-6" size="lg">
-                      <Send className="w-5 h-5 mr-2" />
-                      {t('tours.detail.sendYourRequest')}
-                    </Button>
-                  </Link>
+                <Link href={`/book/${tour.id}`}>
+                  <Button className="w-full text-lg py-6" size="lg">
+                    <Send className="w-5 h-5 mr-2" />
+                    {t('tours.detail.sendYourRequest')}
+                  </Button>
+                </Link>
 
-                </CardContent>
-              </Card>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
