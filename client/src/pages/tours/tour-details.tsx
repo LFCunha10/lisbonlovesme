@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -26,12 +27,28 @@ import { formatCurrency } from "@/lib/utils";
 import type { Tour, Testimonial } from "@shared/schema";
 import { renderMarkdownToSafeHtml } from "@/lib/safe-html";
 
+type DesktopSidebarLayout = {
+  height: number;
+  isPinned: boolean;
+  left: number;
+  top: number;
+  width: number;
+};
+
 export default function TourDetailsPage() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const tourId = parseInt(id as string);
-  
-
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const sidebarCardRef = useRef<HTMLDivElement | null>(null);
+  const [desktopSidebarLayout, setDesktopSidebarLayout] = useState<DesktopSidebarLayout>({
+    height: 0,
+    isPinned: false,
+    left: 0,
+    top: 0,
+    width: 0,
+  });
 
   const { data: tour, isLoading: tourLoading } = useQuery<Tour>({
     queryKey: [`/api/tours/${tourId}`],
@@ -48,6 +65,89 @@ export default function TourDetailsPage() {
   const { data: testimonials, isLoading: testimonialsLoading } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials'],
   });
+
+  useEffect(() => {
+    if (tourLoading || !tour) {
+      return;
+    }
+
+    const updateSidebarLayout = () => {
+      const hero = heroRef.current;
+      const sidebar = sidebarRef.current;
+      const sidebarCard = sidebarCardRef.current;
+
+      if (!hero || !sidebar || !sidebarCard) {
+        return;
+      }
+
+      const navbarHeightValue = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue("--navbar-height");
+      const navbarHeight = Number.parseFloat(navbarHeightValue) || 56;
+      const topOffset = navbarHeight + 12;
+      const isDesktop = window.innerWidth >= 1024;
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      const sidebarRect = sidebar.getBoundingClientRect();
+      const sidebarHeight = sidebarCard.getBoundingClientRect().height;
+      const nextLayout: DesktopSidebarLayout = {
+        height: sidebarHeight,
+        isPinned: isDesktop && heroBottom <= topOffset,
+        left: sidebarRect.left,
+        top: topOffset,
+        width: sidebarRect.width,
+      };
+
+      setDesktopSidebarLayout((current) => {
+        const hasSameLayout =
+          current.isPinned === nextLayout.isPinned &&
+          Math.abs(current.height - nextLayout.height) < 1 &&
+          Math.abs(current.left - nextLayout.left) < 1 &&
+          Math.abs(current.top - nextLayout.top) < 1 &&
+          Math.abs(current.width - nextLayout.width) < 1;
+
+        return hasSameLayout ? current : nextLayout;
+      });
+    };
+
+    let frameId = 0;
+    const queueUpdate = () => {
+      if (frameId !== 0) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = 0;
+        updateSidebarLayout();
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      queueUpdate();
+    });
+
+    if (heroRef.current) {
+      resizeObserver.observe(heroRef.current);
+    }
+    if (sidebarRef.current) {
+      resizeObserver.observe(sidebarRef.current);
+    }
+    if (sidebarCardRef.current) {
+      resizeObserver.observe(sidebarCardRef.current);
+    }
+
+    queueUpdate();
+    window.addEventListener("scroll", queueUpdate, { passive: true });
+    window.addEventListener("resize", queueUpdate);
+
+    return () => {
+      if (frameId !== 0) {
+        window.cancelAnimationFrame(frameId);
+      }
+      resizeObserver.disconnect();
+      window.removeEventListener("scroll", queueUpdate);
+      window.removeEventListener("resize", queueUpdate);
+    };
+  }, [tour, tourLoading]);
 
   if (tourLoading) {
     return (
@@ -163,7 +263,7 @@ export default function TourDetailsPage() {
       </div>
 
       {/* Hero Image */}
-      <div className="relative h-96 mb-8">
+      <div ref={heroRef} className="relative h-96 mb-8">
         <img
           src={tour.imageUrl}
           alt={getLocalizedText(tour.name, i18n.language)}
@@ -368,10 +468,24 @@ export default function TourDetailsPage() {
 
           {/* Desktop Booking Sidebar - Hidden on mobile */}
           <div
-            className="hidden lg:col-span-1 lg:block lg:self-start lg:sticky lg:z-10"
-            style={{ top: 'calc(var(--navbar-height, 56px) + 1.5rem)' }}
+            ref={sidebarRef}
+            className="hidden lg:col-span-1 lg:block"
+            style={desktopSidebarLayout.isPinned ? { minHeight: desktopSidebarLayout.height } : undefined}
           >
-            <Card className="max-h-[calc(100vh-var(--navbar-height,56px)-3rem)] overflow-y-auto">
+            <Card
+              ref={sidebarCardRef}
+              className={desktopSidebarLayout.isPinned ? "z-30" : undefined}
+              style={
+                desktopSidebarLayout.isPinned
+                  ? {
+                      left: desktopSidebarLayout.left,
+                      position: "fixed",
+                      top: desktopSidebarLayout.top,
+                      width: desktopSidebarLayout.width,
+                    }
+                  : undefined
+              }
+            >
               <CardContent className="p-6">
                 <div className="text-center mb-6">
                   <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
