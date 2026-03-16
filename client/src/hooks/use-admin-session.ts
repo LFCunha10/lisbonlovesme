@@ -1,18 +1,13 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { adminMeQueryKey, type AdminUser } from "@/lib/admin-session";
 import { apiJson } from "@/lib/queryClient";
-
-type AdminUser = {
-  id: number;
-  username: string;
-  isAdmin: boolean;
-};
 
 export function useAdminSession(options?: { redirectToLogin?: boolean }) {
   const [, setLocation] = useLocation();
   const query = useQuery({
-    queryKey: ["/api/admin/me"],
+    queryKey: adminMeQueryKey,
     queryFn: () => apiJson<AdminUser>("/api/admin/me", { allowUnauthorized: true }),
     retry: false,
     staleTime: 5 * 60 * 1000,

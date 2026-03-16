@@ -163,9 +163,13 @@ function getSessionCsrfToken(req: Request): string {
 }
 
 function setCsrfCookie(req: Request, res: Response, token: string) {
+  const secureRequest =
+    req.secure ||
+    normalizeForwardedProtocol(req.get("x-forwarded-proto")) === "https:";
+
   res.cookie(csrfCookieName, token, {
     httpOnly: false,
-    secure: isProduction,
+    secure: isProduction ? secureRequest : false,
     sameSite: "lax",
     path: "/",
   });
@@ -178,6 +182,8 @@ export function issueCsrfToken(req: Request, res: Response): string {
 }
 
 export const csrfTokenHandler: RequestHandler = (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.vary("Cookie");
   res.json({ csrfToken: issueCsrfToken(req, res) });
 };
 

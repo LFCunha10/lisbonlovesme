@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet";
 import { apiRequest } from "@/lib/queryClient";
+import { setAdminSessionUser } from "@/lib/admin-session";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -14,6 +16,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +30,7 @@ export default function AdminLoginPage() {
         throw new Error("Invalid user data");
       }
 
+      setAdminSessionUser(queryClient, userData.user);
       setLocation("/admin");
       console.log("Login successful, user:", userData.user);
     } catch (err) {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Request } from "express";
+import type { Request, Response } from "express";
 
 const originalEnv = { ...process.env };
 
@@ -120,5 +120,98 @@ describe("server/security CORS handling", () => {
 
     expect(result.allowed).toBe(false);
     expect(result.error?.message).toBe("Origin is not allowed by CORS");
+  });
+
+  it("marks csrf token responses as non-cacheable", async () => {
+    const { csrfTokenHandler } = await loadSecurityWithEnv({ NODE_ENV: "development" });
+    const set = vi.fn();
+    const vary = vi.fn();
+    const json = vi.fn();
+    const cookie = vi.fn();
+
+    const req = {
+      session: {},
+      get() {
+        return undefined;
+      },
+      secure: false,
+    } as Request;
+
+    const res = {
+      set,
+      vary,
+      json,
+      cookie,
+    } as unknown as Response;
+
+    csrfTokenHandler(req, res, vi.fn());
+
+    expect(set).toHaveBeenCalledWith("Cache-Control", "no-store");
+    expect(vary).toHaveBeenCalledWith("Cookie");
+    expect(cookie).toHaveBeenCalledWith(
+      "csrfToken",
+      expect.any(String),
+      expect.objectContaining({
+        httpOnly: false,
+        sameSite: "lax",
+        path: "/",
+      }),
+    );
+    expect(json).toHaveBeenCalledWith({
+      csrfToken: expect.any(String),
+    });
+  });
+
+  it("does not mark csrf cookies as secure for plain-http localhost requests in production", async () => {
+    const { issueCsrfToken } = await loadSecurityWithEnv({ NODE_ENV: "production" });
+    const cookie = vi.fn();
+
+    const req = createRequestMock({
+      host: "127.0.0.1:5001",
+      protocol: "http",
+    });
+    req.session = {} as any;
+
+    const res = {
+      cookie,
+    } as unknown as Response;
+
+    issueCsrfToken(req, res);
+
+    expect(cookie).toHaveBeenCalledWith(
+      "csrfToken",
+      expect.any(String),
+      expect.objectContaining({
+        secure: false,
+        sameSite: "lax",
+      }),
+    );
+  });
+
+  it("marks csrf cookies as secure for https requests in production", async () => {
+    const { issueCsrfToken } = await loadSecurityWithEnv({ NODE_ENV: "production" });
+    const cookie = vi.fn();
+
+    const req = createRequestMock({
+      host: "lisbonlovesme.onrender.com",
+      forwardedProto: "https",
+      protocol: "http",
+    });
+    req.session = {} as any;
+
+    const res = {
+      cookie,
+    } as unknown as Response;
+
+    issueCsrfToken(req, res);
+
+    expect(cookie).toHaveBeenCalledWith(
+      "csrfToken",
+      expect.any(String),
+      expect.objectContaining({
+        secure: true,
+        sameSite: "lax",
+      }),
+    );
   });
 });

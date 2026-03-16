@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { apiRequest } from "@/lib/queryClient";
+import { clearAdminSession } from "@/lib/admin-session";
 
 
 interface AdminLayoutProps {
@@ -25,6 +26,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const [location, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   // Navigation items
   const navItems = [
@@ -74,6 +76,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                     onClick={async () => {
                       try {
                         await apiRequest("POST", "/api/admin/logout");
+                        clearAdminSession(queryClient);
                         setLocation("/admin/login");
                       } catch (error) {
                         console.error("Logout failed", error);

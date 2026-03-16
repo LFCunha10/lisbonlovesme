@@ -20,7 +20,7 @@ export function getSessionSecret(): string {
 export function getSessionCookieOptions(): SessionOptions["cookie"] {
   return {
     httpOnly: true,
-    secure: isProduction,
+    secure: isProduction ? "auto" : false,
     sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 2,
   };

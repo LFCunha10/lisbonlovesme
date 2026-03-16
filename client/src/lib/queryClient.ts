@@ -36,6 +36,7 @@ export async function getCsrfToken(forceRefresh = false): Promise<string | null>
   if (!csrfTokenPromise) {
     csrfTokenPromise = fetch("/api/csrf-token", {
       ...getAuthFetchOptions(),
+      cache: "no-store",
     })
       .then(async (response) => {
         await throwIfResNotOk(response);
