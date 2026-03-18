@@ -343,16 +343,34 @@ export function createBookingsRouter(context: RouteContext) {
 
   router.get("/api/admin/requests", ...context.adminReadGuards, async (_req: Request, res: Response) => {
     try {
-      const [bookings, tourMap] = await Promise.all([storage.getBookings(), context.getTourMap()]);
+      const [bookings, tourMap, availabilities] = await Promise.all([
+        storage.getBookings(),
+        context.getTourMap(),
+        storage.getAvailabilities(),
+      ]);
+      const availabilityMap = new Map(availabilities.map((availability) => [availability.id, availability]));
       const requests = bookings
         .filter((booking) => ["requested", "confirmed", "cancelled"].includes(booking.paymentStatus || ""))
-        .map((booking) => ({
-          ...booking,
-          additionalInfo:
+        .map((booking) => {
+          const availability = availabilityMap.get(booking.availabilityId);
+          const parsedAdditionalInfo =
             typeof booking.additionalInfo === "string"
               ? JSON.parse(booking.additionalInfo)
-              : booking.additionalInfo ?? null,
-        }));
+              : booking.additionalInfo ?? null;
+          const additionalInfo =
+            parsedAdditionalInfo || availability
+              ? {
+                  ...(parsedAdditionalInfo || {}),
+                  date: parsedAdditionalInfo?.date || availability?.date,
+                  time: parsedAdditionalInfo?.time || availability?.time,
+                }
+              : null;
+
+          return {
+            ...booking,
+            additionalInfo,
+          };
+        });
 
       const requestsWithTours = requests.map((request) => {
         const tour = tourMap.get(request.tourId);
@@ -522,6 +540,8 @@ export function createBookingsRouter(context: RouteContext) {
         adminNotes: null,
         additionalInfo: {
           ...(body.additionalInfo || {}),
+          date: availabilityBeforeBooking.date,
+          time: availabilityBeforeBooking.time,
           pricing: {
             originalAmount,
             discount: discountInfo || null,

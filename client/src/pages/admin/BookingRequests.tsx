@@ -60,6 +60,50 @@ interface BookingRequest {
   };
 }
 
+function getDateLocale(language: string) {
+  if (language === "pt") return "pt-PT";
+  if (language === "ru") return "ru-RU";
+  return "en-GB";
+}
+
+function formatBookingDate(date?: string | null, locale = "en-GB") {
+  if (!date) return null;
+
+  const parsedDate = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return date;
+  }
+
+  return parsedDate.toLocaleDateString(locale);
+}
+
+function formatBookingDateTime(date?: string | null, time?: string | null, locale = "en-GB") {
+  const formattedDate = formatBookingDate(date, locale);
+  if (!formattedDate) {
+    return "TBD";
+  }
+
+  return time ? `${formattedDate} ${time}` : formattedDate;
+}
+
+function getRequestedSlot(request: BookingRequest) {
+  return {
+    date: request.additionalInfo?.date ?? null,
+    time: request.additionalInfo?.time ?? null,
+  };
+}
+
+function getDisplaySlot(request: BookingRequest) {
+  if (request.paymentStatus === "confirmed") {
+    return {
+      date: request.confirmedDate || request.additionalInfo?.date || null,
+      time: request.confirmedTime || request.additionalInfo?.time || null,
+    };
+  }
+
+  return getRequestedSlot(request);
+}
+
 async function updateBookingRequest(id: number, updates: Partial<BookingRequest>) {
   const response = await apiRequest("PUT", `/api/admin/requests/${id}`, updates);
   return response.json();
@@ -71,11 +115,12 @@ async function sendBookingRequestConfirmation(id: number) {
 }
 
 export default function BookingRequests() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState<BookingRequest | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const dateLocale = getDateLocale(i18n.language);
 
   const { data: requests, isLoading } = useQuery({
     queryKey: ['/api/admin/requests'],
@@ -197,67 +242,64 @@ export default function BookingRequests() {
               </Card>
             ) : (
               <div className="grid gap-4">
-                {filteredRequests.map((request) => (
-                  <Card key={request.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            {request.customerFirstName} {request.customerLastName}
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground">
-                            {t('booking.referenceNumber')}: {request.bookingReference}
-                          </p>
+                {filteredRequests.map((request) => {
+                  const displaySlot = getDisplaySlot(request);
+
+                  return (
+                    <Card key={request.id} className="hover:shadow-md transition-shadow">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">
+                              {request.customerFirstName} {request.customerLastName}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              {t('booking.referenceNumber')}: {request.bookingReference}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(request.paymentStatus)}
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedRequest(request)}
+                                >
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  {t('admin.requests.viewDetails')}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(request.paymentStatus)}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedRequest(request)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                {t('admin.requests.viewDetails')}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                              {selectedRequest && <RequestDetailsDialog request={selectedRequest} />}
-                            </DialogContent>
-                          </Dialog>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span>{request.customerEmail}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span>{request.customerPhone}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span>{formatBookingDateTime(displaySlot.date, displaySlot.time, dateLocale)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.customerEmail}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{request.customerPhone}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <span>{t('booking.participants')}: {request.numberOfParticipants}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {request.paymentStatus === "confirmed" && request.confirmedDate && request.confirmedTime
-                              ? `${new Date(request.confirmedDate).toLocaleDateString("pt-PT")} at ${request.confirmedTime}`
-                              : request.additionalInfo?.date
-                                ? `${request.additionalInfo.date} ${request.additionalInfo.time || ''}`
-                                : 'TBD'
-                            }
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -268,10 +310,12 @@ export default function BookingRequests() {
 }
 
 function RequestDetailsDialog({ request }: { request: BookingRequest }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const getText = useLocalizedTourText();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const dateLocale = getDateLocale(i18n.language);
+  const requestedSlot = getRequestedSlot(request);
   const [formData, setFormData] = useState({
     confirmedDate: formatEditableConfirmationDate(request.confirmedDate || request.additionalInfo?.date || ''),
     confirmedTime: formatEditableConfirmationTime(request.confirmedTime || request.additionalInfo?.time || ''),
@@ -453,7 +497,7 @@ function RequestDetailsDialog({ request }: { request: BookingRequest }) {
             </div>
             <div>
               <Label className="text-muted-foreground">{t('admin.requests.requestedDateTime')}</Label>
-              <p>{request.additionalInfo?.date || 'TBD'} {request.additionalInfo?.time || ''}</p>
+              <p>{formatBookingDateTime(requestedSlot.date, requestedSlot.time, dateLocale)}</p>
             </div>
             <div>
               <Label className="text-muted-foreground">{t('booking.date')}</Label>

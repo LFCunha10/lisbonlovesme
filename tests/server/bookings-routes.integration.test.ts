@@ -62,6 +62,8 @@ describe("server booking routes integration", () => {
       expect(bookingPayload.success).toBe(true);
       expect(bookingPayload.totalAmount).toBe(21600);
       expect(bookingPayload.paymentStatus).toBe("requested");
+      expect(bookingPayload.additionalInfo.date).toBe("2026-09-01");
+      expect(bookingPayload.additionalInfo.time).toBe("09:30");
       expect(bookingPayload.additionalInfo.pricing.originalAmount).toBe(24000);
       expect(bookingPayload.additionalInfo.pricing.discount.appliedAmount).toBe(2400);
       expect(updatedAvailability?.spotsLeft).toBe(3);
@@ -69,6 +71,47 @@ describe("server booking routes integration", () => {
       expect(testState.sendRequestConfirmationEmail).toHaveBeenCalledTimes(1);
       expect(testState.sendBookingRequestNotification).toHaveBeenCalledTimes(1);
       expect(testState.createNotificationAndPush).toHaveBeenCalledTimes(1);
+    } finally {
+      await stopServer(server);
+    }
+  });
+
+  it("hydrates admin booking requests with the requested slot from availability when older records lack it", async () => {
+    const tour = await seedTour();
+    const availability = await testState.currentStorage.createAvailability({
+      tourId: tour.id,
+      date: "2026-11-15",
+      time: "14:00",
+      maxSpots: 10,
+      spotsLeft: 7,
+    });
+    await testState.currentStorage.createBooking({
+      tourId: tour.id,
+      availabilityId: availability.id,
+      customerFirstName: "Marta",
+      customerLastName: "Sousa",
+      customerEmail: "marta@example.com",
+      customerPhone: "+351123456700",
+      numberOfParticipants: 3,
+      totalAmount: 45000,
+      paymentStatus: "requested",
+      additionalInfo: null,
+    } as any);
+
+    const { server, baseUrl } = await startTestServer();
+    try {
+      const response = await fetch(`${baseUrl}/api/admin/requests`, {
+        headers: {
+          "x-test-admin": "1",
+        },
+      });
+
+      expect(response.status).toBe(200);
+      const payload = await json<any[]>(response);
+
+      expect(payload).toHaveLength(1);
+      expect(payload[0].additionalInfo.date).toBe("2026-11-15");
+      expect(payload[0].additionalInfo.time).toBe("14:00");
     } finally {
       await stopServer(server);
     }
