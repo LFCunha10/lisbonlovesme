@@ -19,6 +19,7 @@
     "articles:cleanup": "tsx scripts/cleanup-articles.ts",
     "articles:list": "tsx scripts/list-articles.ts",
     "ci:check-fcm": "tsx scripts/ci-check-fcm.ts",
+    "ci:check-smtp": "tsx scripts/check-smtp.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

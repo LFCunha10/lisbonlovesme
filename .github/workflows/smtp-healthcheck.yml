@@ -1,0 +1,44 @@
+name: SMTP Healthcheck
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+    inputs:
+      send_test_email:
+        description: "Send a real test email after SMTP verification"
+        required: false
+        default: false
+        type: boolean
+      recipient:
+        description: "Optional recipient for the manual test email"
+        required: false
+        type: string
+
+jobs:
+  smtp-healthcheck:
+    name: Verify SMTP Credentials
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify SMTP transport
+        env:
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          SMTP_CHECK_SEND_TEST_EMAIL: ${{ github.event_name == 'workflow_dispatch' && inputs.send_test_email || 'false' }}
+          SMTP_CHECK_RECIPIENT: ${{ github.event_name == 'workflow_dispatch' && inputs.recipient || '' }}
+        run: npm run ci:check-smtp
