@@ -1,34 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { MapPin, Menu, X, ChevronDown } from "lucide-react";
+import { MapPin, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { getLocalizedText } from "@/lib/tour-utils";
 import LanguageSwitcher from "@/components/language-switcher";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [articlesOpen, setArticlesOpen] = useState(false);
-  const [articlesMobileOpen, setArticlesMobileOpen] = useState(false);
-  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
   const [location] = useLocation();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navRef = useRef<HTMLElement | null>(null);
   
   // Check if we're on an admin page
   const isAdminPage = location.startsWith('/admin');
 
   const toggleMenu = () => setIsOpen(!isOpen);
-
-  // Fetch published articles for navigation
-  const { data: articles } = useQuery({
-    queryKey: ['/api/articles'],
-    queryFn: () => fetch('/api/articles?published=true').then(res => res.json()),
-    enabled: !isAdminPage,
-  });
-
-  const publishedArticles = Array.isArray(articles) ? articles.filter(a => a.isPublished) : [];
 
   // Keep a CSS variable updated with current navbar height
   useEffect(() => {
@@ -48,15 +34,15 @@ export default function NavBar() {
     const h = navRef.current?.offsetHeight ?? 0;
     const px = `${h || 56}px`;
     document.documentElement.style.setProperty('--navbar-height', px);
-  }, [isOpen, articlesOpen, articlesMobileOpen]);
+  }, [isOpen]);
 
   return (
     <nav ref={navRef} className="bg-white shadow-md fixed w-full z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <div className="text-xl sm:text-2xl font-display font-bold text-primary">
-              <Link href="/" className="flex items-center">
+            <div className="text-xl sm:text-2xl font-display font-bold text-black">
+              <Link href="/" className="flex items-center text-black">
                 <MapPin className="mr-1 sm:mr-2 h-5 w-5 sm:h-6 sm:w-6" />
                 <span className="truncate brand-logo">Lisbonlovesme</span>
               </Link>
@@ -66,54 +52,6 @@ export default function NavBar() {
           {!isAdminPage && (
             <div className="hidden md:flex items-center space-x-6">
               <NavLink href="/tours" isActive={location === "/"}>{t('navigation.main.tours')}</NavLink>
-              
-              {publishedArticles.length > 0 && (
-                <div className="relative">
-                  <button
-                    className="flex items-center text-primary hover:text-primary transition-all font-medium"
-                    onMouseEnter={() => {
-                      if (closeTimeout) clearTimeout(closeTimeout);
-                      setArticlesOpen(true);
-                    }}
-                    onMouseLeave={() => {
-                      const timeout = setTimeout(() => {
-                        setArticlesOpen(false);
-                      }, 100);
-                      setCloseTimeout(timeout);
-                    }}
-                  >
-                    {t('navigation.main.articles')}
-                    <ChevronDown className="ml-1 h-4 w-4" />
-                  </button>
-                  {articlesOpen && (
-                    <div 
-                      className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-2 z-50"
-                      onMouseEnter={() => {
-                        if (closeTimeout) clearTimeout(closeTimeout);
-                        setArticlesOpen(true);
-                      }}
-                      onMouseLeave={() => {
-                        const timeout = setTimeout(() => {
-                          setArticlesOpen(false);
-                        }, 100);
-                        setCloseTimeout(timeout);
-                      }}
-                    >
-                      {publishedArticles.slice(0, 8).map((article) => (
-                        <Link
-                          key={article.id}
-                          href={`/articles/${article.slug}`}
-                          className="block px-4 py-2 text-sm text-neutral-dark hover:bg-gray-50 hover:text-primary"
-                        >
-                          {getLocalizedText(article.title, i18n.language)}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <NavLink href="/#about" isActive={location === "/"}>{t('navigation.main.about')}</NavLink>
               <NavLink href="/#reviews" isActive={location === "/"}>{t('navigation.main.reviews')}</NavLink>
               <NavLink href="/#contact" isActive={location === "/"}>{t('navigation.main.contact')}</NavLink>
               <LanguageSwitcher />
@@ -140,32 +78,6 @@ export default function NavBar() {
         {isOpen && !isAdminPage && (
           <div className="md:hidden mt-4 pb-4 space-y-2">
             <MobileNavLink href="/#tours" onClick={() => setIsOpen(false)}>{t('navigation.main.tours')}</MobileNavLink>
-            {publishedArticles.length > 0 && (
-              <div className="ml-2">
-                <button
-                  className="flex items-center justify-between w-full py-2 text-neutral-dark"
-                  onClick={() => setArticlesMobileOpen((o) => !o)}
-                  aria-expanded={articlesMobileOpen}
-                >
-                  <span className="text-sm font-medium text-gray-700">{t('navigation.main.articles')}</span>
-                  <ChevronDown className={cn("h-4 w-4 transition-transform", articlesMobileOpen && "rotate-180")} />
-                </button>
-                {articlesMobileOpen && (
-                  <div className="border-l-2 border-gray-200 pl-4">
-                    {publishedArticles.slice(0, 5).map((article) => (
-                      <MobileNavLink 
-                        key={article.id}
-                        href={`/articles/${article.slug}`} 
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {getLocalizedText(article.title, i18n.language)}
-                      </MobileNavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            <MobileNavLink href="/#about" onClick={() => setIsOpen(false)}>{t('navigation.main.about')}</MobileNavLink>
             <MobileNavLink href="/#reviews" onClick={() => setIsOpen(false)}>{t('navigation.main.reviews')}</MobileNavLink>
             <MobileNavLink href="/#contact" onClick={() => setIsOpen(false)}>{t('navigation.main.contact')}</MobileNavLink>
             <div className="pt-2 border-t border-gray-200">
@@ -189,8 +101,8 @@ function NavLink({ href, children, isActive }: NavLinkProps) {
     <Link
       href={href}
       className={cn(
-        "text-neutral-dark hover:text-primary transition-all font-medium",
-        isActive && "text-primary"
+        "text-black hover:text-black transition-all font-medium",
+        isActive && "text-black"
       )}
     >
       {children}
@@ -208,7 +120,7 @@ function MobileNavLink({ href, children, onClick }: MobileNavLinkProps) {
   return (
     <Link
       href={href}
-      className="block py-2 text-neutral-dark hover:text-primary"
+      className="block py-2 text-black hover:text-black"
       onClick={onClick}
     >
       {children}
