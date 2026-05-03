@@ -16,7 +16,7 @@ export default function FeaturedTours() {
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-4">{t('home.featuredTours')}</h2>
           <p className="text-base sm:text-lg text-neutral-dark/80 max-w-2xl mx-auto px-4">
-            {t('home.subtitle')}
+            {t('home.featuredToursSubtitle')}
           </p>
         </div>
         

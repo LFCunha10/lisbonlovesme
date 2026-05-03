@@ -149,9 +149,10 @@
     },
     "home": {
       "welcome": "Welcome to Lisbonlovesme.com",
-      "subtitle": "Discover Lisbon with our guided tours",
+      "subtitle": "Premium tours at your own pace.",
       "explore": "Explore Tours",
       "featuredTours": "Featured Tours",
+      "featuredToursSubtitle": "Discover Lisbon with our guided tours",
       "reviews": "What Our Clients Say",
       "viewAll": "View All Tours",
       "reviewsSection": {

@@ -149,9 +149,10 @@
     },
     "home": {
       "welcome": "Bem-vindo ao Lisbonlovesme.com",
-      "subtitle": "Descubra Lisboa com nossos passeios guiados",
+      "subtitle": "Tours premium ao seu ritmo.",
       "explore": "Explorar Passeios",
       "featuredTours": "Passeios em Destaque",
+      "featuredToursSubtitle": "Descubra Lisboa com nossos passeios guiados",
       "reviews": "O Que Nossos Clientes Dizem",
       "viewAll": "Ver Todos os Passeios",
       "reviewsSection": {
