@@ -485,7 +485,7 @@ export default function AlfamaLoungeSuitesPage() {
             href="https://gyg.me/9wDLIoe8"
             target="_blank"
             rel="noreferrer"
-            className="group relative mx-auto mt-10 flex max-w-5xl flex-col gap-6 overflow-hidden rounded-[1.5rem] border border-orange-200 bg-[linear-gradient(135deg,#fff7ed_0%,#ffffff_52%,#ffedd5_100%)] p-6 shadow-[0_24px_70px_rgba(194,65,12,0.16)] transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_30px_90px_rgba(194,65,12,0.22)] sm:p-8 lg:flex-row lg:items-center lg:justify-between"
+            className="group relative mx-auto mt-10 block max-w-5xl overflow-hidden rounded-[1.5rem] border border-orange-200 bg-[linear-gradient(135deg,#fff7ed_0%,#ffffff_52%,#ffedd5_100%)] p-6 shadow-[0_24px_70px_rgba(194,65,12,0.16)] transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_30px_90px_rgba(194,65,12,0.22)] sm:p-8"
           >
             <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-300/25" />
             <div className="absolute bottom-0 left-0 h-20 w-20 rounded-tr-full bg-amber-300/25" />
@@ -493,14 +493,16 @@ export default function AlfamaLoungeSuitesPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-orange-700">
                 {t("alfamaLoungeSuites.promoBanner.label")}
               </p>
-              <h3 className="mt-3 whitespace-nowrap text-lg font-bold leading-tight text-stone-950 sm:text-2xl xl:text-3xl">
-                {t("alfamaLoungeSuites.promoBanner.title")}
-              </h3>
+              <div className="mt-3 flex flex-col items-center gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <h3 className="max-w-full break-words text-xl font-bold leading-tight text-stone-950 sm:text-2xl lg:whitespace-nowrap xl:text-3xl">
+                  {t("alfamaLoungeSuites.promoBanner.title")}
+                </h3>
+                <span className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-orange-600 px-5 text-sm font-medium text-white transition group-hover:bg-orange-700">
+                  {t("alfamaLoungeSuites.promoBanner.cta")}
+                  <ExternalLink className="h-4 w-4" />
+                </span>
+              </div>
             </div>
-            <span className="relative inline-flex h-11 shrink-0 items-center justify-center gap-2 self-center rounded-md bg-orange-600 px-5 text-sm font-medium text-white transition group-hover:bg-orange-700 lg:self-auto">
-              {t("alfamaLoungeSuites.promoBanner.cta")}
-              <ExternalLink className="h-4 w-4" />
-            </span>
           </a>
         </div>
       </section>
