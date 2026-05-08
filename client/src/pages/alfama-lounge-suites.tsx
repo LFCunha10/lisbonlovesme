@@ -480,6 +480,28 @@ export default function AlfamaLoungeSuitesPage() {
               {t("alfamaLoungeSuites.welcomeBody")}
             </p>
           </div>
+
+          <a
+            href="https://gyg.me/9wDLIoe8"
+            target="_blank"
+            rel="noreferrer"
+            className="group relative mx-auto mt-10 flex max-w-4xl flex-col gap-6 overflow-hidden rounded-[1.5rem] border border-orange-200 bg-[linear-gradient(135deg,#fff7ed_0%,#ffffff_52%,#ffedd5_100%)] p-6 shadow-[0_24px_70px_rgba(194,65,12,0.16)] transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_30px_90px_rgba(194,65,12,0.22)] sm:p-8 md:flex-row md:items-center md:justify-between"
+          >
+            <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-300/25" />
+            <div className="absolute bottom-0 left-0 h-20 w-20 rounded-tr-full bg-amber-300/25" />
+            <div className="relative max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-orange-700">
+                {t("alfamaLoungeSuites.promoBanner.label")}
+              </p>
+              <h3 className="mt-3 text-2xl font-bold leading-tight text-stone-950 sm:text-3xl">
+                {t("alfamaLoungeSuites.promoBanner.title")}
+              </h3>
+            </div>
+            <span className="relative inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-orange-600 px-5 text-sm font-medium text-white transition group-hover:bg-orange-700">
+              {t("alfamaLoungeSuites.promoBanner.cta")}
+              <ExternalLink className="h-4 w-4" />
+            </span>
+          </a>
         </div>
       </section>
 
@@ -510,28 +532,6 @@ export default function AlfamaLoungeSuitesPage() {
             </div>
           </aside>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-5xl px-4 pb-14 sm:px-6 lg:px-8">
-        <a
-          href="https://gyg.me/9wDLIoe8"
-          target="_blank"
-          rel="noreferrer"
-          className="group flex flex-col gap-6 rounded-[1.5rem] border border-stone-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_22px_60px_rgba(37,99,235,0.12)] sm:p-8 md:flex-row md:items-center md:justify-between"
-        >
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">
-              {t("alfamaLoungeSuites.promoBanner.label")}
-            </p>
-            <h3 className="mt-3 text-2xl font-bold leading-tight text-stone-900 sm:text-3xl">
-              {t("alfamaLoungeSuites.promoBanner.title")}
-            </h3>
-          </div>
-          <span className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition group-hover:bg-primary/90">
-            {t("alfamaLoungeSuites.promoBanner.cta")}
-            <ExternalLink className="h-4 w-4" />
-          </span>
-        </a>
       </section>
 
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">
