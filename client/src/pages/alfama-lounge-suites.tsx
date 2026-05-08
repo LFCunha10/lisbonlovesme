@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, MapPin } from "lucide-react";
+import { ChevronDown, ExternalLink, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { useTours } from "@/hooks/use-tours";
 import { getLocalizedText } from "@/lib/tour-utils";
@@ -510,6 +510,28 @@ export default function AlfamaLoungeSuitesPage() {
             </div>
           </aside>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-4 pb-14 sm:px-6 lg:px-8">
+        <a
+          href="https://gyg.me/9wDLIoe8"
+          target="_blank"
+          rel="noreferrer"
+          className="group flex flex-col gap-6 rounded-[1.5rem] border border-stone-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_22px_60px_rgba(37,99,235,0.12)] sm:p-8 md:flex-row md:items-center md:justify-between"
+        >
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">
+              {t("alfamaLoungeSuites.promoBanner.label")}
+            </p>
+            <h3 className="mt-3 text-2xl font-bold leading-tight text-stone-900 sm:text-3xl">
+              {t("alfamaLoungeSuites.promoBanner.title")}
+            </h3>
+          </div>
+          <span className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition group-hover:bg-primary/90">
+            {t("alfamaLoungeSuites.promoBanner.cta")}
+            <ExternalLink className="h-4 w-4" />
+          </span>
+        </a>
       </section>
 
       <section className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 lg:px-8">

@@ -35,6 +35,11 @@
       "specialBody1": "Alfama is the oldest part of Lisbon and still the city's most atmospheric neighborhood. Its narrow streets were shaped long before cars, so the area feels made for walking, listening, and getting pleasantly lost.",
       "specialBody2": "Around every corner, the city changes scale. One minute you are passing quiet doorways and laundry lines, and the next you arrive at a lookout over terracotta rooftops and the Tagus River. That contrast is what makes Alfama unforgettable.",
       "specialBody3": "It is also the spiritual home of fado. In the evenings, music drifts out of old taverns and candlelit dining rooms, giving the neighborhood a sense of depth that goes beyond architecture or scenery. Alfama is not only beautiful; it has mood, memory, and a strong local identity.",
+      "promoBanner": {
+        "label": "GetYourGuide tour",
+        "title": "Special offer for an Alfama private walking tour.",
+        "cta": "Book the tour"
+      },
       "firstDayLabel": "A Good First Day",
       "firstDayTips": {
         "tip1": "Start with coffee and a slow walk through the lanes around Santa Luzia.",
