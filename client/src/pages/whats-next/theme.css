@@ -1,0 +1,77 @@
+/* Scoped theme for the /whats-next staging area.
+   Tokens come from the Forma Studio reference design. */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+.wn-theme {
+  --wn-bg: #F2EDE6;
+  --wn-dark: #181512;
+  --wn-accent: #E8522A;
+  --wn-mid: #7A6F67;
+  --wn-light: #E2DCD4;
+  --wn-white: #FAF8F5;
+  --wn-border: rgba(24, 21, 18, 0.1);
+
+  background: var(--wn-bg);
+  color: var(--wn-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+}
+
+.wn-theme h1,
+.wn-theme h2,
+.wn-theme h3,
+.wn-theme .wn-serif {
+  font-family: 'DM Serif Display', serif;
+}
+
+.wn-theme em {
+  color: var(--wn-accent);
+  font-style: italic;
+}
+
+/* Marquee */
+.wn-marquee-wrap {
+  overflow: hidden;
+  padding: 0.9rem 0;
+  background: var(--wn-dark);
+}
+
+.wn-marquee-track {
+  display: flex;
+  gap: 3rem;
+  animation: wn-marquee 22s linear infinite;
+  width: max-content;
+}
+
+.wn-marquee-item {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.38);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.wn-marquee-item::after {
+  content: '✦';
+  color: var(--wn-accent);
+  font-size: 0.55rem;
+}
+
+@keyframes wn-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.wn-staging-banner {
+  background: var(--wn-accent);
+  color: var(--wn-white);
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+}
