@@ -136,9 +136,8 @@ img {
     font-style: normal;
   }
 
-  /* Logo/Brand name styling for English and Portuguese */
-  html[lang="en"] .brand-logo,
-  html[lang="pt"] .brand-logo {
+  /* Logo/Brand name — always DM Serif Display, regardless of language */
+  .brand-logo {
     font-family: 'DM Serif Display', serif !important;
     font-weight: 400 !important;
     font-style: normal;
