@@ -44,7 +44,7 @@ export default function HeroSection() {
               className="inline-block h-px w-7"
               style={{ backgroundColor: "#E8522A" }}
             />
-            Lisbon · Authentic Tours
+            {t('home.tagline')}
           </p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display leading-[1.05] mb-6 drop-shadow-lg">
             {t('home.welcome')}
