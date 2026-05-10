@@ -47,6 +47,7 @@ const AdminReviewsPage = React.lazy(() => import("@/pages/admin/reviews"));
 const PasswordChangePage = React.lazy(() => import("@/pages/admin/password"));
 const DatabaseExportPage = React.lazy(() => import("@/pages/admin/database-export"));
 const ArticlePage = React.lazy(() => import("@/pages/admin/Article"));
+const WhatsNextPage = React.lazy(() => import("@/pages/whats-next"));
 
 function RouteFallback() {
   return <div>Loading...</div>;
@@ -127,6 +128,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/whats-next">{() => <SuspendedRoute><WhatsNextPage /></SuspendedRoute>}</Route>
       <Route path="/tours">{() => <SuspendedRoute><ToursPage /></SuspendedRoute>}</Route>
       <Route path="/gallery">{() => <SuspendedRoute><GalleryPage /></SuspendedRoute>}</Route>
       <Route path="/3-day-guide-book">{() => <SuspendedRoute><GuidePage /></SuspendedRoute>}</Route>
