@@ -53,6 +53,31 @@ function RouteFallback() {
   return <div>Loading...</div>;
 }
 
+function LayoutShell() {
+  const [location] = useLocation();
+  const isWhatsNext = location.startsWith("/whats-next");
+
+  if (isWhatsNext) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-grow">
+          <Router />
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <NavBar />
+      <main className="flex-grow" style={{ paddingTop: "var(--navbar-height, 56px)" }}>
+        <Router />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function SuspendedRoute({ children }: { children: React.ReactNode }) {
   return <React.Suspense fallback={<RouteFallback />}>{children}</React.Suspense>;
 }
@@ -329,13 +354,7 @@ function LanguageAwareApp() {
     <WouterRouter hook={useLocalizedBrowserLocation} hrefs={formatLocalizedHref}>
       <LanguagePathSync />
       <TooltipProvider>
-        <div className="min-h-screen flex flex-col">
-          <NavBar />
-          <main className="flex-grow" style={{ paddingTop: 'var(--navbar-height, 56px)' }}>
-            <Router />
-          </main>
-          <Footer />
-        </div>
+        <LayoutShell />
         <Toaster />
         <LanguagePreferenceModal
           isOpen={isLanguageModalOpen}
