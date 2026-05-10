@@ -37,14 +37,19 @@ export default function NavBar() {
   }, [isOpen]);
 
   return (
-    <nav ref={navRef} className="bg-white shadow-md fixed w-full z-50">
+    <nav
+      ref={navRef}
+      className="bg-background border-b border-border fixed w-full z-50"
+    >
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <div className="text-xl sm:text-2xl font-display font-bold text-black">
-              <Link href="/" className="flex items-center text-black">
-                <MapPin className="mr-1 sm:mr-2 h-5 w-5 sm:h-6 sm:w-6" />
-                <span className="truncate brand-logo">Lisbonlovesme</span>
+            <div className="text-xl sm:text-2xl text-foreground">
+              <Link href="/" className="flex items-center text-foreground">
+                <MapPin className="mr-1 sm:mr-2 h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <span className="truncate brand-logo">
+                  Lisbonlovesme<span className="text-primary">.</span>
+                </span>
               </Link>
             </div>
           </div>
@@ -101,8 +106,8 @@ function NavLink({ href, children, isActive }: NavLinkProps) {
     <Link
       href={href}
       className={cn(
-        "text-black hover:text-black transition-all font-medium",
-        isActive && "text-black"
+        "text-foreground text-sm uppercase tracking-[0.1em] opacity-60 hover:opacity-100 transition-opacity",
+        isActive && "opacity-100 border-b border-primary pb-0.5"
       )}
     >
       {children}
@@ -120,7 +125,7 @@ function MobileNavLink({ href, children, onClick }: MobileNavLinkProps) {
   return (
     <Link
       href={href}
-      className="block py-2 text-black hover:text-black"
+      className="block py-2 text-foreground text-sm uppercase tracking-[0.1em] opacity-80 hover:opacity-100"
       onClick={onClick}
     >
       {children}
