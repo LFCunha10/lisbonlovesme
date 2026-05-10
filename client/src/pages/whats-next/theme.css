@@ -235,7 +235,6 @@
 /* ───────── Stats ───────── */
 .wn-stats {
   display: flex;
-  border-top: 1px solid var(--wn-border);
   border-bottom: 1px solid var(--wn-border);
   background: var(--wn-bg);
 }

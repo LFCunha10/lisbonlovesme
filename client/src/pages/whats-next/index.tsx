@@ -324,7 +324,6 @@ export default function WhatsNextPage() {
       </div>
       <WhatsNextNav />
       <WhatsNextHero />
-      <WhatsNextStats />
       <Marquee />
       <WhatsNextServices />
       <WhatsNextFeatured />
