@@ -15,13 +15,18 @@ export default function Footer() {
 
   const { t, i18n } = useTranslation();
   return (
-    <footer className="bg-gray-800 text-white pt-12 pb-6">
+    <footer
+      className="text-white pt-12 pb-6"
+      style={{ backgroundColor: "#181512" }}
+    >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="text-2xl font-display font-bold mb-4 flex items-center">
-              <MapPin className="mr-2" />
-              <span>Lisbonlovesme</span>
+            <div className="text-2xl font-display mb-4 flex items-center">
+              <MapPin className="mr-2 text-primary" />
+              <span>
+                Lisbonlovesme<span className="text-primary">.</span>
+              </span>
             </div>
             <p className="text-white/70 mb-4">
               {t('footer.message')}

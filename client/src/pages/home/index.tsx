@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import HeroSection from "./HeroSection";
+import Marquee from "@/components/Marquee";
 import FeaturedTours from "./FeaturedTours";
 import AboutUs from "./AboutUs";
 import WhyChooseUs from "./WhyChooseUs";
@@ -27,6 +28,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <Marquee />
       <FeaturedTours />
       <AboutUs />
       <WhyChooseUs />

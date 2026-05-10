@@ -31,27 +31,37 @@ img {
 }
 
 :root {
-      --background: 0 0% 100%;
+      /* Forma palette
+         bg #F2EDE6 / dark #181512 / accent #E8522A / mid #7A6F67 / light #E2DCD4 / white #FAF8F5 */
+      --background: 36 33% 92%;
 --navbar-height: 56px;
---foreground: 20 14.3% 4.1%;
---muted: 60 4.8% 95.9%;
---muted-foreground: 25 5.3% 44.7%;
---popover: 0 0% 100%;
---popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
---card-foreground: 20 14.3% 4.1%;
---border: 20 5.9% 90%;
---input: 20 5.9% 90%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 60 4.8% 95.9%;
---secondary-foreground: 24 9.8% 10%;
---accent: 60 4.8% 95.9%;
---accent-foreground: 24 9.8% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 60 9.1% 97.8%;
---ring: 20 14.3% 4.1%;
---radius: 0.5rem;
+--foreground: 24 14% 9%;
+--muted: 30 19% 90%;
+--muted-foreground: 25 9% 44%;
+--popover: 36 33% 97%;
+--popover-foreground: 24 14% 9%;
+--card: 36 33% 97%;
+--card-foreground: 24 14% 9%;
+--border: 24 14% 88%;
+--input: 24 14% 88%;
+--primary: 13 80% 54%;
+--primary-foreground: 36 33% 97%;
+--secondary: 30 19% 86%;
+--secondary-foreground: 24 14% 9%;
+--accent: 13 80% 54%;
+--accent-foreground: 36 33% 97%;
+--destructive: 0 65% 45%;
+--destructive-foreground: 36 33% 97%;
+--ring: 13 80% 54%;
+--radius: 2px;
+
+/* Brand utility colors */
+--brand-cream: 36 33% 92%;
+--brand-dark: 24 14% 9%;
+--brand-accent: 13 80% 54%;
+--brand-mid: 25 9% 44%;
+--brand-light: 30 19% 86%;
+--brand-white: 36 33% 97%;
   }
   .dark {
       --background: 240 10% 3.9%;
@@ -88,7 +98,8 @@ img {
   /* Language-specific font styling */
   html[lang="en"] body,
   html[lang="pt"] body {
-    @apply font-montserrat;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
   }
 
   /* Titles and headings for English and Portuguese */
@@ -120,29 +131,18 @@ img {
   html[lang="pt"] .text-4xl,
   html[lang="pt"] .text-5xl,
   html[lang="pt"] .text-6xl {
-    font-family: 'Fraunces', serif !important;
-    font-optical-sizing: auto;
-    font-weight: 700 !important; /* Light weight */
+    font-family: 'DM Serif Display', serif !important;
+    font-weight: 400 !important;
     font-style: normal;
-    
   }
 
   /* Logo/Brand name styling for English and Portuguese */
   html[lang="en"] .brand-logo,
   html[lang="pt"] .brand-logo {
-    font-family: 'Fraunces', serif !important;
-    font-weight: 300 !important; /* Light weight */
+    font-family: 'DM Serif Display', serif !important;
+    font-weight: 400 !important;
     font-style: normal;
-    color: black;
-  }
-
-  /* Additional selectors for titles and large text */
-  html[lang="en"] .font-semibold,
-  html[lang="en"] .font-medium,
-  html[lang="pt"] .font-semibold,
-  html[lang="pt"] .font-medium {
-    font-family: 'Fraunces', serif !important;
-    font-weight: 300 !important;
+    color: hsl(var(--foreground));
   }
 
   /* Keep default fonts for Russian */
