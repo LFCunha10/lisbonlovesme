@@ -242,13 +242,23 @@ export default function ReviewPage() {
                               ? 'fill-yellow-400 text-yellow-400'
                               : 'text-gray-300'
                           }`}
-                          onClick={() => setRating(star)}
+                          onClick={() => {
+                            setRating(star);
+                            // Keep the form state in sync so the zod schema's
+                            // min(1) check passes — otherwise handleSubmit
+                            // fails validation silently and the click appears
+                            // to do nothing.
+                            form.setValue('rating', star, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          }}
                           onMouseEnter={() => setHoveredRating(star)}
                           onMouseLeave={() => setHoveredRating(0)}
                         />
                       ))}
                       <span className="ml-2 text-sm text-gray-600">
-                        {rating > 0 && `${rating} of 5 stars`}
+                        {rating > 0 && t('review.ratingOutOf', { rating })}
                       </span>
                     </div>
                     {rating === 0 && form.formState.isSubmitted && (

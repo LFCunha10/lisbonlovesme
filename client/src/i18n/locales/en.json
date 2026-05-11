@@ -264,6 +264,7 @@
       "yourName": "Your Name",
       "yourCountry": "Your Country",
       "rating": "Rating",
+      "ratingOutOf": "{{rating}} of 5 stars",
       "pleaseSelectRating": "Please select a rating",
       "yourReview": "Your Review",
       "textPlaceholder": "Tell us about your experience with the tour. What did you enjoy most? Would you recommend it to others?",

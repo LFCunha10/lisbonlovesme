@@ -274,6 +274,7 @@
       "yourName": "O seu nome",
       "yourCountry": "O seu país",
       "rating": "Avaliação",
+      "ratingOutOf": "{{rating}} de 5 estrelas",
       "pleaseSelectRating": "Por favor, selecione uma avaliação",
       "yourReview": "A sua avaliação",
       "textPlaceholder": "Conte-nos sobre a sua experiência no passeio. O que mais gostou? Recomendaria a outras pessoas?",
