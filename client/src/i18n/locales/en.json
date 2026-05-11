@@ -286,7 +286,7 @@
         "selectRating": "Please select a rating",
         "maxRating": "Maximum rating is 5",
         "textMin": "Review must be at least 10 characters long",
-        "textMax": "Review must be less than 500 characters"
+        "textMax": "Review must be less than 1000 characters"
       }
     },
     "reviews": {

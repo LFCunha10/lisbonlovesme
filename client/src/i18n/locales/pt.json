@@ -296,7 +296,7 @@
         "selectRating": "Por favor, selecione uma avaliação",
         "maxRating": "A avaliação máxima é 5",
         "textMin": "A avaliação deve ter pelo menos 10 caracteres",
-        "textMax": "A avaliação deve ter menos de 500 caracteres"
+        "textMax": "A avaliação deve ter menos de 1000 caracteres"
       }
     },
     "admin": {
