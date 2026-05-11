@@ -21,6 +21,9 @@ import {
   Send,
   ArrowLeft,
   Euro,
+  ChevronLeft,
+  ChevronRight,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -42,6 +45,9 @@ export default function TourDetailsPage() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const sidebarCardRef = useRef<HTMLDivElement | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [desktopSidebarLayout, setDesktopSidebarLayout] = useState<DesktopSidebarLayout>({
     height: 0,
     isPinned: false,
@@ -188,6 +194,7 @@ export default function TourDetailsPage() {
     );
   }
 
+  const photos: string[] = (tour as any).photos || [];
   const tourTestimonials = testimonials?.filter(t => t.tourId === tourId) || [];
   const averageRating = tourTestimonials.length > 0 
     ? tourTestimonials.reduce((sum, t) => sum + t.rating, 0) / tourTestimonials.length 
@@ -308,6 +315,98 @@ export default function TourDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Photo Carousel */}
+      {photos.length > 0 && (
+        <div className="relative bg-black">
+          <div
+            className="relative overflow-hidden h-72 sm:h-96 cursor-pointer"
+            onClick={() => { setLightboxIndex(carouselIndex); setLightboxOpen(true); }}
+          >
+            <img
+              src={photos[carouselIndex]}
+              alt={`Tour photo ${carouselIndex + 1}`}
+              className="w-full h-full object-cover transition-opacity duration-300"
+            />
+          </div>
+
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={() => setCarouselIndex(i => (i - 1 + photos.length) % photos.length)}
+                className="absolute left-3 top-[calc(50%-2rem)] -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors z-10"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setCarouselIndex(i => (i + 1) % photos.length)}
+                className="absolute right-3 top-[calc(50%-2rem)] -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors z-10"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              <div className="absolute bottom-[3.5rem] left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {photos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCarouselIndex(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${i === carouselIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                    aria-label={`Go to photo ${i + 1}`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-2 p-2 overflow-x-auto bg-black/80">
+                {photos.map((url, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCarouselIndex(i)}
+                    className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition-all ${i === carouselIndex ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  >
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightboxOpen && photos.length > 0 && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setLightboxOpen(false)}>
+          <button
+            className="absolute top-4 right-4 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/80 transition-colors"
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <button
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/80"
+            onClick={e => { e.stopPropagation(); setLightboxIndex(i => (i - 1 + photos.length) % photos.length); }}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <img
+            src={photos[lightboxIndex]}
+            alt=""
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+          <button
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/80"
+            onClick={e => { e.stopPropagation(); setLightboxIndex(i => (i + 1) % photos.length); }}
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+            {lightboxIndex + 1} / {photos.length}
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 pb-12">
         {/* Mobile Booking Section - Show only on mobile, right after banner */}

@@ -35,6 +35,7 @@ export const tours = pgTable("tours", {
     .default({ en: "", pt: "", ru: "" }),
   description: json("description").$type<{ en: string; pt: string; ru: string }>().notNull(),
   imageUrl: text("image_url").notNull(),
+  photos: json("photos").$type<string[]>().default([]),
   duration: integer("duration").notNull().default(1),
   displayDurationInCard: boolean("display_duration_in_card").notNull().default(true),
   displayGroupSizeInCard: boolean("display_group_size_in_card").notNull().default(true),

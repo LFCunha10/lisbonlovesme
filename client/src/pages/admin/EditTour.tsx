@@ -82,6 +82,8 @@ export default function EditTourPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [translatingLang, setTranslatingLang] = useState<null | 'pt' | 'ru'>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const tourId = parseInt(id as string);
   const isEditing = !isNaN(tourId);
@@ -152,6 +154,7 @@ export default function EditTourPage() {
       if (tour.imageUrl) {
         setImagePreview(tour.imageUrl);
       }
+      setPhotos((tour as any).photos || []);
     }
   }, [tour, isEditing, form]);
 
@@ -242,7 +245,35 @@ export default function EditTourPage() {
 
   const handleSave = () => {
     const formData = form.getValues();
-    tourMutation.mutate(formData);
+    tourMutation.mutate({ ...formData, photos } as any);
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploadingPhoto(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of files) {
+        if (file.size > 5 * 1024 * 1024) {
+          toast({ title: "Error", description: `${file.name} exceeds 5MB limit`, variant: "destructive" });
+          continue;
+        }
+        const url = await uploadImage(file);
+        uploaded.push(url);
+      }
+      setPhotos(prev => [...prev, ...uploaded]);
+      toast({ title: "Photos uploaded", description: `${uploaded.length} photo(s) added.` });
+    } catch {
+      toast({ title: "Error", description: "Failed to upload photo.", variant: "destructive" });
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -772,6 +803,64 @@ export default function EditTourPage() {
                       </TabsContent>
                     ))}
                   </Tabs>
+                </CardContent>
+              </Card>
+
+              {/* Photo Gallery */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5" />
+                    Photo Gallery
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Add extra photos to display in the carousel on the tour details page.
+                  </p>
+
+                  <label htmlFor="photo-upload" className="cursor-pointer">
+                    <div className="flex items-center gap-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 hover:border-primary transition-colors">
+                      {uploadingPhoto ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                      ) : (
+                        <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                      )}
+                      <span className="text-sm text-muted-foreground">
+                        {uploadingPhoto ? "Uploading..." : "Click to upload photos (multiple allowed, max 5MB each)"}
+                      </span>
+                    </div>
+                    <input
+                      id="photo-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                      disabled={uploadingPhoto}
+                    />
+                  </label>
+
+                  {photos.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {photos.map((url, index) => (
+                        <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border">
+                          <img src={url} alt={`Tour photo ${index + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(index)}
+                            className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:bg-red-600"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4 border rounded-lg">
+                      No photos added yet. Upload some to show a carousel on the tour page.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
