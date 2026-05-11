@@ -30,7 +30,7 @@ export const testimonialSchema = z.object({
   customerName: z.string().trim().min(2).max(120),
   customerCountry: z.string().trim().min(2).max(120),
   rating: z.coerce.number().int().min(1).max(5),
-  text: z.string().trim().min(10).max(500),
+  text: z.string().trim().min(10).max(1000),
   tourId: z.coerce.number().int().positive(),
   bookingReference: z.string().trim().max(64).optional(),
 });

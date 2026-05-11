@@ -70,7 +70,7 @@ export default function ReviewPage() {
     text: z
       .string()
       .min(10, t('review.validation.textMin', 'Review must be at least 10 characters long'))
-      .max(500, t('review.validation.textMax', 'Review must be less than 500 characters')),
+      .max(1000, t('review.validation.textMax', 'Review must be less than 1000 characters')),
   }), [i18n.language]);
 
   const form = useForm<ReviewFormValues>({
